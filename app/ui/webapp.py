@@ -961,17 +961,17 @@ async def join_form(request: Request):
         elif not verify_recaptcha(captcha):
             err = "Please tick the I'm-not-a-robot box"
         if err:
-            return RedirectResponse(SITE + "/signup.html?err=" + quote(err))
+            return RedirectResponse(SITE + "/signup.html?err=" + quote(err), status_code=303)
         s = SessionLocal()
         try:
             if not s.query(Member).filter_by(email=email).first():
                 s.add(Member(email=email, password_hash=hashlib.sha256(password.encode()).hexdigest(), role="client"))
                 s.commit()
-            return RedirectResponse(SITE + "/portal.html?authed=" + quote(email))
+            return RedirectResponse(SITE + "/portal.html?authed=" + quote(email), status_code=303)
         finally:
             s.close()
     except Exception as e:
-        return RedirectResponse(SITE + "/signup.html?err=" + quote("Server: " + str(e)[:120]))
+        return RedirectResponse(SITE + "/signup.html?err=" + quote("Server: " + str(e)[:120]), status_code=303)
 
 @app.post("/api/login-form")
 async def login_form(request: Request):
@@ -985,7 +985,7 @@ async def login_form(request: Request):
         password = form.get("password") or ""
         captcha = form.get("g-recaptcha-response") or ""
         if not verify_recaptcha(captcha):
-            return RedirectResponse(SITE + "/login.html?err=" + quote("Please tick the captcha box"))
+            return RedirectResponse(SITE + "/login.html?err=" + quote("Please tick the captcha box"), status_code=303)
         s = SessionLocal()
         try:
             m = s.query(Member).filter_by(email=email).first()
@@ -993,10 +993,10 @@ async def login_form(request: Request):
         finally:
             s.close()
         if not ok:
-            return RedirectResponse(SITE + "/login.html?err=" + quote("Wrong email or password"))
-        return RedirectResponse(SITE + "/portal.html?authed=" + quote(email))
+            return RedirectResponse(SITE + "/login.html?err=" + quote("Wrong email or password"), status_code=303)
+        return RedirectResponse(SITE + "/portal.html?authed=" + quote(email), status_code=303)
     except Exception as e:
-        return RedirectResponse(SITE + "/login.html?err=" + quote("Server: " + str(e)[:120]))
+        return RedirectResponse(SITE + "/login.html?err=" + quote("Server: " + str(e)[:120]), status_code=303)
 
 
 @app.get("/api/join-get")
