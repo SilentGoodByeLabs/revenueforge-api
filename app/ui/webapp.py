@@ -917,6 +917,46 @@ async def public_join(request: Request):
     finally:
         s.close()
 
+
+@app.get("/api/join-get")
+async def join_get(email: str = "", password: str = "", slide_ms: int = 0, website: str = ""):
+    import hashlib, re as _re
+    from app.core.models import Member
+    if website.strip():
+        return {"ok": False, "message": "Spam detected"}
+    if slide_ms < 400 or slide_ms > 60000:
+        return {"ok": False, "message": "Please slide the verification bar first"}
+    email = email.strip().lower()
+    if not _re.match(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", email):
+        return {"ok": False, "message": "Enter a valid email address"}
+    if email.split("@")[1] in DISPOSABLE_DOMAINS:
+        return {"ok": False, "message": "Temporary emails are not allowed. Use a real inbox (Gmail, Outlook, Yahoo or work email)."}
+    if len(password) < 6:
+        return {"ok": False, "message": "Password must be 6+ characters"}
+    s = SessionLocal()
+    try:
+        if s.query(Member).filter_by(email=email).first():
+            return {"ok": False, "message": "Account exists — please log in"}
+        s.add(Member(email=email, password_hash=hashlib.sha256(password.encode()).hexdigest(), role="client"))
+        s.commit()
+        return {"ok": True, "key": email}
+    finally:
+        s.close()
+
+@app.get("/api/login-get")
+async def login_get(email: str = "", password: str = ""):
+    import hashlib
+    from app.core.models import Member
+    email = email.strip().lower()
+    s = SessionLocal()
+    try:
+        m = s.query(Member).filter_by(email=email).first()
+        if m and m.password_hash == hashlib.sha256(password.encode()).hexdigest():
+            return {"ok": True, "role": m.role, "key": m.email or m.phone}
+        return {"ok": False, "message": "Wrong email or password"}
+    finally:
+        s.close()
+
 @app.post("/api/member-login")
 async def member_login(request: Request):
     import hashlib, re
