@@ -1,0 +1,6 @@
+{
+  "daily_outreach_limit": 10,
+  "daily_application_limit": 15,
+  "followup_max": 3,
+  "cooldown_days": 7
+}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:18px;color:#fff;padding:36px;margin-bottom:28px">
+<h1 style="color:#fff;font-size:28px;margin-bottom:8px">Good morning, {{ profile.name or 'Operator' }}</h1>
+<p style="color:#C7D6E8;font-size:15px">Here is your revenue priority list for today. Focus on the top 3 actions.</p>
+</div>
+
+<div class="metric-row">
+<div class="metric"><div class="v">{{ stats.total_revenue|round(0) }}</div><div class="l">Total Revenue ($)</div></div>
+<div class="metric"><div class="v">{{ stats.pipeline_value|round(0) }}</div><div class="l">Pipeline Value ($)</div></div>
+<div class="metric"><div class="v">{{ stats.jobs_won }}</div><div class="l">Jobs Won</div></div>
+<div class="metric"><div class="v">{{ stats.deals_won }}</div><div class="l">Deals Won</div></div>
+</div>
+
+<div class="panel" style="border:2px solid var(--accent)">
+<h3><i class="fa-solid fa-bullseye" style="color:var(--accent)"></i> Priority 1: Apply to these jobs now</h3>
+<p style="color:var(--muted);font-size:13px;margin-bottom:14px">High-scoring opportunities waiting for your approval and submission.</p>
+{% if top_jobs %}
+<table class="grid">
+<tr><th>Job</th><th>Score</th><th>Best Gig</th><th>Action</th></tr>
+{% for j in top_jobs %}
+<tr>
+<td><strong>{{ j.title[:50] }}</strong><br><span style="color:var(--muted);font-size:12px">{{ j.platform }}</span></td>
+<td class="score-pill">{{ j.opportunity_score|round(0) }}</td>
+<td>{{ j._matched_product_name or '—' }}</td>
+<td><a href="/jobs" class="btn btn-primary btn-xs">Review & Submit</a></td>
+</tr>
+{% endfor %}
+</table>
+{% else %}
+<p style="color:var(--muted)">No high-priority jobs waiting. The agent is scanning feeds every 30 minutes.</p>
+{% endif %}
+</div>
+
+<div class="panel" style="border:2px solid #15803D">
+<h3><i class="fa-solid fa-paper-plane" style="color:#15803D"></i> Priority 2: Contact these prospects now</h3>
+<p style="color:var(--muted);font-size:13px;margin-bottom:14px">High-fit businesses in your CRM who have not been contacted yet.</p>
+{% if top_prospects %}
+<table class="grid">
+<tr><th>Business</th><th>Fit</th><th>Interested In</th><th>Action</th></tr>
+{% for p in top_prospects %}
+<tr>
+<td><strong>{{ p.name or 'Unknown' }}</strong></td>
+<td class="score-pill">{{ p.fit_score|round(0) }}</td>
+<td>{{ p.product_interest or '—' }}</td>
+<td><a href="/outreach" class="btn btn-primary btn-xs">Draft Outreach</a></td>
+</tr>
+{% endfor %}
+</table>
+{% else %}
+<p style="color:var(--muted)">All researched prospects have been contacted. Use the Prospects page to find new businesses.</p>
+{% endif %}
+</div>
+
+<div class="panel">
+<h3><i class="fa-solid fa-rotate" style="color:var(--accent)"></i> Follow-ups due today</h3>
+{% if followups_due %}
+<table class="grid">
+<tr><th>Prospect</th><th>Step</th><th>Due</th><th>Action</th></tr>
+{% for item in followups_due %}
+<tr>
+<td><strong>{{ item.prospect.name or 'Unknown' }}</strong></td>
+<td>Follow-up {{ item.fu.step }}</td>
+<td>{{ item.fu.due_date.date() if item.fu.due_date else '—' }}</td>
+<td><a href="/followups" class="btn btn-primary btn-xs">Draft & Send</a></td>
+</tr>
+{% endfor %}
+</table>
+{% else %}
+<p style="color:var(--muted)">No follow-ups due today. The system schedules them automatically after outreach.</p>
+{% endif %}
+</div>
+{% endblock %}

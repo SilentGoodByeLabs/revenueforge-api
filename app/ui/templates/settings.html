@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="margin-bottom:24px">Settings</h1>
+<div class="panel">
+<h3>Profile (used in proposals & outreach)</h3>
+<form method="post" action="/settings/profile">
+<div class="form-row">
+<input name="name" value="{{ profile.name }}" placeholder="Your name">
+<input name="position" value="{{ profile.position }}" placeholder="Position">
+</div>
+<input name="skills" value="{{ profile.skills|join(', ') }}" placeholder="Skills, comma separated">
+<div class="form-row">
+<input name="portfolio_url" value="{{ profile.portfolio_url }}" placeholder="Portfolio URL">
+<input name="github_url" value="{{ profile.github_url }}" placeholder="GitHub URL">
+</div>
+<button class="btn btn-primary" type="submit">Save profile</button>
+</form>
+</div>
+<div class="panel">
+<h3>Guardrails (anti-spam limits)</h3>
+<form method="post" action="/settings/guardrails">
+<div class="form-row">
+<input type="number" name="daily_outreach_limit" value="{{ guardrails.daily_outreach_limit }}">
+<input type="number" name="daily_application_limit" value="{{ guardrails.daily_application_limit }}">
+</div>
+<div class="form-row">
+<input type="number" name="followup_max" value="{{ guardrails.followup_max }}">
+<input type="number" name="cooldown_days" value="{{ guardrails.cooldown_days }}">
+</div>
+<button class="btn btn-primary" type="submit">Save guardrails</button>
+</form>
+</div>
+
+<div class="panel">
+<h3>Notifications (Telegram)</h3>
+<p style="color:var(--muted);font-size:13px;margin-bottom:10px">Get pinged on your phone when a high-score job is found. Create a free bot via @BotFather on Telegram.</p>
+<form method="post" action="/settings/notifications">
+<input name="bot_token" value="{{ notifications.bot_token }}" placeholder="Telegram Bot Token">
+<input name="chat_id" value="{{ notifications.chat_id }}" placeholder="Telegram Chat ID">
+<button class="btn btn-primary" type="submit">Save Notifications</button>
+</form>
+</div>
+
+
+<div class="panel">
+<h3><i class="fa-solid fa-bell" style="color:var(--accent)"></i> Morning Briefing (Telegram)</h3>
+<p style="color:var(--muted);font-size:13px;margin-bottom:10px">Get your top 3 priorities pushed to your phone every morning at 8 AM.</p>
+<form method="post" action="/settings/test-briefing">
+<button class="btn btn-primary" type="submit"><i class="fa-solid fa-paper-plane"></i> Send My Morning Briefing Now</button>
+</form>
+<p style="color:var(--muted);font-size:12px;margin-top:10px">To enable daily 8 AM delivery, add this to your cron (instructions after you confirm): <code>0 8 * * *</code></p>
+</div>
+
+
+<div class="panel">
+<h3><i class="fa-solid fa-money-check-dollar" style="color:var(--accent)"></i> Payments receiving (how clients pay you)</h3>
+<p style="color:var(--muted);font-size:13px;margin-bottom:10px">Add your payment links once. They are included in every payment request you send. All three providers are free to start (small % per transaction).</p>
+<form method="post" action="/settings/payments">
+<div class="form-row">
+<input name="business_name" value="{{ payments.business_name }}" placeholder="Business name on invoices">
+<input name="currency" value="{{ payments.currency }}" placeholder="Currency (USD, NGN, EUR...)">
+</div>
+<input name="paystack" value="{{ payments.paystack }}" placeholder="Paystack payment link">
+<input name="paystack_public" value="{{ payments.paystack_public }}" placeholder="Paystack PUBLIC key (pk_...)">
+<input name="paystack_secret" value="{{ payments.paystack_secret }}" placeholder="Paystack SECRET key (sk_...) — stays on your machine">
+<div class="form-row">
+<input name="paystack_currency" value="{{ payments.paystack_currency }}" placeholder="Charge currency your Paystack supports (e.g. NGN)">
+<input name="usd_rate" value="{{ payments.usd_rate }}" placeholder="Local units per 1 USD (e.g. 1600)">
+</div>
+<input name="paypal" value="{{ payments.paypal }}" placeholder="PayPal link">
+<input name="flutterwave" value="{{ payments.flutterwave }}" placeholder="Flutterwave link">
+<button class="btn btn-primary" type="submit">Save payment links</button>
+</form>
+</div>
+
+{% endblock %}

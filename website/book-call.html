@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book a Call | RevenueForge</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+.calendly-inline-widget { width: 100%; height: 700px; }
+</style>
+</head>
+<body>
+<div id="header"></div>
+
+<section class="page-hero">
+  <div class="container">
+    <h1>Book a Free Strategy Call</h1>
+    <p>30 minutes. No sales pitch. We'll audit your current workflow and show you exactly what can be automated.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="card" style="padding: 0; overflow: hidden;">
+      <div class="calendly-inline-widget" data-url="https://calendly.com/YOUR-USERNAME/30min" data-min-height="700"></div>
+      <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+    </div>
+    
+    <div class="card" style="margin-top: 24px;">
+      <h3>What happens on the call:</h3>
+      <ol style="color: var(--muted); line-height: 2;">
+        <li>We learn about your current workflow and pain points</li>
+        <li>We identify 3-5 automation opportunities specific to your business</li>
+        <li>We estimate time savings and ROI for each</li>
+        <li>You decide if you want to proceed (no pressure)</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<div id="footer"></div>
+<script src="js/chatbot.js"></script>
+<script src="js/layout.js"></script>
+</body>
+</html>

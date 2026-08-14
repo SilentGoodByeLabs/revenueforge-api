@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="margin-bottom:24px">Security & Fail-Safe</h1>
+
+<div class="panel">
+<h3><i class="fa-solid fa-key" style="color:var(--accent)"></i> Hardcoded secret scan</h3>
+{% if report.secrets %}
+<table class="grid"><tr><th>File</th><th>Line</th><th>Issue</th><th>Snippet</th></tr>
+{% for f in report.secrets %}
+<tr><td>{{ f.file }}</td><td>{{ f.line }}</td><td>{{ f.issue }}</td><td><code>{{ f.snippet }}</code></td></tr>
+{% endfor %}</table>
+{% else %}
+<p style="color:#15803D"><i class="fa-solid fa-circle-check"></i> No hardcoded secrets found. All sensitive values live in <code>.env</code>.</p>
+{% endif %}
+</div>
+
+<div class="panel">
+<h3><i class="fa-solid fa-shield-halved" style="color:var(--accent)"></i> .gitignore protection</h3>
+{% if report.gitignore.ok %}
+<p style="color:#15803D"><i class="fa-solid fa-circle-check"></i> .gitignore protects .env, data, logs and caches.</p>
+{% else %}
+<p style="color:#B91C1C"><i class="fa-solid fa-triangle-exclamation"></i> Missing: {{ report.gitignore.missing_entries|join(', ') }}{% if report.gitignore.missing_file %} (.gitignore file missing){% endif %}</p>
+{% endif %}
+</div>
+
+<div class="panel">
+<h3><i class="fa-solid fa-file-shield" style="color:var(--accent)"></i> Environment secrets</h3>
+{% if report.env %}
+<ul>{% for i in report.env %}<li style="color:var(--ink);padding:4px 0">{{ i }}</li>{% endfor %}</ul>
+{% else %}
+<p style="color:#15803D"><i class="fa-solid fa-circle-check"></i> No unexpected secrets in .env.</p>
+{% endif %}
+</div>
+
+<div class="panel">
+<h3><i class="fa-solid fa-robot" style="color:var(--accent)"></i> Agent fail-safe status</h3>
+<p style="color:var(--ink)">The autonomous agent pauses itself and pings your Telegram after <strong>3 consecutive failures</strong>. It never bypasses platform limits, never retries blindly, and requires your review to resume.</p>
+<p style="color:var(--muted);font-size:13px;margin-top:8px">The Control Center binds to <code>127.0.0.1</code> only — nobody on the internet can reach it. Never start it with <code>--host 0.0.0.0</code>.</p>
+</div>
+{% endblock %}

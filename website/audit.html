@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Automation Audit | RevenueForge</title>
+<meta name="description" content="Answer 5 questions and get instant results: hours you can save, estimated monthly value, and 3 concrete quick wins.">
+<meta property="og:title" content="Free Automation Audit | RevenueForge">
+<meta property="og:description" content="Answer 5 questions and get instant results: hours you can save, estimated monthly value, and 3 concrete quick wins.">
+<meta property="og:image" content="assets/logo.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Free Automation Audit | RevenueForge">
+<meta name="twitter:description" content="Answer 5 questions and get instant results: hours you can save, estimated monthly value, and 3 concrete quick wins.">
+<meta name="twitter:image" content="assets/logo.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Organization","name":"RevenueForge","url":"https://revenueforge.example","logo":"assets/logo.png","email":"adeolaayodeji4666@gmail.com","sameAs":["https://github.com/SilentGoodByeLabs"]}
+</script>
+
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="header"></div>
+
+<section class="page-hero">
+  <div class="container">
+    <h1>Free Automation Audit</h1>
+    <p>Answer 5 questions. Get instant results: hours you can save, estimated value, and the 3 fixes that matter first.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="max-width:760px">
+    <div class="form-box">
+      <label for="biz">1. What type of business is this?</label>
+      <select id="biz" class="sel">
+        <option>Agency / Marketing</option><option>Clinic / Health</option><option>E-commerce / Retail</option>
+        <option>Restaurant / Food</option><option>Real Estate</option><option>Logistics</option>
+        <option>School / Education</option><option>Finance / Accounting</option><option>Other</option>
+      </select>
+      <label for="team">2. Team size</label>
+      <select id="team" class="sel"><option>1-5</option><option>6-20</option><option>21+</option></select>
+      <label for="hours">3. Hours lost per week to repetitive work</label>
+      <select id="hours" class="sel"><option value="3">Under 5</option><option value="7">5-10</option><option value="15">10-20</option><option value="25">20+</option></select>
+      <label for="tools">4. Tools you use daily</label>
+      <select id="tools" class="sel"><option>Email + Excel</option><option>CRM</option><option>WhatsApp + paper</option><option>Mix of everything</option></select>
+      <label for="pain">5. Biggest pain right now</label>
+      <select id="pain" class="sel">
+        <option value="slow lead response">Slow lead response</option>
+        <option value="manual reports">Manual reports</option>
+        <option value="data entry">Data entry</option>
+        <option value="follow-ups">Follow-ups falling through</option>
+        <option value="documents">Documents & paperwork</option>
+      </select>
+      <div style="margin-top:18px"><button class="btn btn-primary" onclick="runAudit()"><i class="fa-solid fa-gauge-high"></i> Show My Results</button></div>
+    </div>
+
+    <div class="audit-result" id="result">
+      <div class="section-head" style="margin-bottom:24px">
+        <span class="kicker">Your instant results</span>
+        <h2 id="rTitle"></h2>
+        <p>Rough estimates based on your answers — the exact numbers come after a free 30-minute review.</p>
+      </div>
+      <div class="cards" style="grid-template-columns:repeat(2,1fr)">
+        <div class="card"><div class="icon"><i class="fa-solid fa-clock"></i></div><h3 id="rHours"></h3><p>hours per week you can realistically recover with automation.</p></div>
+        <div class="card"><div class="icon"><i class="fa-solid fa-sack-dollar"></i></div><h3 id="rValue"></h3><p>estimated monthly value at a conservative $12/hour.</p></div>
+      </div>
+      <div class="section-head" style="margin:36px 0 24px"><span class="kicker">Your 3 quick wins</span><h2>What we would fix first</h2></div>
+      <div class="cards" id="rRecs"></div>
+      <div style="display:flex;gap:14px;justify-content:center;margin-top:36px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="mailFounder()"><i class="fa-solid fa-paper-plane"></i> Send This Report To RevenueForge</button>
+        <button class="btn btn-ghost" onclick="mailSelf()"><i class="fa-solid fa-envelope"></i> Email This Report To Me</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="footer"></div>
+<script src="js/layout.js"></script>
+<style>.sel{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:15px;background:var(--bg);margin-top:4px}</style>
+<script>
+const FOUNDER = 'adeolaayodeji4666@gmail.com';
+const PRICES = { outreach:690, crm:590, workflow:490, docs:390, chatbot:490, agent:890 };
+const NAMES = { outreach:'AI Sales Outreach System', crm:'CRM & Pipeline Automation', workflow:'Workflow Automation', docs:'Document & PDF Automation', chatbot:'Chatbot & Support Automation', agent:'Custom AI Agent' };
+const PAIN_MAP = {
+  'slow lead response': ['outreach','crm','chatbot'],
+  'manual reports': ['workflow','docs','agent'],
+  'data entry': ['workflow','docs','crm'],
+  'follow-ups': ['crm','outreach','workflow'],
+  'documents': ['docs','workflow','agent']
+};
+let REPORT = '';
+
+function runAudit() {
+  const biz = document.getElementById('biz').value;
+  const hours = parseInt(document.getElementById('hours').value, 10);
+  const pain = document.getElementById('pain').value;
+  const saved = Math.round(hours * 0.6);
+  const value = saved * 4 * 12;
+
+  document.getElementById('rTitle').textContent = biz + ' — automation snapshot';
+  document.getElementById('rHours').textContent = saved + ' hrs/week';
+  document.getElementById('rValue').textContent = '$' + value.toLocaleString() + '/month';
+
+  const recs = PAIN_MAP[pain];
+  const grid = document.getElementById('rRecs');
+  grid.innerHTML = '';
+  recs.forEach((key, i) => {
+    grid.insertAdjacentHTML('beforeend',
+      '<div class="card"><div class="icon"><i class="fa-solid fa-wrench"></i></div>' +
+      '<h3>' + (i + 1) + '. ' + NAMES[key] + '</h3>' +
+      '<p>Starting at $' + PRICES[key] + '. Directly attacks: ' + pain.replace(/-/g, ' ') + '.</p></div>');
+  });
+
+  REPORT = 'FREE AUTOMATION AUDIT REPORT\n\nBusiness: ' + biz +
+    '\nTeam size: ' + document.getElementById('team').value +
+    '\nHours lost/week: ' + hours +
+    '\nTools: ' + document.getElementById('tools').value +
+    '\nBiggest pain: ' + pain +
+    '\n\nEstimated recoverable: ' + saved + ' hrs/week (~$' + value + '/month)' +
+    '\nRecommended fixes: ' + recs.map(k => NAMES[k] + ' (from $' + PRICES[k] + ')').join(', ') +
+    '\n\nGenerated by the RevenueForge free audit tool.';
+
+  document.getElementById('result').classList.add('show');
+  document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+}
+
+function mailFounder() {
+  fetch('https://formsubmit.co/ajax/' + FOUNDER, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ _subject: 'Free audit report request (new lead)', report: REPORT })
+  }).then(function (r) {
+    if (!r.ok) throw new Error('x');
+    alert('Report sent to RevenueForge! We will contact you within 24 hours.');
+  }).catch(function () {
+    window.location.href = 'mailto:' + FOUNDER + '?subject=' + encodeURIComponent('Free audit report request') + '&body=' + encodeURIComponent(REPORT + '\n\nPlease contact me about these results.\nMy email: ');
+  });
+}
+function mailSelf() {
+  const email = prompt('Your email address:');
+  if (email) window.location.href = 'mailto:' + email + '?subject=' + encodeURIComponent('Your RevenueForge audit report') + '&body=' + encodeURIComponent(REPORT);
+}
+</script>
+</body>
+</html>

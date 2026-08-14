@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="margin-bottom:8px">Admin: Subscriptions</h1>
+<p style="color:var(--muted);margin-bottom:24px">Monthly Recurring Revenue: <strong style="color:#15803D">${{ '%.0f'|format(mrr) }}/mo</strong> · {{ subs|length }} total subscribers</p>
+<div class="panel">
+<table class="grid">
+<tr><th>Email</th><th>Plan</th><th>Modules</th><th>Price</th><th>Status</th><th>Renews</th><th></th></tr>
+{% for s in subs %}
+<tr>
+<td>{{ s.email }}</td>
+<td><strong>{{ s.plan_label }}</strong></td>
+<td style="font-size:12px;color:var(--muted)">{{ (s.modules or '[]')|replace('"','')|replace('[','')|replace(']','') }}</td>
+<td>${{ '%.0f'|format(s.price_monthly) }}/mo</td>
+<td><span class="badge {% if s.status == 'active' %}apply{% else %}skip{% endif %}">{{ s.status }}</span></td>
+<td>{{ s.renews_at.strftime('%Y-%m-%d') if s.renews_at else '—' }}</td>
+<td><form method="post" action="/admin/subscriptions/{{ s.id }}/toggle"><button class="btn btn-xs btn-ghost">{% if s.status == 'active' %}Cancel{% else %}Reactivate{% endif %}</button></form></td>
+</tr>
+{% else %}
+<tr><td colspan="7">No subscribers yet. Once the site is live and someone pays, they appear here instantly.</td></tr>
+{% endfor %}
+</table>
+</div>
+{% endblock %}

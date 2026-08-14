@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pricing | RevenueForge</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://js.paystack.co/v1/inline.js"></script>
+</head>
+<body>
+<div id="header"></div>
+<section class="page-hero"><div class="container"><h1>Pricing that fits what you actually use</h1><p>Build your plan module by module. The price updates live. Bundle 4+ modules and save 20%.</p></div></section>
+
+<section class="section"><div class="container" style="max-width:900px">
+
+<div class="card" style="margin-bottom:24px">
+<h3>1 · Choose your engines</h3>
+<label style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)"><input type="checkbox" id="m_jobs" checked onchange="calc()"> Job Hunting Engine — finds, scores & drafts proposals for real opportunities <strong style="margin-left:auto">$29</strong></label>
+<label style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)"><input type="checkbox" id="m_outreach" onchange="calc()"> Sales Outreach Engine — researches businesses & drafts personalized outreach <strong style="margin-left:auto">$29</strong></label>
+<label style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)"><input type="checkbox" id="m_matching" onchange="calc()"> Product Matching & Catalog — matches your services to every opportunity <strong style="margin-left:auto">$19</strong></label>
+<label style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)"><input type="checkbox" id="m_crm" onchange="calc()"> CRM & Deal Pipeline — track prospects, deals, follow-ups, revenue <strong style="margin-left:auto">$19</strong></label>
+<label style="display:flex;gap:10px;align-items:center;padding:10px 0"><input type="checkbox" id="m_alerts" onchange="calc()"> Telegram Alerts & Daily Briefing <strong style="margin-left:auto">$9</strong></label>
+</div>
+
+<div class="card" style="margin-bottom:24px">
+<h3>2 · Choose your volume</h3>
+<label style="display:flex;gap:10px;padding:8px 0"><input type="radio" name="volume" value="v50" checked onchange="calc()"> Starter volume — 50 scans & 10 drafts / month <span style="margin-left:auto;color:var(--muted)">+$0</span></label>
+<label style="display:flex;gap:10px;padding:8px 0"><input type="radio" name="volume" value="v300" onchange="calc()"> Growth volume — 300 scans & 50 drafts / month <span style="margin-left:auto;color:var(--muted)">+$20</span></label>
+<label style="display:flex;gap:10px;padding:8px 0"><input type="radio" name="volume" value="v1000" onchange="calc()"> Agency volume — 1,000 scans & 150 drafts / month <span style="margin-left:auto;color:var(--muted)">+$50</span></label>
+</div>
+
+<div class="card" style="margin-bottom:24px">
+<h3>3 · Region (fair pricing)</h3>
+<select id="region" onchange="calc()" style="max-width:320px">
+<option value="1">Global (standard)</option>
+<option value="0.6">Africa / South Asia (40% off)</option>
+<option value="0.8">Latin America / SE Asia (20% off)</option>
+</select>
+</div>
+
+<div class="card" style="border:2px solid var(--accent);text-align:center">
+<h3 id="planLabel" style="font-size:22px">Your plan</h3>
+<div style="font-family:var(--head);font-size:44px;font-weight:800;color:var(--navy)">$<span id="price">29</span><span style="font-size:16px;color:var(--muted)">/month</span></div>
+<p id="planSummary" style="color:var(--muted)"></p>
+<input id="payEmail" type="email" placeholder="your@email.com" style="max-width:320px;margin:14px auto">
+<button class="btn btn-primary" onclick="pay()" style="font-size:16px;padding:14px 28px"><i class="fa-solid fa-lock"></i> Pay securely with Paystack</button>
+<p id="chargeNote" style="color:var(--ink);font-size:13px;font-weight:600;margin-top:10px"></p>
+<p style="color:var(--muted);font-size:12px;margin-top:6px">Secured by Paystack · Cancel anytime · 7-day money-back guarantee</p>
+</div>
+
+<div class="cards" style="margin-top:24px">
+<div class="card" style="text-align:center"><h3>Starter preset</h3><p style="color:var(--muted)">Job Hunting + 50 scans</p><button class="btn btn-ghost" onclick="preset('starter')">Load</button></div>
+<div class="card" style="text-align:center"><h3>Growth preset</h3><p style="color:var(--muted)">Jobs + Outreach + Matching + 300 scans</p><button class="btn btn-ghost" onclick="preset('growth')">Load</button></div>
+<div class="card" style="text-align:center"><h3>Agency preset</h3><p style="color:var(--muted)">Everything + 1000 scans</p><button class="btn btn-ghost" onclick="preset('agency')">Load</button></div>
+</div>
+
+</div></section>
+<div id="footer"></div>
+<script src="js/config.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/layout.js"></script>
+<script>
+var API = window.RF_API || 'http://localhost:8502';
+var MODS = { jobs: ['Job Hunting', 29], outreach: ['Sales Outreach', 29], matching: ['Product Matching', 19], crm: ['CRM & Pipeline', 19], alerts: ['Telegram Alerts', 9] };
+var VOL = { v50: ['50 scans / 10 drafts', 0], v300: ['300 scans / 50 drafts', 20], v1000: ['1000 scans / 150 drafts', 50] };
+var current = { price: 0, modules: [], volume: 'v50', label: '' };
+
+function calc() {
+  var total = 0, mods = [];
+  for (var k in MODS) if (document.getElementById('m_' + k).checked) { total += MODS[k][1]; mods.push(MODS[k][0]); }
+  var vol = document.querySelector('input[name=volume]:checked').value;
+  total += VOL[vol][1];
+  var region = parseFloat(document.getElementById('region').value);
+  var discounted = mods.length >= 4;
+  if (discounted) total = Math.round(total * 0.8);
+  total = Math.max(9, Math.round(total * region));
+  current = { price: total, modules: mods, volume: vol, label: (discounted ? 'Full-Stack Bundle' : mods.length + ' modules') };
+  document.getElementById('price').textContent = total;
+  document.getElementById('planLabel').textContent = current.label;
+  document.getElementById('planSummary').textContent = mods.join(' + ') + ' · ' + VOL[vol][0] + '/mo' + (discounted ? ' · 20% bundle discount applied' : '') + (region < 1 ? ' · regional pricing applied' : '');
+}
+
+function preset(p) {
+  var set = function(id, v) { document.getElementById(id).checked = v; };
+  if (p === 'starter') { set('m_jobs', true); set('m_outreach', false); set('m_matching', false); set('m_crm', false); set('m_alerts', false); document.querySelector('input[name=volume][value=v50]').checked = true; }
+  if (p === 'growth') { set('m_jobs', true); set('m_outreach', true); set('m_matching', true); set('m_crm', false); set('m_alerts', true); document.querySelector('input[name=volume][value=v300]').checked = true; }
+  if (p === 'agency') { for (var k in MODS) set('m_' + k, true); document.querySelector('input[name=volume][value=v1000]').checked = true; }
+  calc();
+}
+
+function pay() {
+  var email = document.getElementById('payEmail').value;
+  if (!email || email.indexOf('@') < 0) { alert('Enter your email first.'); return; }
+  fetch(API + '/api/paystack-key').then(function (r) { return r.json(); }).then(function (cfg) {
+    if (!cfg.key) { alert('Payment keys are being configured. Try again soon or contact us.'); return; }
+    var amountLocal = Math.round(current.price * (cfg.rate || 1));
+    var note = document.getElementById('chargeNote');
+    if (note && cfg.currency !== 'USD') note.textContent = 'You will be charged ' + amountLocal.toLocaleString() + ' ' + cfg.currency + ' (≈ $' + current.price + ').';
+    var handler = PaystackPop.setup({
+      key: cfg.key, email: email, amount: amountLocal * 100, currency: cfg.currency || 'USD',
+      ref: 'RF-' + Date.now(),
+      callback: function (resp) {
+        fetch(API + '/api/subscribe/confirm', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reference: resp.reference, email: email, price: current.price, modules: current.modules, volume: current.volume, plan_label: current.label })
+        }).then(function (r) { return r.json(); }).then(function (d) {
+          alert(d.ok ? '🎉 Payment verified! Your subscription is active. Log in to your portal to start.' : 'Payment could not be verified: ' + d.message);
+          if (d.ok) window.location.href = 'login.html';
+        });
+      },
+      onClose: function () {}
+    });
+    handler.openIframe();
+  }).catch(function () {
+    alert('Cannot reach the RevenueForge server. Make sure the Control Center is running on port 8502, then try again.');
+  });
+}
+calc();
+</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="margin-bottom:24px">Job Agent & Applications</h1>
+
+<div class="panel">
+<h3>Add opportunity manually</h3>
+<form method="post" action="/jobs/add">
+<div class="form-row">
+<input name="title" placeholder="Job title *" required>
+<input name="platform" placeholder="Platform (Upwork, LinkedIn...)">
+</div>
+<div class="form-row">
+<input name="url" placeholder="Job URL">
+<input name="budget" placeholder="Budget (e.g. Fixed $1500)">
+</div>
+<textarea name="description" rows="6" placeholder="Paste the full job description *" required></textarea>
+<button class="btn btn-primary" type="submit"><i class="fa-solid fa-bolt"></i> Add & Score</button>
+</form>
+</div>
+
+<div style="display:flex;gap:14px;margin-bottom:20px;border-bottom:2px solid var(--line);padding-bottom:10px">
+<button class="btn btn-ghost" id="tabQueue" onclick="showTab('queue')">📥 Approval Queue ({{ jobs|selectattr('status', 'in', ['scored', 'new'])|list|length }})</button>
+<button class="btn btn-primary" id="tabApps" onclick="showTab('apps')">🚀 Active Applications ({{ jobs|selectattr('status', 'in', ['approved', 'submitted', 'replied'])|list|length }})</button>
+</div>
+
+<div id="queueView">
+{% for j in jobs if j.status in ['scored', 'new'] %}
+<details class="job">
+<summary><span>#{{ j.id }} · {{ j.title[:70] }}</span><span><span class="score-pill">{{ '%.0f'|format(j.opportunity_score) }}/100</span> <span class="badge {{ j.recommendation|lower }}">{{ j.recommendation }}</span></span></summary>
+<div class="body">
+<p style="color:var(--muted);margin-bottom:12px">{{ j.reason }}</p>
+{% if j.matched_product_id %}
+<div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:14px;margin-bottom:16px">
+    <strong style="color:#15803D"><i class="fa-solid fa-bullseye"></i> Pitch Product: {{ j._matched_product_name }}</strong><br>
+    <span style="font-size:13px;color:var(--ink)"><strong>Fit:</strong> {{ j.product_fit_score|round(0) }}% | <strong>Angle:</strong> {{ j.sales_angle }}</span>
+</div>
+{% endif %}
+<pre class="proposal">{{ j.proposal_draft or 'No proposal yet.' }}</pre>
+<div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+<form method="post" action="/jobs/{{ j.id }}/approve"><button class="btn btn-primary btn-xs">✅ Approve & Submit</button></form>
+<form method="post" action="/jobs/{{ j.id }}/rescore"><button class="btn btn-ghost btn-xs">Re-score</button></form>
+<form method="post" action="/jobs/{{ j.id }}/reject"><button class="btn btn-xs" style="background:#FEF2F2;color:#B91C1C;border:1px solid #FECACA">Skip</button></form>
+</div>
+</div>
+</details>
+{% else %}
+<p style="color:var(--muted);padding:20px">No new jobs waiting for approval.</p>
+{% endfor %}
+</div>
+
+<div id="appsView" style="display:none">
+{% for j in jobs if j.status in ['approved', 'submitted', 'replied'] %}
+<details class="job" open>
+<summary><span>#{{ j.id }} · {{ j.title[:60] }}</span><span class="badge {% if j.status == 'replied' %}apply{% else %}neutral{% endif %}">{{ j.status|upper }}</span></summary>
+<div class="body">
+<form method="post" action="/jobs/{{ j.id }}/update">
+    <label style="font-size:12px;font-weight:700">Where did you submit it? (URL)</label>
+    <input name="submitted_url" value="{{ j.submitted_url or '' }}" placeholder="https://upwork.com/...">
+    
+    <label style="font-size:12px;font-weight:700">Client's Reply / Notes</label>
+    <textarea name="client_reply" rows="3" placeholder="Paste their reply here...">{{ j.client_reply or '' }}</textarea>
+    
+    <label style="font-size:12px;font-weight:700">Next Follow-up Date</label>
+    <input type="date" name="next_followup_date" value="{{ j.next_followup_date or '' }}">
+    
+    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-xs" type="submit">Save Details</button>
+        {% if j.status != 'replied' %}
+        <button class="btn btn-ghost btn-xs" type="button" onclick="this.form.action='/jobs/{{ j.id }}/replied'; this.form.submit();">Mark as Replied</button>
+        {% endif %}
+        <button class="btn btn-xs" style="background:#F0FDF4;color:#15803D;border:1px solid #BBF7D0" type="button" onclick="this.form.action='/jobs/{{ j.id }}/won'; this.form.submit();">🏆 WON (Move to Deals)</button>
+        <button class="btn btn-xs" style="background:#FEF2F2;color:#B91C1C;border:1px solid #FECACA" type="button" onclick="this.form.action='/jobs/{{ j.id }}/lost'; this.form.submit();">Lost</button>
+    </div>
+</form>
+</div>
+</details>
+{% else %}
+<p style="color:var(--muted);padding:20px">No active applications. Approve a job from the queue to start tracking it here.</p>
+{% endfor %}
+</div>
+
+<script>
+function showTab(tab) {
+    document.getElementById('queueView').style.display = tab === 'queue' ? 'block' : 'none';
+    document.getElementById('appsView').style.display = tab === 'apps' ? 'block' : 'none';
+    document.getElementById('tabQueue').className = tab === 'queue' ? 'btn btn-primary' : 'btn btn-ghost';
+    document.getElementById('tabApps').className = tab === 'apps' ? 'btn btn-primary' : 'btn btn-ghost';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact | RevenueForge</title>
+<meta name="description" content="Book a free automation audit or request a fixed quote. We reply within 24 hours.">
+<meta property="og:title" content="Contact | RevenueForge">
+<meta property="og:description" content="Book a free automation audit or request a fixed quote. We reply within 24 hours.">
+<meta property="og:image" content="assets/logo.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Contact | RevenueForge">
+<meta name="twitter:description" content="Book a free automation audit or request a fixed quote. We reply within 24 hours.">
+<meta name="twitter:image" content="assets/logo.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Organization","name":"RevenueForge","url":"https://revenueforge.example","logo":"assets/logo.png","email":"adeolaayodeji4666@gmail.com","sameAs":["https://github.com/SilentGoodByeLabs"]}
+</script>
+
+<meta name="description" content="Contact RevenueForge for a free automation audit or a fixed-quote build. We reply within 24 hours.">
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="header"></div>
+
+<section class="page-hero">
+  <div class="container">
+    <h1>Contact</h1>
+    <p>Tell us what repetitive work is eating your time. We reply within 24 hours.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container contact-grid">
+    <div>
+      <div class="contact-card"><div class="icon"><i class="fa-solid fa-envelope"></i></div><div><h4>Email</h4><p>adeolaayodeji4666@gmail.com</p></div></div>
+      <div class="contact-card"><div class="icon"><i class="fa-brands fa-github"></i></div><div><h4>GitHub</h4><p>github.com/SilentGoodByeLabs</p></div></div>
+      <div class="contact-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><div><h4>Response time</h4><p>Within 24 hours, Monday to Saturday</p></div></div>
+    </div>
+    <div class="form-box">
+      <h3 style="margin-bottom:6px">Send a message</h3>
+      <p style="color:var(--muted);font-size:14.5px">Opens your email app with the message pre-filled. No data is stored on any server.</p>
+      <form onsubmit="sendMail(event)">
+        <label for="name">Your name</label>
+        <input id="name" type="text" required placeholder="Jane Doe">
+        <label for="email">Your email</label>
+        <input id="email" type="email" required placeholder="jane@company.com">
+        <label for="message">What should we automate?</label>
+        <textarea id="message" rows="6" required placeholder="Describe the repetitive work, tools you use, and your goal..."></textarea>
+        <input class="hp" id="website" type="text" tabindex="-1" autocomplete="off">
+        <div class="captcha-box">
+          <span class="q" id="captchaQ"></span>
+          <input id="captchaA" type="text" inputmode="numeric" required aria-label="CAPTCHA answer">
+          <button type="button" class="captcha-refresh" onclick="RFSecurity.newCaptcha()" aria-label="New CAPTCHA"><i class="fa-solid fa-rotate"></i></button>
+        </div>
+        <div style="margin-top:18px"><button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> Send Message</button></div>
+        <div id="formMsg" class="form-msg"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<div id="footer"></div>
+<script src="js/security.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/layout.js"></script>
+<script>
+function sendMail(event) {
+  event.preventDefault();
+  var out = document.getElementById('formMsg');
+  var gate = RFSecurity.checks();
+  if (!gate.ok) { out.className = 'form-msg err'; out.textContent = gate.msg; return; }
+  var name = document.getElementById('name').value;
+  var email = document.getElementById('email').value;
+  var msg = document.getElementById('message').value;
+  out.className = 'form-msg ok';
+  out.textContent = 'Sending...';
+  fetch('https://formsubmit.co/ajax/adeolaayodeji4666@gmail.com', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ 
+      _subject: 'Project inquiry from ' + name, 
+      name: name, 
+      reply_to: email, 
+      message: msg,
+      _autoresponse: 'Hi ' + name + ',\n\nThanks for reaching out to RevenueForge! We received your message and will respond within 24 hours.\n\nIn the meantime, feel free to:\n- Run our free automation audit: https://revenueforge.com/audit\n- Book a call: https://revenueforge.com/book-call\n- Read case studies: https://revenueforge.com/case-studies\n\nBest regards,\nThe RevenueForge Team'
+    })
+  }).then(function (r) {
+    if (!r.ok) throw new Error('send failed');
+    out.textContent = 'Message sent! Check your email for confirmation. We reply within 24 hours.';
+  }).catch(function () {
+    var subject = encodeURIComponent('Project inquiry from ' + name);
+    var body = encodeURIComponent(msg + '\n\n— ' + name + ' (' + email + ')');
+    window.location.href = 'mailto:adeolaayodeji4666@gmail.com?subject=' + subject + '&body=' + body;
+    out.textContent = 'Your email app should now open with the message ready to send.';
+  });
+}
+</script>
+</body>
+</html>

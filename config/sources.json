@@ -1,0 +1,79 @@
+{
+  "sources": [
+    {
+      "url": "https://www.upwork.com/ab/feed/jobs/rss?sort=recency&paging=0%3B20&q=python+automation",
+      "platform": "Upwork",
+      "max_items": 10
+    },
+    {
+      "url": "https://remoteok.com/remote.rss",
+      "platform": "RemoteOK",
+      "max_items": 10
+    },
+    {
+      "url": "https://weworkremotely.com/remote-jobs/search?term=automation.rss",
+      "platform": "WeWorkRemotely",
+      "max_items": 10
+    },
+    {
+      "url": "https://www.reddit.com/r/forhire/new/.rss",
+      "platform": "Reddit",
+      "max_items": 10
+    },
+    {
+      "url": "https://www.reddit.com/r/freelance/new/.rss",
+      "platform": "Reddit",
+      "max_items": 10
+    },
+    {
+      "url": "https://www.upwork.com/ab/feed/jobs/rss?sort=recency&paging=0%3B20&q=python+ocr",
+      "platform": "Upwork",
+      "max_items": 10
+    },
+    {
+      "url": "https://www.upwork.com/ab/feed/jobs/rss?sort=recency&paging=0%3B20&q=excel+automation",
+      "platform": "Upwork",
+      "max_items": 10
+    },
+    {
+      "url": "https://www.upwork.com/ab/feed/jobs/rss?sort=recency&paging=0%3B20&q=pdf+python",
+      "platform": "Upwork",
+      "max_items": 10
+    },
+    {
+      "url": "https://www.upwork.com/ab/feed/jobs/rss?sort=recency&paging=0%3B20&q=invoice+automation",
+      "platform": "Upwork",
+      "max_items": 10
+    },
+    {
+      "url": "https://www.reddit.com/r/freelance_forhire/new/.rss",
+      "platform": "Reddit (r/freelance_forhire)",
+      "max_items": 10
+    },
+    {
+      "url": "https://www.reddit.com/r/PythonJobs/new/.rss",
+      "platform": "Reddit (r/PythonJobs)",
+      "max_items": 10
+    },
+    {
+      "url": "https://www.reddit.com/r/Jobs4Bitcoins/new/.rss",
+      "platform": "Reddit (r/Jobs4Bitcoins)",
+      "max_items": 10
+    },
+    {
+      "url": "https://www.reddit.com/r/slavelabour/new/.rss",
+      "platform": "Reddit (r/slavelabour)",
+      "max_items": 8
+    },
+    {
+      "url": "https://hn.algolia.com/api/v1/search_by_date?tags=(story)&query=automation%20freelance",
+      "platform": "HackerNews",
+      "max_items": 5
+    },
+    {
+      "url": "https://www.indeed.com/rss?q=python+automation&sort=date",
+      "platform": "Indeed",
+      "max_items": 10
+    }
+  ]
+}

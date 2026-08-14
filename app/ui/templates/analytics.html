@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="margin-bottom:24px">Business Intelligence & Analytics</h1>
+
+<div class="metric-row">
+    <div class="metric"><div class="v">{{ stats.win_rate|round(1) }}%</div><div class="l">Win Rate</div></div>
+    <div class="metric"><div class="v">${{ '{:,.0f}'.format(stats.avg_deal) }}</div><div class="l">Average Deal Size</div></div>
+    <div class="metric"><div class="v">{{ stats.won_deals }}</div><div class="l">Deals Won</div></div>
+    <div class="metric"><div class="v">{{ stats.lost_deals }}</div><div class="l">Deals Lost</div></div>
+</div>
+
+<div class="panel">
+<h3>Conversion Funnel</h3>
+<table class="grid">
+<tr><th>Stage</th><th>Count</th><th>Conversion Insight</th></tr>
+<tr><td>Opportunities Found</td><td>{{ stats.total_jobs }}</td><td>Top of funnel. The agent filters these automatically.</td></tr>
+<tr><td>APPLY Recommendations</td><td>{{ stats.apply_jobs }}</td><td>High-quality targets identified by the scoring engine.</td></tr>
+<tr><td>Total Prospects (Outreach)</td><td>{{ stats.total_prospects }}</td><td>Businesses targeted for product/service sales.</td></tr>
+<tr><td>Total Deals Tracked</td><td>{{ stats.total_deals }}</td><td>Active pipeline and closed deals.</td></tr>
+<tr><td>Deals Won</td><td>{{ stats.won_deals }}</td><td>Revenue generated.</td></tr>
+</table>
+</div>
+
+<div class="panel">
+<h3>Daily Business Intelligence</h3>
+<p style="color:var(--muted);margin-bottom:14px">AI-generated insights based on your current data.</p>
+<ul style="list-style:none;padding:0">
+{% if stats.win_rate > 50 %}
+<li style="padding:10px;background:#F0FDF4;border-radius:8px;margin-bottom:8px"><i class="fa-solid fa-chart-line" style="color:#15803D"></i> <strong>Strong Win Rate:</strong> Your win rate is {{ stats.win_rate|round(1) }}%. Your qualification and proposal strategies are working well. Keep focusing on high-fit opportunities.</li>
+{% elif stats.total_deals > 0 %}
+<li style="padding:10px;background:#FFF7ED;border-radius:8px;margin-bottom:8px"><i class="fa-solid fa-lightbulb" style="color:#C2410C"></i> <strong>Improve Conversion:</strong> Your win rate is {{ stats.win_rate|round(1) }}%. Review lost deals to see if pricing, scope, or follow-up timing needs adjustment.</li>
+{% else %}
+<li style="padding:10px;background:var(--bg);border-radius:8px;margin-bottom:8px"><i class="fa-solid fa-robot" style="color:var(--accent)"></i> <strong>Building Momentum:</strong> Once you close your first few deals, the AI will analyze your win/loss patterns here to recommend scaling strategies.</li>
+{% endif %}
+
+{% if stats.apply_jobs > 10 %}
+<li style="padding:10px;background:#F0FDF4;border-radius:8px;margin-bottom:8px"><i class="fa-solid fa-bullseye" style="color:#15803D"></i> <strong>High Opportunity Volume:</strong> The agent found {{ stats.apply_jobs }} high-fit jobs. Ensure you are reviewing and submitting proposals for the top 3-5 daily.</li>
+{% endif %}
+</ul>
+</div>
+{% endblock %}

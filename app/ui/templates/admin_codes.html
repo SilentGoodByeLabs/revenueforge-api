@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="margin-bottom:8px">Admin: Client Invite Codes</h1>
+<p style="color:var(--muted);margin-bottom:24px">Generate unique access codes for each client. Email the code to them after they request portal access. They enter it on the login page to activate their account.</p>
+
+<div class="panel" style="border:2px solid var(--accent)">
+<h3><i class="fa-solid fa-key" style="color:var(--accent)"></i> Generate New Code</h3>
+<form method="post" action="/admin/codes/generate" style="display:flex;gap:10px;flex-wrap:wrap;align-items:end">
+<input name="notes" placeholder="Notes (e.g., 'John from Acme Corp')" style="flex:1;min-width:200px;margin:0">
+<button class="btn btn-primary" type="submit"><i class="fa-solid fa-plus"></i> Generate Code</button>
+</form>
+</div>
+
+<div class="panel">
+<h3>All Codes ({{ codes|length }})</h3>
+<table class="grid">
+<tr><th>Code</th><th>Created</th><th>Used By</th><th>Status</th><th>Actions</th></tr>
+{% for c in codes %}
+<tr>
+    <td><code style="background:var(--bg);padding:4px 8px;border-radius:6px;font-weight:700">{{ c.code }}</code></td>
+    <td>{{ c.created_at.strftime('%Y-%m-%d') if c.created_at else '—' }}</td>
+    <td>{{ c.used_by_email or '<span style="color:var(--muted)">Unused</span>' }}</td>
+    <td>
+    {% if c.revoked %}
+        <span class="badge skip">Revoked</span>
+    {% elif c.used_by_email %}
+        <span class="badge apply">Active</span>
+    {% else %}
+        <span class="badge neutral">Available</span>
+    {% endif %}
+    </td>
+    <td>
+    <button class="btn btn-xs btn-ghost" onclick="copyCode('{{ c.code }}')"><i class="fa-solid fa-copy"></i> Copy</button>
+    <form method="post" action="/admin/codes/{{ c.id }}/revoke" style="display:inline">
+        <button class="btn btn-xs {% if c.revoked %}btn-primary{% else %}btn-ghost{% endif %}" type="submit">
+            {% if c.revoked %}Unrevoke{% else %}Revoke{% endif %}
+        </button>
+    </form>
+    </td>
+</tr>
+{% else %}
+<tr><td colspan="5">No codes generated yet. Create your first one above.</td></tr>
+{% endfor %}
+</table>
+</div>
+
+<div class="panel">
+<h3>How It Works</h3>
+<ol style="color:var(--ink);font-size:14px;line-height:1.9;margin:0 0 0 18px">
+<li>Client signs up on your website (or emails you requesting access).</li>
+<li>You generate a unique code here and email it to them.</li>
+<li>They enter the code on the login page → their account activates.</li>
+<li>If they don't pay, you revoke their code → they lose access.</li>
+</ol>
+<p style="color:var(--muted);font-size:13px;margin-top:12px">Your master code <code>FORGE-2026</code> always works for you. Client codes are separate.</p>
+</div>
+
+<script>
+function copyCode(code) {
+    navigator.clipboard.writeText(code).then(function() {
+        alert('Code copied: ' + code);
+    });
+}
+</script>
+{% endblock %}

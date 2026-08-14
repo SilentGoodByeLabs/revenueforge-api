@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="margin-bottom:8px">Scaling Intelligence</h1>
+<p style="color:var(--muted);margin-bottom:24px">Decisions from your REAL data only. Where data is thin, it says NOT ENOUGH DATA — never guesses.</p>
+
+<div class="cards two">
+{% for i in insights %}
+<div class="card" {% if i.muted %}style="opacity:.75"{% endif %}>
+<div class="icon"><i class="fa-solid {{ i.icon }}"></i></div>
+<h3>{{ i.title }}</h3>
+<p>{{ i.detail }}</p>
+</div>
+{% endfor %}
+</div>
+
+<div class="panel" style="margin-top:24px">
+<h3><i class="fa-solid fa-lightbulb" style="color:var(--accent)"></i> Product Opportunity Radar</h3>
+<p style="color:var(--muted);font-size:13px;margin-bottom:14px">Demand the market shows you but your catalog does not cover yet. Each row = jobs mentioning it with no matching gig.</p>
+{% if gaps is none %}
+<p style="color:var(--muted)">NOT ENOUGH DATA — track at least 10 jobs to reveal demand gaps.</p>
+{% elif gaps %}
+<table class="grid"><tr><th>Keyword</th><th>Unmatched jobs</th><th>Sell idea</th></tr>
+{% for word, n in gaps %}
+<tr><td><strong>{{ word }}</strong></td><td>{{ n }}</td><td>Build a gig around "{{ word }}", add it to your catalog, start selling it.</td></tr>
+{% endfor %}</table>
+{% else %}
+<p style="color:#15803D">Your catalog already covers every demand signal found so far.</p>
+{% endif %}
+</div>
+{% endblock %}

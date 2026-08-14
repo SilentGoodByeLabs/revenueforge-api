@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RevenueForge Control Center</title>
+<link rel="icon" type="image/png" href="/static/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/dash.css">
+</head>
+<body class="dash">
+<header class="site-header dash-header">
+  <div class="container nav-wrap">
+    <div class="head-left">
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">
+        <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+      </button>
+      <a class="brand" href="/">
+        <img src="/static/logo.png" class="logo" alt="RevenueForge logo">
+        <span class="brand-name">Revenue<span>Forge</span></span>
+      </a>
+      <span class="head-sub">Control Center</span>
+    </div>
+    <span class="local-badge"><i class="fa-solid fa-lock"></i> Local · Private</span>
+  </div>
+  <nav class="dash-menu" id="dashMenu" aria-label="Main navigation">
+    <div class="menu-inner">
+      <a href="/briefing" class="menu-item"><i class="fa-solid fa-sun"></i> Daily Briefing</a>
+      <a href="/" class="menu-item"><i class="fa-solid fa-gauge-high"></i> Command Center</a>
+      <a href="/jobs" class="menu-item"><i class="fa-solid fa-briefcase"></i> Job Agent</a>
+      <a href="/pipeline" class="menu-item"><i class="fa-solid fa-handshake"></i> Pipeline</a>
+      <a href="/analytics" class="menu-item"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+      <a href="/products" class="menu-item"><i class="fa-solid fa-box"></i> Products</a>
+      <a href="/prospects" class="menu-item"><i class="fa-solid fa-magnifying-glass-dollar"></i> Prospects</a>
+      <a href="/outreach" class="menu-item"><i class="fa-solid fa-paper-plane"></i> Outreach</a>
+      <a href="/followups" class="menu-item"><i class="fa-solid fa-rotate"></i> Follow-ups</a>
+      <a href="/settings" class="menu-item"><i class="fa-solid fa-gear"></i> Settings</a>
+      <a href="/scaling" class="menu-item"><i class="fa-solid fa-rocket"></i> Scaling</a>
+      <a href="/admin/subscriptions" class="menu-item"><i class="fa-solid fa-credit-card"></i> Admin: Subscriptions</a>
+      <a href="/admin/projects" class="menu-item"><i class="fa-solid fa-diagram-project"></i> Admin: Client Projects</a>
+      <a href="/admin/codes" class="menu-item"><i class="fa-solid fa-key"></i> Admin: Invite Codes</a>
+      <a href="/security" class="menu-item"><i class="fa-solid fa-shield-halved"></i> Security</a>
+      <a href="/audit" class="menu-item"><i class="fa-solid fa-scroll"></i> Audit Log</a>
+    </div>
+  </nav>
+</header>
+<main class="container dash-main">
+{% block content %}{% endblock %}
+</main>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var b = document.getElementById('menuBtn');
+  var m = document.getElementById('dashMenu');
+  if (!b || !m) return;
+  function closeMenu() {
+    m.classList.remove('open');
+    b.classList.remove('open');
+    b.setAttribute('aria-expanded', 'false');
+  }
+  b.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var open = m.classList.toggle('open');
+    b.classList.toggle('open', open);
+    b.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  document.addEventListener('click', function (e) {
+    if (m.classList.contains('open') && !m.contains(e.target) && !b.contains(e.target)) closeMenu();
+  });
+  m.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', closeMenu); });
+});
+</script>
+</body>
+</html>

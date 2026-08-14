@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="margin-bottom:24px">Audit Log</h1>
+<div class="panel">
+<table class="grid"><tr><th>Time</th><th>Action</th><th>Agent</th><th>Target</th><th>Result</th><th>Approval</th></tr>
+{% for r in rows %}<tr><td>{{ r.timestamp[:19] }}</td><td>{{ r.action }}</td><td>{{ r.agent }}</td><td>{{ r.target }}</td><td>{{ r.result }}</td><td>{{ r.approval }}</td></tr>{% else %}<tr><td colspan="6">No audit entries yet.</td></tr>{% endfor %}
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="margin-bottom:24px">Follow-up Engine</h1>
+<div class="panel">
+<h3>Plan follow-ups for a prospect</h3>
+<form method="post" action="/followups/plan" style="display:flex;gap:10px;flex-wrap:wrap">
+<select name="prospect_id" style="max-width:320px;margin-bottom:0">{% for p in prospects %}<option value="{{ p.id }}">#{{ p.id }} {{ p.name or 'Unknown' }}</option>{% endfor %}</select>
+<button class="btn btn-primary" type="submit">Plan follow-ups</button>
+</form>
+</div>
+<div class="panel">
+<h3>Due now</h3>
+{% for item in due %}
+<div style="border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px">
+<strong>{{ item.prospect.name or 'Unknown' }}</strong> · step {{ item.fu.step }} · due {{ item.fu.due_date.date() }}
+{% if not item.fu.draft %}
+<form method="post" action="/followups/{{ item.fu.id }}/draft" style="display:inline"><button class="btn btn-primary btn-xs">Draft follow-up</button></form>
+{% else %}
+<pre class="proposal">{{ item.fu.draft }}</pre>
+{% if item.prospect.email %}<a class="btn btn-primary btn-xs" href="mailto:{{ item.prospect.email }}?subject=Following%20up&body={{ item.fu.draft|urlencode }}">Open in email app</a>{% endif %}
+<form method="post" action="/followups/{{ item.fu.id }}/sent" style="display:inline"><button class="btn btn-ghost btn-xs">Mark Sent</button></form>
+{% endif %}
+</div>
+{% else %}<p style="color:var(--muted)">Nothing due. Follow-ups surface here automatically when their date arrives.</p>{% endfor %}
+</div>
+<div class="panel">
+<h3>Schedule</h3>
+<table class="grid"><tr><th>ID</th><th>Prospect</th><th>Step</th><th>Due</th><th>Status</th></tr>
+{% for f in allfu %}<tr><td>#{{ f.id }}</td><td>#{{ f.prospect_id }}</td><td>{{ f.step }}</td><td>{{ f.due_date.date() if f.due_date else '-' }}</td><td>{{ f.status }}</td></tr>{% endfor %}
+</table>
+</div>
+{% endblock %}

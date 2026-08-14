@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="margin-bottom:24px">Command Center</h1>
+<div class="metric-row">
+{% for label, value in metrics.items() %}
+<div class="metric"><div class="v">{{ value }}</div><div class="l">{{ label }}</div></div>
+{% endfor %}
+</div>
+<div class="panel">
+<h3>Recent opportunities</h3>
+<table class="grid"><tr><th>ID</th><th>Title</th><th>Score</th><th>Recommendation</th><th>Status</th></tr>
+{% for j in recent %}
+<tr><td>#{{ j.id }}</td><td>{{ j.title[:60] }}</td><td class="score-pill">{{ '%.0f'|format(j.opportunity_score) }}</td><td><span class="badge {{ j.recommendation|lower }}">{{ j.recommendation }}</span></td><td>{{ j.status }}</td></tr>
+{% else %}
+<tr><td colspan="5">No opportunities yet. The autonomous agent fills this automatically, or add one manually in Job Agent.</td></tr>
+{% endfor %}
+</table>
+</div>
+{% endblock %}

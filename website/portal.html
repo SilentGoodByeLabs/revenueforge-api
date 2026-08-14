@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Portal | RevenueForge</title>
+<meta name="description" content="Secure client portal: track your projects, proposals, invoices and deliverables in one place.">
+<meta property="og:title" content="Client Portal | RevenueForge">
+<meta property="og:description" content="Secure client portal: track your projects, proposals, invoices and deliverables in one place.">
+<meta property="og:image" content="assets/logo.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Client Portal | RevenueForge">
+<meta name="twitter:description" content="Secure client portal: track your projects, proposals, invoices and deliverables in one place.">
+<meta name="twitter:image" content="assets/logo.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Organization","name":"RevenueForge","url":"https://revenueforge.example","logo":"assets/logo.png","email":"adeolaayodeji4666@gmail.com","sameAs":["https://github.com/SilentGoodByeLabs"]}
+</script>
+
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="header"></div>
+
+<section class="section" style="padding-top:48px">
+  <div class="container">
+    <div class="portal-banner">
+      <div>
+        <h1>Welcome back, <span id="pName">Client</span></h1>
+        <p id="pEmail"></p>
+      </div>
+      <button class="btn btn-light" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Log Out</button>
+    </div>
+
+    
+    <div class="card" style="margin-bottom:26px;border:2px solid var(--accent)" id="subCard">
+      <h3><i class="fa-solid fa-crown" style="color:var(--accent)"></i> Your Subscription</h3>
+      <p id="subInfo" style="color:var(--muted);margin-top:8px">Loading your plan…</p>
+    </div>
+    <div class="cards" style="grid-template-columns:repeat(4,1fr);margin-bottom:28px">
+      <div class="card"><div class="icon"><i class="fa-solid fa-diagram-project"></i></div><h3>Active Projects</h3><p id="statProjects">0</p></div>
+      <div class="card"><div class="icon"><i class="fa-solid fa-file-lines"></i></div><h3>Open Proposals</h3><p id="statProposals">0</p></div>
+      <div class="card"><div class="icon"><i class="fa-solid fa-receipt"></i></div><h3>Open Invoices</h3><p id="statInvoices">0</p></div>
+      <div class="card"><div class="icon"><i class="fa-solid fa-comments"></i></div><h3>Unread Updates</h3><p id="statMessages">0</p></div>
+    </div>
+
+    <div class="cards two">
+      <div class="card">
+        <h3><i class="fa-solid fa-diagram-project" style="color:var(--accent)"></i> Your Projects</h3>
+        <p style="color:var(--muted);margin-top:10px">No active projects yet. Once your consultant starts a build, live status, milestones and delivery dates appear here.</p>
+      </div>
+      <div class="card">
+        <h3><i class="fa-solid fa-file-lines" style="color:var(--accent)"></i> Proposals & Quotes</h3>
+        <p style="color:var(--muted);margin-top:10px">Proposals and fixed quotes shared with you will appear here for review and approval.</p>
+      </div>
+      <div class="card">
+        <h3><i class="fa-solid fa-receipt" style="color:var(--accent)"></i> Invoices & Payments</h3>
+        <p style="color:var(--muted);margin-top:10px">Invoices with payment status (Unpaid / Invoice Sent / Paid) will appear here. You will never be charged outside an agreed fixed quote.</p>
+      </div>
+      <div class="card">
+        <h3><i class="fa-solid fa-folder-open" style="color:var(--accent)"></i> Documents & Deliverables</h3>
+        <p style="color:var(--muted);margin-top:10px">Final deliverables, documentation and handover files are stored here at project completion.</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:26px">
+      <h3><i class="fa-solid fa-headset" style="color:var(--accent)"></i> Need help?</h3>
+      <p style="color:var(--muted);margin-top:10px">Email <a href="mailto:adeolaayodeji4666@gmail.com" style="color:var(--accent);font-weight:600">adeolaayodeji4666@gmail.com</a> or use the chat bubble in the corner — we reply within 24 hours.</p>
+    </div>
+  </div>
+</section>
+
+<div id="footer"></div>
+<script src="js/config.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/layout.js"></script>
+<script>
+(function () {
+  var sess = null;
+  try { sess = JSON.parse(localStorage.getItem('rf_session') || 'null'); } catch (e) {}
+  if (!sess) { window.location.href = 'login.html'; return; }
+  document.getElementById('pName').textContent = sess.name || 'Client';
+  document.getElementById('pEmail').textContent = sess.email || '';
+})();
+function logout() {
+  localStorage.removeItem('rf_session');
+  window.location.href = 'index.html';
+}
+</script>
+<script>
+(function () {
+  var sess = null;
+  try { sess = JSON.parse(localStorage.getItem('rf_session') || 'null'); } catch (e) {}
+  if (sess && sess.email) {
+    fetch((window.RF_API || 'http://localhost:8502') + '/api/subscription/' + encodeURIComponent(sess.email))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var el = document.getElementById('subInfo');
+        if (d.active) el.innerHTML = '<strong>' + d.plan + '</strong> — ' + d.modules.join(', ') + ' · ' + (d.volume || '') + ' · $' + d.price + '/mo · renews ' + (d.renews || '').slice(0, 10);
+        else el.innerHTML = 'No active subscription. <a href="pricing.html" style="color:var(--accent);font-weight:600">Build your plan →</a>';
+      }).catch(function () { document.getElementById('subInfo').textContent = 'Plan info unavailable.'; });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="margin-bottom:8px">Outreach Engine</h1>
+<p style="color:var(--muted);margin-bottom:24px">Today: {{ used }} / {{ limit }} outreach drafts. Nothing sends automatically.</p>
+<div class="panel">
+<h3>Draft new outreach</h3>
+<form method="post" action="/outreach/draft" style="display:flex;gap:10px;flex-wrap:wrap">
+<select name="prospect_id" style="max-width:320px;margin-bottom:0">{% for p in prospects.values() %}<option value="{{ p.id }}">#{{ p.id }} {{ (p.name or 'Unknown')[:50] }}</option>{% endfor %}</select>
+<select name="platform" style="max-width:200px;margin-bottom:0">
+    <option value="email">📧 Email</option>
+    <option value="linkedin">💼 LinkedIn DM</option>
+    <option value="reddit">👽 Reddit DM</option>
+    <option value="twitter">🐦 Twitter/X DM</option>
+    <option value="whatsapp">💬 WhatsApp</option>
+</select>
+<button class="btn btn-primary" type="submit">Analyze & Draft</button>
+</form>
+</div>
+{% for m in msgs %}
+<details class="job"><summary><span>#{{ m.id }} · prospect #{{ m.prospect_id }} · fit {{ '%.0f'|format(m.fit_score) }}</span><span class="badge neutral">{{ m.status }}</span></summary>
+<div class="body">
+<p><strong>Subject:</strong> {{ m.subject }}</p>
+<pre class="proposal">{{ m.body }}</pre>
+{% if m.status == 'draft' %}
+<form method="post" action="/outreach/{{ m.id }}/approve" style="display:inline"><button class="btn btn-primary btn-xs">Approve</button></form>
+<form method="post" action="/outreach/{{ m.id }}/reject" style="display:inline"><button class="btn btn-xs" style="background:#FEF2F2;color:#B91C1C;border:1px solid #FECACA">Reject</button></form>
+{% elif m.status == 'approved' %}
+{% set p = prospects.get(m.prospect_id) %}
+{% if p and p.email %}<a class="btn btn-primary btn-xs" href="mailto:{{ p.email }}?subject={{ m.subject|urlencode }}&body={{ m.body|urlencode }}">Open in email app</a>{% endif %}
+<form method="post" action="/outreach/{{ m.id }}/sent" style="display:inline"><button class="btn btn-ghost btn-xs">Mark Sent</button></form>
+{% endif %}
+</div></details>
+{% else %}<div class="panel">No outreach drafts yet.</div>{% endfor %}
+{% endblock %}

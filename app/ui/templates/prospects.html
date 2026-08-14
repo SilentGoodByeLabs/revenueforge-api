@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="margin-bottom:8px">Client Prospecting & Research</h1>
+<p style="color:var(--muted);margin-bottom:24px">Paste public info about any business (or use Forge Grab on their website). The engine finds their industry, pain points, and your best gig to pitch — then saves them to your CRM.</p>
+
+<div class="panel" style="border:2px solid var(--accent)">
+<h3><i class="fa-solid fa-magnifying-glass-dollar" style="color:var(--accent)"></i> Research a Business</h3>
+<form method="post" action="/prospects/analyze">
+<textarea name="text" rows="6" placeholder="Example: Bluebox Accounting — bookkeeping firm with 12 staff. We handle invoice processing, payroll and monthly reports for 80 clients. Lots of manual data entry from PDF invoices into excel..."></textarea>
+<button class="btn btn-primary" type="submit"><i class="fa-solid fa-bolt"></i> Analyze Business</button>
+</form>
+</div>
+
+{% if analysis %}
+<div class="panel" style="border:2px solid {% if analysis.action == 'SELL' %}#15803D{% elif analysis.action == 'REVIEW' %}#C2410C{% else %}#B91C1C{% endif %}">
+<h3>Analysis: {{ analysis.company }}</h3>
+<p style="margin-bottom:10px"><span class="badge {% if analysis.action == 'SELL' %}apply{% elif analysis.action == 'REVIEW' %}review{% else %}skip{% endif %}">{{ analysis.action }}</span> <span class="score-pill">{{ analysis.fit_score }}/100 business fit</span> · Industry: {{ analysis.industry }}</p>
+<p style="font-size:14px"><strong>Likely pain points:</strong> {{ analysis.pains|join('; ') }}</p>
+<p style="font-size:14px"><strong>Automation opportunities:</strong> {{ analysis.opportunities|join('; ') }}</p>
+{% if analysis.best_product %}
+<div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:14px;margin:12px 0">
+<strong style="color:#15803D">Best gig to pitch: {{ analysis.best_product.product_name }} ({{ analysis.best_product.score }}% product fit)</strong><br>
+<span style="font-size:13px;color:var(--muted)">Angle: {{ analysis.best_product.sales_angle }}</span>
+</div>
+{% else %}
+<p style="color:var(--muted)">No strong product match — SKIP or research more before contacting.</p>
+{% endif %}
+<form method="post" action="/prospects/save">
+<input type="hidden" name="company" value="{{ analysis.company }}">
+<input type="hidden" name="industry" value="{{ analysis.industry }}">
+<input type="hidden" name="fit_score" value="{{ analysis.fit_score }}">
+<input type="hidden" name="product_interest" value="{{ analysis.best_product.product_name if analysis.best_product else '' }}">
+<input type="hidden" name="notes" value="Pains: {{ analysis.pains|join('; ') }} | Opportunities: {{ analysis.opportunities|join('; ') }}">
+<button class="btn btn-primary" type="submit"><i class="fa-solid fa-save"></i> Save to CRM</button>
+</form>
+</div>
+{% endif %}
+
+<div class="panel">
+<h3>CRM — Researched Prospects ({{ prospects|length }})</h3>
+<table class="grid">
+<tr><th>Business</th><th>Industry</th><th>Fit</th><th>Interested In</th><th>Status</th></tr>
+{% for p in prospects %}
+<tr>
+<td><strong>{{ p.name or 'Unknown' }}</strong></td>
+<td>{{ companies.get(p.company_id, '—') }}</td>
+<td class="score-pill">{{ '%.0f'|format(p.fit_score) }}</td>
+<td>{{ p.product_interest or '—' }}</td>
+<td><span class="badge neutral">{{ p.status }}</span></td>
+</tr>
+{% else %}
+<tr><td colspan="5">No prospects yet. Research your first business above.</td></tr>
+{% endfor %}
+</table>
+<p style="color:var(--muted);font-size:13px;margin-top:12px">To draft outreach for a saved prospect, go to <a href="/outreach" style="color:var(--accent);font-weight:600">Outreach</a>.</p>
+</div>
+
+<div class="panel" style="border:1px solid var(--accent);background:#F0F9FF">
+<h3><i class="fa-solid fa-envelope-circle-check" style="color:var(--accent)"></i> How to find their direct email (free)</h3>
+<ol style="color:var(--ink);font-size:14px;line-height:1.9;margin:0 0 0 18px">
+<li>Check their website's <strong>/contact</strong> or footer.</li>
+<li>Search LinkedIn for the founder / owner → their profile often lists email.</li>
+<li>Try common patterns: <code>founder@company.com</code>, <code>hello@company.com</code>, <code>firstname@company.com</code>.</li>
+<li>Use <a href="https://hunter.io" target="_blank" style="color:var(--accent)">hunter.io</a> (free tier: 25 lookups/month).</li>
+</ol>
+<p style="color:var(--muted);font-size:12px;margin-top:8px">Then select <strong>Email</strong> in the Outreach page when drafting.</p>
+</div>
+
+{% endblock %}

@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="margin-bottom:8px">Product Catalog & Service Importer</h1>
+<p style="color:var(--muted);margin-bottom:24px">Paste any service description from anywhere (Fiverr, Upwork, LinkedIn, your own website, or notes you wrote yourself). The system will extract the structure. Or click "Add Manually" to type it yourself. Review, edit, and approve before saving to your catalog.</p>
+
+<div class="panel" style="border:2px solid var(--accent)">
+<h3><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--accent)"></i> Step 1: Import Existing Service</h3>
+<p style="color:var(--muted);font-size:13px;margin-bottom:10px">Paste the title, description, pricing, and FAQs from your existing gig. The AI will map it to your catalog fields. Missing info will be marked as "MISSING".</p>
+<textarea id="importText" rows="6" placeholder="Paste your service text from anywhere: Fiverr, Upwork, LinkedIn, your website, or your own notes..."></textarea>
+<button class="btn btn-primary" onclick="extractProduct()"><i class="fa-solid fa-bolt"></i> Analyze & Extract</button>
+<button class="btn btn-ghost" type="button" onclick="showManualForm()"><i class="fa-solid fa-pen"></i> Add Manually</button>
+<button class="btn btn-ghost" type="button" onclick="pasteClipboard()"><i class="fa-solid fa-clipboard"></i> Paste from Clipboard</button>
+<div id="extractStatus" style="margin-top:10px;font-weight:600"></div>
+</div>
+
+
+<div class="panel">
+<h3><i class="fa-solid fa-bookmark" style="color:var(--accent)"></i> Forge Grab — copy any page in one click</h3>
+<p style="color:var(--muted);font-size:13px;margin-bottom:12px">Works on <strong>any website</strong> (Fiverr, Upwork, LinkedIn, your own site). It only copies the text you can already see — no passwords, no scraping.</p>
+<ol style="color:var(--ink);font-size:14px;line-height:1.9;margin:0 0 16px 18px">
+<li><strong>Install once:</strong> drag the blue button below into your bookmarks bar. (Bar hidden? Press <strong>Ctrl+Shift+B</strong> to show it.)</li>
+<li><strong>Open any gig or page</strong> you want to import.</li>
+<li><strong>Click "Forge Grab"</strong> in the bookmarks bar → the page text is copied.</li>
+<li><strong>Come back here</strong> → "Paste from Clipboard" → "Analyze & Extract" → Save.</li>
+</ol>
+<a class="btn btn-primary" draggable="true" onclick="return false;" style="cursor:grab" href="javascript:(function(){var t=document.title;var m=document.querySelector('main')||document.body;var txt=(t+'\n\n'+(m.innerText||'')).slice(0,6000);function done(){alert('Copied! Now click Paste from Clipboard in RevenueForge.');}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done);}else{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();done();}})();"><i class="fa-solid fa-bookmark"></i> Forge Grab — drag me to your bookmarks bar</a>
+<p style="color:var(--muted);font-size:12px;margin-top:12px">Can't drag? Copy this code, create a bookmark manually, and paste it as the URL:</p>
+<textarea readonly rows="2" onclick="this.select()" style="font-size:11px">javascript:(function(){var t=document.title;var m=document.querySelector('main')||document.body;var txt=(t+'\n\n'+(m.innerText||'')).slice(0,6000);function done(){alert('Copied! Now click Paste from Clipboard in RevenueForge.');}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done);}else{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();done();}})();</textarea>
+</div>
+
+
+
+<form method="post" action="/products/add" id="productForm" style="display:none">
+<div class="panel">
+<h3>Step 2: Review & Edit Extracted Data</h3>
+<p style="color:var(--muted);font-size:13px;margin-bottom:14px">Review the pre-filled fields below. Only fix what is wrong, add your starting price, then save.</p>
+
+<div class="form-row">
+    <div><label style="font-size:12px;font-weight:700;color:var(--navy)">Product Name *</label><input name="name" id="f_name" required></div>
+    <div><label style="font-size:12px;font-weight:700;color:var(--navy)">Starting Price</label><input name="price" id="f_price"></div>
+</div>
+
+<div class="form-row">
+    <div><label style="font-size:12px;font-weight:700;color:var(--navy)">Target Customer</label><input name="target_customer" id="f_target_customer"></div>
+    <div><label style="font-size:12px;font-weight:700;color:var(--navy)">Industry</label><input name="industry" id="f_industry"></div>
+</div>
+
+<label style="font-size:12px;font-weight:700;color:var(--navy)">Keywords (comma separated)</label>
+<input name="keywords" id="f_keywords">
+
+<label style="font-size:12px;font-weight:700;color:var(--navy)">Problem Solved</label>
+<textarea name="problem_solved" id="f_problem_solved" rows="2"></textarea>
+
+<label style="font-size:12px;font-weight:700;color:var(--navy)">Full Description</label>
+<textarea name="description" id="f_description" rows="3"></textarea>
+
+<label style="font-size:12px;font-weight:700;color:var(--navy)">Ideal Customer Profile</label>
+<textarea name="ideal_customer_profile" id="f_ideal_customer_profile" rows="2"></textarea>
+
+<div class="form-row">
+    <div><label style="font-size:12px;font-weight:700;color:var(--navy)">Features</label><textarea name="features" id="f_features" rows="3"></textarea></div>
+    <div><label style="font-size:12px;font-weight:700;color:var(--navy)">Benefits</label><textarea name="benefits" id="f_benefits" rows="3"></textarea></div>
+</div>
+
+<div class="form-row">
+    <div><label style="font-size:12px;font-weight:700;color:var(--navy)">Deliverables</label><textarea name="deliverables" id="f_deliverables" rows="3"></textarea></div>
+    <div><label style="font-size:12px;font-weight:700;color:var(--navy)">Requirements from Client</label><textarea name="requirements" id="f_requirements" rows="3"></textarea></div>
+</div>
+
+<label style="font-size:12px;font-weight:700;color:var(--navy)">Technologies Used</label>
+<input name="technologies" id="f_technologies">
+
+<label style="font-size:12px;font-weight:700;color:var(--navy)">Use Cases</label>
+<textarea name="use_cases" id="f_use_cases" rows="2"></textarea>
+
+<div class="form-row">
+    <div><label style="font-size:12px;font-weight:700;color:var(--navy)">Sales Arguments</label><textarea name="sales_arguments" id="f_sales_arguments" rows="3"></textarea></div>
+    <div><label style="font-size:12px;font-weight:700;color:var(--navy)">Common Objections & Responses</label><textarea name="objections" id="f_objections" rows="3"></textarea></div>
+</div>
+
+<div style="display:flex;gap:12px;margin-top:10px">
+    <button class="btn btn-primary" type="submit"><i class="fa-solid fa-check"></i> Step 3: Approve & Save to Catalog</button>
+    <button class="btn btn-ghost" type="button" onclick="document.getElementById('productForm').style.display='none'">Cancel</button>
+</div>
+</div>
+</form>
+
+<div class="panel">
+<h3>Your Active Catalog ({{ products|length }})</h3>
+{% if not products %}
+<p style="color:var(--muted)">No products yet. Import your first service above.</p>
+{% else %}
+<table class="grid">
+<tr><th>Name</th><th>Target / Industry</th><th>Price</th><th>Status</th><th></th></tr>
+{% for p in products %}
+<tr>
+    <td>
+        <strong>{{ p.name }}</strong><br>
+        <span style="color:var(--muted);font-size:12.5px">{{ p.problem_solved or p.description or ''|truncate(80) }}</span><br>
+        <span style="font-size:11.5px;color:var(--accent)">{{ p.keywords or 'no keywords' }}</span>
+    </td>
+    <td>{{ p.target_customer or '—' }}<br><span style="color:var(--muted);font-size:12px">{{ p.industry or '' }}</span></td>
+    <td>{{ p.price or '—' }}</td>
+    <td><span class="badge {% if p.status == 'active' %}apply{% else %}neutral{% endif %}">{{ p.status }}</span></td>
+    <td>
+    <form method="post" action="/products/{{ p.id }}/archive" style="display:inline">
+        <button class="btn btn-xs btn-ghost" type="submit">{% if p.status == 'active' %}Archive{% else %}Activate{% endif %}</button>
+    </form>
+    </td>
+</tr>
+{% endfor %}
+</table>
+{% endif %}
+</div>
+
+<script>
+async function extractProduct() {
+    const text = document.getElementById('importText').value;
+    const status = document.getElementById('extractStatus');
+    if (!text.trim()) { status.innerHTML = '<span style="color:#B91C1C">Please paste some text first.</span>'; return; }
+    
+    status.innerHTML = '<span style="color:var(--accent)"><i class="fa-solid fa-spinner fa-spin"></i> Analyzing service details...</span>';
+    
+    try {
+        const res = await fetch('/api/extract-product', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({text: text})
+        });
+        const data = await res.json();
+        
+        const fields = ["name", "price", "target_customer", "industry", "keywords", "problem_solved", "description", "ideal_customer_profile", "features", "benefits", "deliverables", "requirements", "technologies", "use_cases", "sales_arguments", "objections", "objection_responses"];
+        
+        fields.forEach(f => {
+            const el = document.getElementById('f_' + f);
+            if (el && data[f]) {
+                el.value = data[f] === "MISSING" ? "" : data[f];
+                if (data[f] === "MISSING") el.style.borderColor = "#FED7AA";
+                else el.style.borderColor = "";
+            }
+        });
+        
+        document.getElementById('productForm').style.display = 'block';
+        status.innerHTML = '<span style="color:#15803D"><i class="fa-solid fa-check"></i> Extraction complete. Review and edit below.</span>';
+        document.getElementById('productForm').scrollIntoView({behavior: 'smooth'});
+    } catch (e) {
+        status.innerHTML = '<span style="color:#B91C1C">Error connecting to analysis engine.</span>';
+    }
+}
+async function pasteClipboard() {
+    try {
+        const txt = await navigator.clipboard.readText();
+        if (txt) {
+            document.getElementById('importText').value = txt;
+            document.getElementById('extractStatus').innerHTML = '<span style="color:#15803D"><i class="fa-solid fa-check"></i> Clipboard loaded. Click Analyze & Extract.</span>';
+        }
+    } catch (e) {
+        document.getElementById('extractStatus').innerHTML = '<span style="color:#B91C1C">Browser blocked clipboard access. Click the box and press Ctrl+V instead.</span>';
+    }
+}
+function showManualForm() {
+    const fields = ["name","price","target_customer","industry","keywords","problem_solved","description","ideal_customer_profile","features","benefits","deliverables","requirements","technologies","use_cases","sales_arguments","objections","objection_responses"];
+    fields.forEach(f => { const el = document.getElementById('f_' + f); if (el) { el.value = ''; el.style.borderColor = ''; } });
+    document.getElementById('productForm').style.display = 'block';
+    document.getElementById('productForm').scrollIntoView({behavior:'smooth'});
+}
+</script>
+{% endblock %}

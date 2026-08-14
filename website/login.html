@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Login | RevenueForge</title>
+<meta name="description" content="Secure client portal access for active RevenueForge clients.">
+<meta property="og:title" content="Client Login | RevenueForge">
+<meta property="og:description" content="Secure client portal access for active RevenueForge clients.">
+<meta property="og:image" content="assets/logo.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Client Login | RevenueForge">
+<meta name="twitter:description" content="Secure client portal access for active RevenueForge clients.">
+<meta name="twitter:image" content="assets/logo.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Organization","name":"RevenueForge","url":"https://revenueforge.example","logo":"assets/logo.png","email":"adeolaayodeji4666@gmail.com","sameAs":["https://github.com/SilentGoodByeLabs"]}
+</script>
+
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="header"></div>
+<section class="auth-wrap">
+  <div class="auth-box">
+    <h1>Client Login</h1>
+    <p class="sub">Access your client portal.</p>
+    <form id="loginForm">
+      <label for="email">Email</label>
+      <input id="email" type="email" required autocomplete="email">
+      <label for="password">Password</label>
+      <input id="password" type="password" required autocomplete="current-password">
+      <input class="hp" id="website" type="text" tabindex="-1" autocomplete="off">
+      <div class="captcha-box">
+        <span class="q" id="captchaQ"></span>
+        <input id="captchaA" type="text" inputmode="numeric" required aria-label="CAPTCHA answer">
+        <button type="button" class="captcha-refresh" onclick="RFSecurity.newCaptcha()" aria-label="New CAPTCHA"><i class="fa-solid fa-rotate"></i></button>
+      </div>
+      <div style="margin-top:18px"><button class="btn btn-primary" type="submit"><i class="fa-solid fa-right-to-bracket"></i> Log In</button></div>
+      <div id="formMsg" class="form-msg"></div>
+    </form>
+    <p class="auth-alt">No account? <a href="signup.html">Request access</a></p>
+  </div>
+</section>
+<div id="footer"></div>
+<script src="js/config.js"></script>
+<script src="js/security.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/layout.js"></script>
+</body>
+</html>

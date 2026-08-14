@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="margin-bottom:8px">Admin: Client Projects</h1>
+<p style="color:var(--muted);margin-bottom:24px">Manage client projects. Changes appear in their portal automatically.</p>
+
+<div class="panel" style="border:2px solid var(--accent)">
+<h3><i class="fa-solid fa-plus" style="color:var(--accent)"></i> Add New Project</h3>
+<form method="post" action="/admin/projects/add">
+<div class="form-row">
+<input name="client_email" placeholder="Client email *" required>
+<input name="title" placeholder="Project title *" required>
+</div>
+<textarea name="description" rows="3" placeholder="Project description"></textarea>
+<select name="status">
+    <option value="planning">Planning</option>
+    <option value="in_progress">In Progress</option>
+    <option value="review">Under Review</option>
+    <option value="delivered">Delivered</option>
+</select>
+<button class="btn btn-primary" type="submit"><i class="fa-solid fa-plus"></i> Add Project</button>
+</form>
+</div>
+
+<div class="panel">
+<h3>All Projects ({{ projects|length }})</h3>
+<table class="grid">
+<tr><th>Client</th><th>Title</th><th>Status</th><th>Updated</th><th>Actions</th></tr>
+{% for p in projects %}
+<tr>
+    <td>{{ p.client_email }}</td>
+    <td><strong>{{ p.title }}</strong><br><span style="color:var(--muted);font-size:12px">{{ p.description or ''|truncate(60) }}</span></td>
+    <td><span class="badge {% if p.status == 'delivered' %}apply{% elif p.status == 'in_progress' %}review{% else %}neutral{% endif %}">{{ p.status }}</span></td>
+    <td>{{ p.updated_at.strftime('%Y-%m-%d') if p.updated_at else '—' }}</td>
+    <td>
+    <form method="post" action="/admin/projects/{{ p.id }}/update" style="display:flex;gap:6px">
+        <select name="status" style="margin:0;padding:6px">
+        <option value="planning" {% if p.status == 'planning' %}selected{% endif %}>Planning</option>
+        <option value="in_progress" {% if p.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+        <option value="review" {% if p.status == 'review' %}selected{% endif %}>Review</option>
+        <option value="delivered" {% if p.status == 'delivered' %}selected{% endif %}>Delivered</option>
+        </select>
+        <button class="btn btn-xs btn-ghost" type="submit">Update</button>
+    </form>
+    </td>
+</tr>
+{% else %}
+<tr><td colspan="5">No projects yet. Add one when a client signs a deal.</td></tr>
+{% endfor %}
+</table>
+</div>
+
+<div class="panel">
+<h3>How It Works</h3>
+<ol style="color:var(--ink);font-size:14px;line-height:1.9;margin:0 0 0 18px">
+<li>Client signs up on website with their email.</li>
+<li>When you win a deal, add a project here with their email.</li>
+<li>Update status as you work → client sees it in their portal.</li>
+<li>When delivered, add invoice to Pipeline → client sees it too.</li>
+</ol>
+</div>
+{% endblock %}
