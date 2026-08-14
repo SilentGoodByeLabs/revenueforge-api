@@ -79,7 +79,7 @@
 </section>
 
 <div id="footer"></div>
-<script src="js/layout.js"></script>
+<script src="js/layout.js?v=4"></script>
 <style>.sel{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:15px;background:var(--bg);margin-top:4px}</style>
 <script>
 const FOUNDER = 'adeolaayodeji4666@gmail.com';
@@ -131,7 +131,7 @@ function runAudit() {
 function mailFounder() {
   fetch('https://formsubmit.co/ajax/' + FOUNDER, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    headers: { 'Content-Type': 'text/plain', 'Accept': 'application/json' },
     body: JSON.stringify({ _subject: 'Free audit report request (new lead)', report: REPORT })
   }).then(function (r) {
     if (!r.ok) throw new Error('x');

@@ -1058,3 +1058,22 @@ async def member_login(request: Request):
         return {"ok": False, "message": "Wrong email/phone or password"}
     finally:
         s.close()
+
+def _heal_schema():
+    try:
+        from app.core.db import engine
+        from sqlalchemy import text
+        if not engine.url.drivername.startswith("postgres"):
+            return
+        with engine.connect() as c:
+            for s in [
+                "ALTER TABLE members ADD COLUMN IF NOT EXISTS phone VARCHAR",
+                "ALTER TABLE subscriber_profiles ADD COLUMN IF NOT EXISTS whatsapp VARCHAR",
+                "ALTER TABLE subscriber_profiles ADD COLUMN IF NOT EXISTS telegram VARCHAR",
+            ]:
+                c.execute(text(s))
+            c.commit()
+    except Exception as e:
+        print("schema heal skipped:", e)
+
+_heal_schema()

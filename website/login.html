@@ -1,55 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Client Login | RevenueForge</title>
-<meta name="description" content="Secure client portal access for active RevenueForge clients.">
-<meta property="og:title" content="Client Login | RevenueForge">
-<meta property="og:description" content="Secure client portal access for active RevenueForge clients.">
-<meta property="og:image" content="assets/logo.png">
-<meta property="og:type" content="website">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Client Login | RevenueForge">
-<meta name="twitter:description" content="Secure client portal access for active RevenueForge clients.">
-<meta name="twitter:image" content="assets/logo.png">
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Organization","name":"RevenueForge","url":"https://revenueforge.example","logo":"assets/logo.png","email":"adeolaayodeji4666@gmail.com","sameAs":["https://github.com/SilentGoodByeLabs"]}
-</script>
-
-<link rel="icon" type="image/png" href="assets/logo.png">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-<div id="header"></div>
-<section class="auth-wrap">
-  <div class="auth-box">
-    <h1>Client Login</h1>
-    <p class="sub">Access your client portal.</p>
-    <form id="loginForm">
-      <label for="email">Email</label>
-      <input id="email" type="email" required autocomplete="email">
-      <label for="password">Password</label>
-      <input id="password" type="password" required autocomplete="current-password">
-      <input class="hp" id="website" type="text" tabindex="-1" autocomplete="off">
-      <div class="captcha-box">
-        <span class="q" id="captchaQ"></span>
-        <input id="captchaA" type="text" inputmode="numeric" required aria-label="CAPTCHA answer">
-        <button type="button" class="captcha-refresh" onclick="RFSecurity.newCaptcha()" aria-label="New CAPTCHA"><i class="fa-solid fa-rotate"></i></button>
-      </div>
-      <div style="margin-top:18px"><button class="btn btn-primary" type="submit"><i class="fa-solid fa-right-to-bracket"></i> Log In</button></div>
-      <div id="formMsg" class="form-msg"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Log In | RevenueForge</title><link rel="icon" type="image/png" href="assets/logo.png"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><link rel="stylesheet" href="css/style.css">
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<style>
+.auth-sec{min-height:calc(100vh - 140px);display:flex;align-items:center;padding:40px 16px}
+.auth-card{max-width:460px;margin:0 auto;border-radius:20px;background:#fff;box-shadow:0 24px 60px rgba(11,34,57,.18);padding:40px 32px}
+.auth-card h1{font-family:'Sora';font-size:1.5rem;text-align:center}
+.auth-card .sub{color:var(--muted);font-size:.92rem;margin:6px 0 22px;text-align:center}
+.auth-card label{font-size:12.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.auth-card input{width:100%;margin:6px 0 14px;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:15px}
+.auth-card input:focus{outline:none;border-color:var(--accent)}
+.g-recaptcha{margin:6px 0 14px}
+.auth-card .btn{width:100%;padding:13px;font-size:1rem;border-radius:12px}
+.auth-card .alt{margin-top:14px;font-size:13.5px;color:var(--muted);text-align:center}
+@media (max-width:520px){.auth-card{padding:30px 20px}}
+</style></head><body><div id="header"></div>
+<section class="auth-sec"><div class="auth-card">
+  <h1>Welcome back</h1>
+  <p class="sub">Log in with your email.</p>
+  <label>Email</label>
+  <input id="li_email" type="email" autocomplete="username">
+  <label>Password</label>
+  <input name="password" id="li_pass" type="password" placeholder="••••••••" autocomplete="current-password">
+  <label>Human verification</label>
+  <div class="g-recaptcha" data-sitekey="6LeeFIYtAAAAALrKH0iC4xqRygsHTZWI70Egnw86"></div>
+  <p id="li_msg" style="color:#B91C1C;min-height:20px;font-size:13.5px"></p>
+  <button id="li_btn" class="btn btn-primary" type="submit">Log in →</button>
     </form>
-    <p class="auth-alt">No account? <a href="signup.html">Request access</a></p>
-  </div>
-</section>
-<div id="footer"></div>
-<script src="js/config.js"></script>
-<script src="js/security.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/chatbot.js"></script>
-<script src="js/layout.js"></script>
-</body>
-</html>
+  <p class="alt">New here? <a href="signup.html">Create a free account</a></p>
+</div></section><div id="footer"></div>
+<script src="js/config.js?v=4"></script><script src="js/layout.js?v=4"></script><script src="js/auth.js?v=9"></script></body></html>

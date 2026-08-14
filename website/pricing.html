@@ -16,30 +16,30 @@
 
 <section class="section"><div class="container" style="max-width:900px">
 
-<div class="card" style="margin-bottom:24px">
-<h3>1 · Choose your engines</h3>
+<details class="card fold" style="margin-bottom:24px" open>
+<summary>1 · Choose your engines</summary>
 <label style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)"><input type="checkbox" id="m_jobs" checked onchange="calc()"> Job Hunting Engine — finds, scores & drafts proposals for real opportunities <strong style="margin-left:auto">$29</strong></label>
 <label style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)"><input type="checkbox" id="m_outreach" onchange="calc()"> Sales Outreach Engine — researches businesses & drafts personalized outreach <strong style="margin-left:auto">$29</strong></label>
 <label style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)"><input type="checkbox" id="m_matching" onchange="calc()"> Product Matching & Catalog — matches your services to every opportunity <strong style="margin-left:auto">$19</strong></label>
 <label style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)"><input type="checkbox" id="m_crm" onchange="calc()"> CRM & Deal Pipeline — track prospects, deals, follow-ups, revenue <strong style="margin-left:auto">$19</strong></label>
 <label style="display:flex;gap:10px;align-items:center;padding:10px 0"><input type="checkbox" id="m_alerts" onchange="calc()"> Telegram Alerts & Daily Briefing <strong style="margin-left:auto">$9</strong></label>
-</div>
+</details>
 
-<div class="card" style="margin-bottom:24px">
-<h3>2 · Choose your volume</h3>
+<details class="card fold" style="margin-bottom:24px" open>
+<summary>2 · Choose your volume</summary>
 <label style="display:flex;gap:10px;padding:8px 0"><input type="radio" name="volume" value="v50" checked onchange="calc()"> Starter volume — 50 scans & 10 drafts / month <span style="margin-left:auto;color:var(--muted)">+$0</span></label>
 <label style="display:flex;gap:10px;padding:8px 0"><input type="radio" name="volume" value="v300" onchange="calc()"> Growth volume — 300 scans & 50 drafts / month <span style="margin-left:auto;color:var(--muted)">+$20</span></label>
 <label style="display:flex;gap:10px;padding:8px 0"><input type="radio" name="volume" value="v1000" onchange="calc()"> Agency volume — 1,000 scans & 150 drafts / month <span style="margin-left:auto;color:var(--muted)">+$50</span></label>
-</div>
+</details>
 
-<div class="card" style="margin-bottom:24px">
-<h3>3 · Region (fair pricing)</h3>
+<details class="card fold" style="margin-bottom:24px" open>
+<summary>3 · Region (fair pricing)</summary>
 <select id="region" onchange="calc()" style="max-width:320px">
 <option value="1">Global (standard)</option>
 <option value="0.6">Africa / South Asia (40% off)</option>
 <option value="0.8">Latin America / SE Asia (20% off)</option>
 </select>
-</div>
+</details>
 
 <div class="card" style="border:2px solid var(--accent);text-align:center">
 <h3 id="planLabel" style="font-size:22px">Your plan</h3>
@@ -58,10 +58,11 @@
 </div>
 
 </div></section>
+<div class="paybar"><strong>$<span id="barPrice">29</span>/mo</strong><button class="btn btn-primary" onclick="document.getElementById('payEmail').scrollIntoView();pay()">Pay Now</button></div>
 <div id="footer"></div>
-<script src="js/config.js"></script>
+<script src="js/config.js?v=5"></script>
 <script src="js/chatbot.js"></script>
-<script src="js/layout.js"></script>
+<script src="js/layout.js?v=4"></script>
 <script>
 var API = window.RF_API || 'http://localhost:8502';
 var MODS = { jobs: ['Job Hunting', 29], outreach: ['Sales Outreach', 29], matching: ['Product Matching', 19], crm: ['CRM & Pipeline', 19], alerts: ['Telegram Alerts', 9] };
@@ -78,7 +79,7 @@ function calc() {
   if (discounted) total = Math.round(total * 0.8);
   total = Math.max(9, Math.round(total * region));
   current = { price: total, modules: mods, volume: vol, label: (discounted ? 'Full-Stack Bundle' : mods.length + ' modules') };
-  document.getElementById('price').textContent = total;
+  document.getElementById('price').textContent = total; var bp=document.getElementById('barPrice'); if(bp) bp.textContent = total;
   document.getElementById('planLabel').textContent = current.label;
   document.getElementById('planSummary').textContent = mods.join(' + ') + ' · ' + VOL[vol][0] + '/mo' + (discounted ? ' · 20% bundle discount applied' : '') + (region < 1 ? ' · regional pricing applied' : '');
 }
@@ -103,7 +104,7 @@ function pay() {
       key: cfg.key, email: email, amount: amountLocal * 100, currency: cfg.currency || 'USD',
       ref: 'RF-' + Date.now(),
       callback: function (resp) {
-        fetch(API + '/api/subscribe/confirm', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        fetch(API + '/api/subscribe/confirm', { method: 'POST', headers: { 'Content-Type': 'text/plain' },
           body: JSON.stringify({ reference: resp.reference, email: email, price: current.price, modules: current.modules, volume: current.volume, plan_label: current.label })
         }).then(function (r) { return r.json(); }).then(function (d) {
           alert(d.ok ? '🎉 Payment verified! Your subscription is active. Log in to your portal to start.' : 'Payment could not be verified: ' + d.message);

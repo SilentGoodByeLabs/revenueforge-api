@@ -168,3 +168,76 @@ h1,h2,h3,h4{font-family:var(--head);color:var(--navy);line-height:1.2}
 .portal-banner{background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:18px;color:#fff;padding:36px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:28px}
 .portal-banner h1{color:#fff;font-size:26px}
 .portal-banner p{color:#C7D6E8;margin-top:6px}
+
+/* ===== MOBILE FIX (phones) ===== */
+@media (max-width: 768px) {
+  h1, .page-hero h1 { font-size: 1.7rem !important; line-height: 1.2 !important; }
+  h2 { font-size: 1.4rem !important; }
+  h3 { font-size: 1.15rem !important; }
+  p, li, label, span { font-size: 0.95rem !important; }
+  .page-hero { padding: 40px 0 !important; }
+  .page-hero p { font-size: 1rem !important; }
+  .container { padding-left: 16px !important; padding-right: 16px !important; }
+  .cards, .cards.two, .cards.three { grid-template-columns: 1fr !important; gap: 16px !important; }
+  .card { padding: 18px !important; }
+  .section { padding: 30px 0 !important; }
+  .btn { font-size: 0.9rem !important; padding: 10px 16px !important; }
+  input, select, textarea { font-size: 1rem !important; }
+  table { font-size: 0.8rem !important; }
+  header .btn { padding: 8px 12px !important; font-size: 0.8rem !important; }
+}
+
+/* ===== MOBILE v2 ===== */
+@media (max-width: 768px){
+  html,body{overflow-x:hidden}
+  img,table,pre{max-width:100%}
+  table{display:block;overflow-x:auto}
+  .grid{grid-template-columns:1fr !important}
+  header{flex-wrap:wrap;gap:8px}
+  .page-hero{padding:36px 0 !important}
+  .page-hero h1{font-size:1.6rem !important}
+  details.fold{margin-bottom:14px}
+  details.fold summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;font-weight:700}
+  details.fold summary::after{content:"+";font-size:1.3rem;color:var(--accent)}
+  details.fold[open] summary::after{content:"–"}
+  .paybar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:2px solid var(--accent);display:flex;justify-content:space-between;align-items:center;padding:10px 16px;z-index:99}
+}
+.paybar{display:none}
+@media (max-width:768px){.paybar{display:flex}}
+
+/* ===== PROFESSIONAL HEADER + FOOTER ===== */
+.rf-header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.rf-wrap{max-width:1100px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:18px;height:64px}
+.rf-logo{display:flex;align-items:center;gap:10px;font-family:'Sora',sans-serif;font-weight:800;font-size:1.15rem;color:var(--ink);text-decoration:none}
+.rf-logo img{width:30px;height:30px;border-radius:8px}
+.rf-logo b{color:var(--accent)}
+.rf-nav{margin-left:auto;display:flex;gap:22px}
+.rf-link{color:var(--muted);text-decoration:none;font-weight:600;font-size:.95rem}
+.rf-link:hover{color:var(--ink)}
+.rf-cta{display:flex;gap:10px}
+.rf-btn{padding:9px 16px;border-radius:10px;font-weight:700;font-size:.9rem;text-decoration:none}
+.rf-btn.ghost{color:var(--ink);border:1.5px solid var(--line)}
+.rf-btn.solid{background:var(--accent);color:#fff}
+.rf-burger{display:none;margin-left:auto;background:none;border:0;cursor:pointer;padding:8px}
+.rf-burger i{display:block;width:22px;height:2.5px;background:var(--ink);border-radius:2px;margin:4.5px 0;transition:.25s}
+.rf-menu{display:none}
+@media (max-width:860px){
+  .rf-nav,.rf-cta{display:none}
+  .rf-burger{display:block}
+  .rf-wrap{height:58px}
+  .rf-menu{display:none;padding:8px 20px 20px;border-top:1px solid var(--line);background:#fff}
+  .rf-header.open .rf-menu{display:block}
+  .rf-m-link{display:block;padding:14px 4px;font-weight:700;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line)}
+  .rf-m-cta{display:flex;gap:10px;margin-top:14px}
+  .rf-m-cta .rf-btn{flex:1;text-align:center}
+  .rf-header.open .rf-burger i:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .rf-header.open .rf-burger i:nth-child(2){opacity:0}
+  .rf-header.open .rf-burger i:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+}
+.rf-footer{background:#0B2239;color:#CBD5E1;margin-top:60px}
+.rf-f-grid{display:flex;gap:40px;padding:40px 20px;flex-wrap:wrap}
+.rf-f-grid>div{flex:1;min-width:220px}
+.rf-footer .rf-logo{color:#fff}
+.rf-footer p{color:#94A3B8;font-size:.9rem;margin-top:8px}
+.rf-f-link{display:block;color:#CBD5E1;text-decoration:none;padding:5px 0;font-size:.92rem}
+@media (max-width:860px){.rf-f-grid{flex-direction:column;gap:24px;padding:32px 20px}}
