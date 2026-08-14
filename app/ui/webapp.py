@@ -1059,20 +1059,28 @@ async def member_login(request: Request):
     finally:
         s.close()
 
+
 def _heal_schema():
     try:
         from app.core.db import engine
-        from sqlalchemy import text
+        from sqlalchemy import text, inspect as sa_inspect
         if not engine.url.drivername.startswith("postgres"):
             return
+        from app.core.models import Base
+        insp = sa_inspect(engine)
+        added = []
         with engine.connect() as c:
-            for s in [
-                "ALTER TABLE members ADD COLUMN IF NOT EXISTS phone VARCHAR",
-                "ALTER TABLE subscriber_profiles ADD COLUMN IF NOT EXISTS whatsapp VARCHAR",
-                "ALTER TABLE subscriber_profiles ADD COLUMN IF NOT EXISTS telegram VARCHAR",
-            ]:
-                c.execute(text(s))
+            for table in Base.metadata.sorted_tables:
+                if not insp.has_table(table.name):
+                    continue
+                existing = {col["name"] for col in insp.get_columns(table.name)}
+                for col in table.columns:
+                    if col.name not in existing:
+                        typ = col.type.compile(engine.dialect)
+                        c.execute(text('ALTER TABLE %s ADD COLUMN IF NOT EXISTS "%s" %s' % (table.name, col.name, typ)))
+                        added.append(f"{table.name}.{col.name}")
             c.commit()
+        print("✅ schema synced" + (": " + ", ".join(added) if added else " (nothing missing)"))
     except Exception as e:
         print("schema heal skipped:", e)
 
