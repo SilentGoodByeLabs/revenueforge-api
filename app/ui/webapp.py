@@ -918,14 +918,33 @@ async def public_join(request: Request):
         s.close()
 
 
+
+def verify_recaptcha(token):
+    import os, json as _json
+    from urllib.request import urlopen, Request
+    from urllib.parse import urlencode
+    secret = os.getenv("RECAPTCHA_SECRET", "")
+    if not secret:
+        return True  # dev mode: secret not set yet
+    if not token:
+        return False
+    try:
+        req = Request("https://www.google.com/recaptcha/api/siteverify",
+                      data=urlencode({"secret": secret, "response": token}).encode(),
+                      headers={"Content-Type": "application/x-www-form-urlencoded"})
+        with urlopen(req, timeout=10) as r:
+            return bool(_json.loads(r.read().decode()).get("success", False))
+    except Exception:
+        return False
+
 @app.get("/api/join-get")
-async def join_get(email: str = "", password: str = "", slide_ms: int = 0, website: str = ""):
+async def join_get(email: str = "", password: str = "", slide_ms: int = 0, website: str = "", captcha: str = ""):
     import hashlib, re as _re
     from app.core.models import Member
     if website.strip():
         return {"ok": False, "message": "Spam detected"}
-    if slide_ms < 400 or slide_ms > 60000:
-        return {"ok": False, "message": "Please slide the verification bar first"}
+    if not verify_recaptcha(captcha):
+        return {"ok": False, "message": "Please tick the \"I'm not a robot\" box"}
     email = email.strip().lower()
     if not _re.match(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", email):
         return {"ok": False, "message": "Enter a valid email address"}
