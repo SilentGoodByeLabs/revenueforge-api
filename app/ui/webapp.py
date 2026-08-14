@@ -20,14 +20,16 @@ from app.core.scoring import analyze_job, apply_analysis
 
 BASE = Path(__file__).resolve().parent
 app = FastAPI(title="RevenueForge Control Center")
-
 from fastapi.middleware.cors import CORSMiddleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
 templates = Jinja2Templates(directory=BASE / "templates")
 
