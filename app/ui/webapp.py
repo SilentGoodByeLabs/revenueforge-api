@@ -393,7 +393,7 @@ def product_archive(pid: int):
 async def extract_product_api(request: Request):
     from app.ai.factory import get_ai_provider
     import json
-import os
+    import os
     data = await request.json()
     text = data.get("text", "")
     
