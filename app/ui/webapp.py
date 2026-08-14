@@ -919,3 +919,8 @@ async def member_login(request: Request):
         return {"ok": False, "message": "Wrong email/phone or password"}
     finally:
         s.close()
+
+from fastapi.staticfiles import StaticFiles
+import os as _os
+if _os.path.isdir("website"):
+    app.mount("/", StaticFiles(directory="website", html=True), name="site")
