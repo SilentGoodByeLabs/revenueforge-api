@@ -1,1 +1,1 @@
-window.RF_API = "http://localhost:8502";
+window.RF_API = "https://revenueforge-api.onrender.com";
