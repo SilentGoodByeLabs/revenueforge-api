@@ -203,5 +203,6 @@ class Member(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
     password_hash = Column(String)
+    phone = Column(String, nullable=True)
     role = Column(String, default="client")
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

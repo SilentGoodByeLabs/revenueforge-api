@@ -858,7 +858,7 @@ async def public_join(request: Request):
     try:
         if s.query(Member).filter_by(email=email).first():
             return {"ok": False, "message": "Account exists — please log in"}
-        s.add(Member(email=email, password_hash=hashlib.sha256(password.encode()).hexdigest(), role="client"))
+        s.add(Member(email=email, phone=d.get("phone", ""), password_hash=hashlib.sha256(password.encode()).hexdigest(), role="client"))
         s.commit()
         return {"ok": True}
     finally:
