@@ -845,36 +845,73 @@ def health_check():
         s.close()
 
 
+DISPOSABLE_DOMAINS = {"mailinator.com","tempmail.com","temp-mail.org","10minutemail.com","guerrillamail.com","yopmail.com","trashmail.com","fakeinbox.com","sharklasers.com","getnada.com","dispostable.com","maildrop.cc","mohmal.com","emailondeck.com","mytemp.email","mintemail.com","spamgourmet.com","throwawaymail.com","tempinbox.com","mailnesia.com","guerrillamailblock.com"}
+CAPTCHA_STORE = {}
+
+@app.get("/api/captcha")
+async def get_captcha():
+    import random, uuid
+    if len(CAPTCHA_STORE) > 500: CAPTCHA_STORE.clear()
+    cid = uuid.uuid4().hex[:10]
+    a, b = random.randint(1, 9), random.randint(1, 9)
+    CAPTCHA_STORE[cid] = a + b
+    return {"id": cid, "question": f"{a} + {b}"}
+
 @app.post("/api/join")
 async def public_join(request: Request):
-    import hashlib
+    import hashlib, re
     from app.core.models import Member
     d = await request.json()
+    if (d.get("website") or "").strip():
+        return {"ok": False, "message": "Spam detected"}
+    stored = CAPTCHA_STORE.pop(d.get("captcha_id") or "", None)
+    try:
+        cap_ok = stored is not None and int(str(d.get("captcha_answer")).strip()) == stored
+    except Exception:
+        cap_ok = False
+    if not cap_ok:
+        return {"ok": False, "message": "Human check failed — solve the math question"}
     email = (d.get("email") or "").strip().lower()
+    phone = re.sub(r"[^0-9+]", "", d.get("phone") or "")
     password = d.get("password") or ""
-    if "@" not in email or len(password) < 6:
-        return {"ok": False, "message": "Valid email + password (6+ chars) required"}
+    if not email and not phone:
+        return {"ok": False, "message": "Enter your email OR your phone number"}
+    if email:
+        if not re.match(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", email):
+            return {"ok": False, "message": "That email doesn't look valid"}
+        if email.split("@")[1] in DISPOSABLE_DOMAINS:
+            return {"ok": False, "message": "Temporary emails are not allowed. Use a real inbox (Gmail, Outlook, Yahoo or work email)."}
+    if phone and len(phone.replace("+", "")) < 7:
+        return {"ok": False, "message": "That phone number doesn't look valid"}
+    if len(password) < 6:
+        return {"ok": False, "message": "Password must be 6+ characters"}
     s = SessionLocal()
     try:
-        if s.query(Member).filter_by(email=email).first():
+        if email and s.query(Member).filter_by(email=email).first():
             return {"ok": False, "message": "Account exists — please log in"}
-        s.add(Member(email=email, phone=d.get("phone", ""), password_hash=hashlib.sha256(password.encode()).hexdigest(), role="client"))
+        if phone and s.query(Member).filter_by(phone=phone).first():
+            return {"ok": False, "message": "Account exists — please log in"}
+        s.add(Member(email=email or None, phone=phone or None, password_hash=hashlib.sha256(password.encode()).hexdigest(), role="client"))
         s.commit()
-        return {"ok": True}
+        return {"ok": True, "key": email or phone}
     finally:
         s.close()
 
 @app.post("/api/member-login")
 async def member_login(request: Request):
-    import hashlib
+    import hashlib, re
     from app.core.models import Member
     d = await request.json()
-    email = (d.get("email") or "").strip().lower()
+    ident = (d.get("identifier") or d.get("email") or "").strip().lower()
+    password = d.get("password") or ""
     s = SessionLocal()
     try:
-        m = s.query(Member).filter_by(email=email).first()
-        if m and m.password_hash == hashlib.sha256((d.get("password") or "").encode()).hexdigest():
-            return {"ok": True, "role": m.role}
-        return {"ok": False, "message": "Wrong email or password"}
+        if "@" in ident:
+            m = s.query(Member).filter_by(email=ident).first()
+        else:
+            m = s.query(Member).filter_by(phone=re.sub(r"[^0-9+]", "", ident)).first()
+        if m and m.password_hash == hashlib.sha256(password.encode()).hexdigest():
+            return {"ok": True, "role": m.role, "key": m.email or m.phone}
+        return {"ok": False, "message": "Wrong email/phone or password"}
     finally:
         s.close()
