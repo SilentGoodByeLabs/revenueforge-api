@@ -875,7 +875,11 @@ async def public_join(request: Request):
     d = await request.json()
     if (d.get("website") or "").strip():
         return {"ok": False, "message": "Spam detected"}
-    if not CAPTCHA_STORE.pop(d.get("captcha_id") or "", 0):
+    try:
+        ms = int(d.get("slide_ms") or 0)
+    except Exception:
+        ms = 0
+    if ms < 400 or ms > 60000:
         return {"ok": False, "message": "Please slide the verification bar first"}
     email = (d.get("email") or "").strip().lower()
     password = d.get("password") or ""
