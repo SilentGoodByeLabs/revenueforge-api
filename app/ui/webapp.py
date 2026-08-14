@@ -850,12 +850,21 @@ CAPTCHA_STORE = {}
 
 @app.get("/api/captcha")
 async def get_captcha():
-    import random, uuid
-    if len(CAPTCHA_STORE) > 500: CAPTCHA_STORE.clear()
+    import uuid
     cid = uuid.uuid4().hex[:10]
-    a, b = random.randint(1, 9), random.randint(1, 9)
-    CAPTCHA_STORE[cid] = a + b
-    return {"id": cid, "question": f"{a} + {b}"}
+    CAPTCHA_STORE[cid] = 0
+    return {"id": cid}
+
+@app.post("/api/captcha/pass")
+async def captcha_pass(request: Request):
+    d = await request.json()
+    cid = d.get("id") or ""
+    try: ms = int(d.get("ms") or 0)
+    except Exception: ms = 0
+    if cid in CAPTCHA_STORE and ms >= 400:
+        CAPTCHA_STORE[cid] = 1
+        return {"ok": True}
+    return {"ok": False}
 
 @app.post("/api/join")
 async def public_join(request: Request):
@@ -864,39 +873,23 @@ async def public_join(request: Request):
     d = await request.json()
     if (d.get("website") or "").strip():
         return {"ok": False, "message": "Spam detected"}
-    stored = CAPTCHA_STORE.pop(d.get("captcha_id") or "", None)
-    try:
-        cap_ok = stored is not None and int(str(d.get("captcha_answer")).strip()) == stored
-    except Exception:
-        cap_ok = False
-    if not cap_ok:
-        return {"ok": False, "message": "Human check failed — solve the math question"}
-    ident = (d.get("identifier") or d.get("email") or d.get("phone") or "").strip()
-    if "@" in ident:
-        email = ident.lower(); phone = ""
-    else:
-        phone = re.sub(r"[^0-9+]", "", ident); email = ""
+    if not CAPTCHA_STORE.pop(d.get("captcha_id") or "", 0):
+        return {"ok": False, "message": "Please slide the verification bar first"}
+    email = (d.get("email") or d.get("identifier") or "").strip().lower()
     password = d.get("password") or ""
-    if not email and not phone:
-        return {"ok": False, "message": "Enter your email OR your phone number"}
-    if email:
-        if not re.match(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", email):
-            return {"ok": False, "message": "That email doesn't look valid"}
-        if email.split("@")[1] in DISPOSABLE_DOMAINS:
-            return {"ok": False, "message": "Temporary emails are not allowed. Use a real inbox (Gmail, Outlook, Yahoo or work email)."}
-    if phone and len(phone.replace("+", "")) < 7:
-        return {"ok": False, "message": "That phone number doesn't look valid"}
+    if not re.match(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", email):
+        return {"ok": False, "message": "Enter a valid email address"}
+    if email.split("@")[1] in DISPOSABLE_DOMAINS:
+        return {"ok": False, "message": "Temporary emails are not allowed. Use a real inbox (Gmail, Outlook, Yahoo or work email)."}
     if len(password) < 6:
         return {"ok": False, "message": "Password must be 6+ characters"}
     s = SessionLocal()
     try:
-        if email and s.query(Member).filter_by(email=email).first():
+        if s.query(Member).filter_by(email=email).first():
             return {"ok": False, "message": "Account exists — please log in"}
-        if phone and s.query(Member).filter_by(phone=phone).first():
-            return {"ok": False, "message": "Account exists — please log in"}
-        s.add(Member(email=email or None, phone=phone or None, password_hash=hashlib.sha256(password.encode()).hexdigest(), role="client"))
+        s.add(Member(email=email, password_hash=hashlib.sha256(password.encode()).hexdigest(), role="client"))
         s.commit()
-        return {"ok": True, "key": email or phone}
+        return {"ok": True, "key": email}
     finally:
         s.close()
 
