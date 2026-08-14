@@ -843,3 +843,38 @@ def health_check():
         return {"status": "error", "message": str(e)}, 500
     finally:
         s.close()
+
+
+@app.post("/api/join")
+async def public_join(request: Request):
+    import hashlib
+    from app.core.models import Member
+    d = await request.json()
+    email = (d.get("email") or "").strip().lower()
+    password = d.get("password") or ""
+    if "@" not in email or len(password) < 6:
+        return {"ok": False, "message": "Valid email + password (6+ chars) required"}
+    s = SessionLocal()
+    try:
+        if s.query(Member).filter_by(email=email).first():
+            return {"ok": False, "message": "Account exists — please log in"}
+        s.add(Member(email=email, password_hash=hashlib.sha256(password.encode()).hexdigest(), role="client"))
+        s.commit()
+        return {"ok": True}
+    finally:
+        s.close()
+
+@app.post("/api/member-login")
+async def member_login(request: Request):
+    import hashlib
+    from app.core.models import Member
+    d = await request.json()
+    email = (d.get("email") or "").strip().lower()
+    s = SessionLocal()
+    try:
+        m = s.query(Member).filter_by(email=email).first()
+        if m and m.password_hash == hashlib.sha256((d.get("password") or "").encode()).hexdigest():
+            return {"ok": True, "role": m.role}
+        return {"ok": False, "message": "Wrong email or password"}
+    finally:
+        s.close()

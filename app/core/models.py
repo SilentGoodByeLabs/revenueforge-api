@@ -197,3 +197,11 @@ class Subscription(Base):
     paystack_ref = Column(String, nullable=True)
     started_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     renews_at = Column(DateTime, nullable=True)
+
+class Member(Base):
+    __tablename__ = "members"
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True)
+    password_hash = Column(String)
+    role = Column(String, default="client")
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
