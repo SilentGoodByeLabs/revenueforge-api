@@ -871,8 +871,11 @@ async def public_join(request: Request):
         cap_ok = False
     if not cap_ok:
         return {"ok": False, "message": "Human check failed — solve the math question"}
-    email = (d.get("email") or "").strip().lower()
-    phone = re.sub(r"[^0-9+]", "", d.get("phone") or "")
+    ident = (d.get("identifier") or d.get("email") or d.get("phone") or "").strip()
+    if "@" in ident:
+        email = ident.lower(); phone = ""
+    else:
+        phone = re.sub(r"[^0-9+]", "", ident); email = ""
     password = d.get("password") or ""
     if not email and not phone:
         return {"ok": False, "message": "Enter your email OR your phone number"}
