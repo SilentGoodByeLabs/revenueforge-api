@@ -36,6 +36,11 @@ def render(request, name, **data):
     return templates.TemplateResponse(request, name, data)
 
 
+# FORCE TABLE CREATION AT IMPORT
+from app.core.models import Base
+Base.metadata.create_all(bind=engine)
+print("✅ Database tables created at import time")
+
 @app.get("/")
 def home(request: Request):
     s = SessionLocal()
@@ -823,3 +828,18 @@ def admin_sub_toggle(sub_id: int):
     finally:
         s.close()
     return RedirectResponse("/admin/subscriptions", status_code=303)
+
+
+@app.get("/health")
+def health_check():
+    """Health check that verifies database is working"""
+    from app.core.models import Job
+    s = SessionLocal()
+    try:
+        # Try to query - this will fail if tables don't exist
+        count = s.query(Job).count()
+        return {"status": "ok", "jobs_count": count, "database": "connected"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}, 500
+    finally:
+        s.close()
