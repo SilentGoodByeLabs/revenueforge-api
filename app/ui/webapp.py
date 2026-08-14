@@ -845,12 +845,14 @@ def health_check():
         s.close()
 
 
-DISPOSABLE_DOMAINS = {"mailinator.com","tempmail.com","temp-mail.org","10minutemail.com","guerrillamail.com","yopmail.com","trashmail.com","fakeinbox.com","sharklasers.com","getnada.com","dispostable.com","maildrop.cc","mohmal.com","emailondeck.com","mytemp.email","mintemail.com","spamgourmet.com","throwawaymail.com","tempinbox.com","mailnesia.com","guerrillamailblock.com"}
+
+DISPOSABLE_DOMAINS = {"mailinator.com","tempmail.com","temp-mail.org","10minutemail.com","guerrillamail.com","yopmail.com","trashmail.com","fakeinbox.com","sharklasers.com","getnada.com","dispostable.com","maildrop.cc","mohmal.com","emailondeck.com","mytemp.email","mintemail.com","spamgourmet.com","throwawaymail.com","tempinbox.com","mailnesia.com"}
 CAPTCHA_STORE = {}
 
 @app.get("/api/captcha")
 async def get_captcha():
     import uuid
+    if len(CAPTCHA_STORE) > 1000: CAPTCHA_STORE.clear()
     cid = uuid.uuid4().hex[:10]
     CAPTCHA_STORE[cid] = 0
     return {"id": cid}
@@ -868,16 +870,16 @@ async def captcha_pass(request: Request):
 
 @app.post("/api/join")
 async def public_join(request: Request):
-    import hashlib, re
+    import hashlib, re as _re
     from app.core.models import Member
     d = await request.json()
     if (d.get("website") or "").strip():
         return {"ok": False, "message": "Spam detected"}
     if not CAPTCHA_STORE.pop(d.get("captcha_id") or "", 0):
         return {"ok": False, "message": "Please slide the verification bar first"}
-    email = (d.get("email") or d.get("identifier") or "").strip().lower()
+    email = (d.get("email") or "").strip().lower()
     password = d.get("password") or ""
-    if not re.match(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", email):
+    if not _re.match(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", email):
         return {"ok": False, "message": "Enter a valid email address"}
     if email.split("@")[1] in DISPOSABLE_DOMAINS:
         return {"ok": False, "message": "Temporary emails are not allowed. Use a real inbox (Gmail, Outlook, Yahoo or work email)."}
