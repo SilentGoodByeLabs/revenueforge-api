@@ -937,6 +937,61 @@ def verify_recaptcha(token):
     except Exception:
         return False
 
+
+SITE = "https://silentgoodbyelabs.github.io/revenueforge"
+
+@app.post("/api/join-form")
+async def join_form(request: Request):
+    import hashlib, re as _re
+    from urllib.parse import quote
+    from fastapi.responses import RedirectResponse
+    from app.core.models import Member
+    form = await request.form()
+    email = (form.get("email") or "").strip().lower()
+    password = form.get("password") or ""
+    captcha = form.get("g-recaptcha-response") or ""
+    err = ""
+    if not _re.match(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", email):
+        err = "Enter a valid email address"
+    elif email.split("@")[1] in DISPOSABLE_DOMAINS:
+        err = "Temporary emails not allowed"
+    elif len(password) < 6:
+        err = "Password must be 6+ characters"
+    elif not verify_recaptcha(captcha):
+        err = "Please tick the I'm-not-a-robot box"
+    if err:
+        return RedirectResponse(SITE + "/signup.html?err=" + quote(err))
+    s = SessionLocal()
+    try:
+        if not s.query(Member).filter_by(email=email).first():
+            s.add(Member(email=email, password_hash=hashlib.sha256(password.encode()).hexdigest(), role="client"))
+            s.commit()
+        return RedirectResponse(SITE + "/portal.html?authed=" + quote(email))
+    finally:
+        s.close()
+
+@app.post("/api/login-form")
+async def login_form(request: Request):
+    import hashlib
+    from urllib.parse import quote
+    from fastapi.responses import RedirectResponse
+    from app.core.models import Member
+    form = await request.form()
+    email = (form.get("email") or "").strip().lower()
+    password = form.get("password") or ""
+    captcha = form.get("g-recaptcha-response") or ""
+    if not verify_recaptcha(captcha):
+        return RedirectResponse(SITE + "/login.html?err=" + quote("Please tick the captcha box"))
+    s = SessionLocal()
+    try:
+        m = s.query(Member).filter_by(email=email).first()
+        ok = bool(m and m.password_hash == hashlib.sha256(password.encode()).hexdigest())
+    finally:
+        s.close()
+    if not ok:
+        return RedirectResponse(SITE + "/login.html?err=" + quote("Wrong email or password"))
+    return RedirectResponse(SITE + "/portal.html?authed=" + quote(email))
+
 @app.get("/api/join-get")
 async def join_get(email: str = "", password: str = "", slide_ms: int = 0, website: str = "", captcha: str = ""):
     import hashlib, re as _re
