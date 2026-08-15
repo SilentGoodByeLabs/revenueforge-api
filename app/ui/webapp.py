@@ -1121,6 +1121,55 @@ async def resend_code(email: str = ""):
     finally:
         s.close()
 
+
+def send_code(email, code):
+    import os, smtplib
+    from email.mime.text import MIMEText
+    u = os.getenv("GMAIL_USER", ""); pw = os.getenv("GMAIL_APP_PASS", "")
+    if not u or not pw:
+        print("DEV verification code for", email, "=", code)
+        return False
+    msg = MIMEText("Your RevenueForge verification code is: " + code + "\nIf you didn't request this, ignore this email.")
+    msg["Subject"] = "RevenueForge verification code"
+    msg["From"] = u; msg["To"] = email
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as s:
+        s.login(u, pw); s.sendmail(u, [email], msg.as_string())
+    return True
+
+@app.get("/api/verify")
+async def verify_email(email: str = "", code: str = ""):
+    from urllib.parse import quote
+    from fastapi.responses import RedirectResponse
+    from app.core.models import Member
+    email = email.strip().lower()
+    s = SessionLocal()
+    try:
+        m = s.query(Member).filter_by(email=email).first()
+        if m and m.verify_code and m.verify_code == code.strip():
+            m.verified = True; m.verify_code = None; s.commit()
+            return RedirectResponse(SITE + "/portal.html?authed=" + quote(email))
+        return RedirectResponse(SITE + "/verify.html?email=" + quote(email) + "&err=" + quote("Wrong code — try again"))
+    finally:
+        s.close()
+
+@app.get("/api/resend")
+async def resend_code(email: str = ""):
+    import random
+    from urllib.parse import quote
+    from fastapi.responses import RedirectResponse
+    from app.core.models import Member
+    email = email.strip().lower()
+    s = SessionLocal()
+    try:
+        m = s.query(Member).filter_by(email=email).first()
+        if m:
+            code = str(random.randint(100000, 999999))
+            m.verify_code = code; m.verified = False; s.commit()
+            send_code(email, code)
+        return RedirectResponse(SITE + "/verify.html?email=" + quote(email) + "&err=" + quote("New code sent — check your inbox"))
+    finally:
+        s.close()
+
 @app.get("/api/join-get")
 async def join_get(email: str = "", password: str = "", slide_ms: int = 0, website: str = "", captcha: str = ""):
     import hashlib, re as _re
