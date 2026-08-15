@@ -999,6 +999,69 @@ async def login_form(request: Request):
         return RedirectResponse(SITE + "/login.html?err=" + quote("Server: " + str(e)[:120]), status_code=303)
 
 
+
+@app.get("/api/paystack-public")
+async def paystack_public():
+    import os
+    try: rate = float(os.getenv("USD_RATE", "1"))
+    except Exception: rate = 1.0
+    return {"key": os.getenv("PAYSTACK_PUBLIC", ""), "currency": os.getenv("PAYSTACK_CURRENCY", "USD"), "rate": rate}
+
+@app.get("/api/sub/{email}")
+async def my_sub(email: str):
+    from app.core.models import Subscription
+    s = SessionLocal()
+    try:
+        r = s.query(Subscription).filter_by(email=email).first()
+        if not r: return {"has": False}
+        return {"has": True,
+                "plan": getattr(r, "plan", "") or "",
+                "volume": getattr(r, "volume", "") or "",
+                "status": getattr(r, "status", "") or "",
+                "modules": getattr(r, "modules", "") or ""}
+    finally:
+        s.close()
+
+@app.post("/api/subscribe")
+async def subscribe(request: Request):
+    from app.core.models import Subscription
+    d = await request.json()
+    email = (d.get("email") or "").strip().lower()
+    if not email: return {"ok": False}
+    s = SessionLocal()
+    try:
+        r = s.query(Subscription).filter_by(email=email).first()
+        if not r:
+            r = Subscription(email=email, volume=d.get("volume", "v50"), status="active")
+            s.add(r)
+        r.status = "active"
+        if hasattr(r, "volume"): r.volume = d.get("volume", "v50")
+        if hasattr(r, "plan"): r.plan = d.get("plan", "Starter")
+        if hasattr(r, "modules"): r.modules = d.get("modules", "")
+        s.commit()
+        return {"ok": True}
+    finally:
+        s.close()
+
+@app.get("/api/audit")
+async def free_audit(skills: str = "", target: str = ""):
+    from app.core.models import Job, Product
+    s = SessionLocal()
+    try:
+        jobs = s.query(Job).order_by(Job.opportunity_score.desc()).limit(20).all()
+        kw = [k for k in (skills + " " + target).lower().split() if len(k) > 2]
+        out = []
+        for j in jobs:
+            base = j.opportunity_score or 50
+            text = ((j.title or "") + " " + (j.platform or "")).lower()
+            hits = sum(1 for k in kw if k in text)
+            out.append({"title": j.title, "url": j.url, "platform": j.platform, "score": min(99, base + hits * 5)})
+        out.sort(key=lambda x: -x["score"])
+        prods = [{"name": pr.name, "price": pr.price} for pr in s.query(Product).filter_by(status="active").all()]
+        return {"jobs": out[:6], "products": prods}
+    finally:
+        s.close()
+
 @app.get("/api/join-get")
 async def join_get(email: str = "", password: str = "", slide_ms: int = 0, website: str = "", captcha: str = ""):
     import hashlib, re as _re
