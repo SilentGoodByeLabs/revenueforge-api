@@ -1182,6 +1182,32 @@ async def resend_code(email: str = ""):
     finally:
         s.close()
 
+
+@app.get("/api/my/products")
+async def my_products(email: str = ""):
+    from app.core.models import SubscriberProduct
+    s = SessionLocal()
+    try:
+        rows = s.query(SubscriberProduct).filter_by(owner_email=email.strip().lower()).order_by(SubscriberProduct.id.desc()).all()
+        return {"products": [{"id": r.id, "name": r.name, "price": r.price, "description": r.description or "", "status": r.status} for r in rows]}
+    finally:
+        s.close()
+
+@app.post("/api/my/products")
+async def add_my_product(request: Request):
+    from app.core.models import SubscriberProduct
+    d = await request.json()
+    email = (d.get("email") or "").strip().lower()
+    name = (d.get("name") or "").strip()
+    if not email or not name: return {"ok": False}
+    s = SessionLocal()
+    try:
+        s.add(SubscriberProduct(owner_email=email, name=name,
+                price=int(d.get("price") or 0), description=d.get("description") or ""))
+        s.commit(); return {"ok": True}
+    finally:
+        s.close()
+
 @app.get("/api/join-get")
 async def join_get(email: str = "", password: str = "", slide_ms: int = 0, website: str = "", captcha: str = ""):
     import hashlib, re as _re

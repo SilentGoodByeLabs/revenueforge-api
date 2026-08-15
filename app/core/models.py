@@ -215,3 +215,13 @@ class AuditUse(Base):
     ip = Column(String, index=True)
     email = Column(String, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+class SubscriberProduct(Base):
+    __tablename__ = "subscriber_products"
+    id = Column(Integer, primary_key=True, index=True)
+    owner_email = Column(String, index=True)
+    name = Column(String)
+    price = Column(Integer, default=0)
+    description = Column(Text, nullable=True)
+    status = Column(String, default="active")
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
