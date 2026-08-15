@@ -1,0 +1,27 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Verify Email | RevenueForge</title><link rel="icon" type="image/png" href="assets/logo.png"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><link rel="stylesheet" href="css/style.css">
+<style>.auth-card{max-width:460px;margin:40px auto;border-radius:20px;background:#fff;box-shadow:0 24px 60px rgba(11,34,57,.18);padding:40px 32px}</style></head>
+<body><div id="header"></div>
+<div class="auth-card">
+<h1 style="font-family:'Sora';text-align:center"><i class="fa-solid fa-envelope-circle-check" style="color:var(--accent)"></i> Verify your email</h1>
+<p style="color:var(--muted);text-align:center;margin:8px 0 20px">We sent a 6-digit code to your inbox.</p>
+<form id="vForm" method="get" action="https://revenueforge-api.onrender.com/api/verify">
+<input type="hidden" name="email" id="v_email">
+<label style="font-size:13px;font-weight:700">6-digit code</label>
+<input name="code" id="v_code" inputmode="numeric" maxlength="6" placeholder="••••••" style="text-align:center;font-size:1.4rem;letter-spacing:8px">
+<p id="v_msg" style="color:#B91C1C;min-height:20px;font-size:13.5px"></p>
+<button class="btn btn-primary" style="width:100%" type="submit">Verify & enter →</button>
+</form>
+<p style="text-align:center;margin-top:14px;font-size:13.5px;color:var(--muted)">Didn't get it? <a id="v_resend" href="#">Resend code</a></p>
+</div>
+<script src="js/config.js?v=4"></script><script src="js/layout.js?v=11"></script>
+<script>
+var q=new URLSearchParams(location.search);
+var em=q.get('email')||''; var er=q.get('err')||'';
+document.getElementById('v_email').value=em;
+if(er) document.getElementById('v_msg').textContent=er;
+document.getElementById('v_resend').href=(window.RF_API||'')+'/api/resend?email='+encodeURIComponent(em);
+</script></body></html>

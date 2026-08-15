@@ -1,10 +1,9 @@
-"""Host runner: delivers results to FREE + PAID members, limited by plan. rf-host"""
 import time
 from datetime import datetime
 from app.core.db import SessionLocal
 from app.core.models import Member, Subscription, SubscriberProfile, SubscriberJob, Job
 
-LIMITS = {"": 3, "v50": 10, "v300": 50, "v1000": 150}  # free=3, Starter=10, Growth=50, Agency=150
+LIMITS = {"": 3, "v50": 10, "v300": 50, "v1000": 150}
 
 def deliver():
     s = SessionLocal()

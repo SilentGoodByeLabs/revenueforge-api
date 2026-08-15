@@ -1,110 +1,145 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Client Portal | RevenueForge</title>
-<meta name="description" content="Secure client portal: track your projects, proposals, invoices and deliverables in one place.">
-<meta property="og:title" content="Client Portal | RevenueForge">
-<meta property="og:description" content="Secure client portal: track your projects, proposals, invoices and deliverables in one place.">
-<meta property="og:image" content="assets/logo.png">
-<meta property="og:type" content="website">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Client Portal | RevenueForge">
-<meta name="twitter:description" content="Secure client portal: track your projects, proposals, invoices and deliverables in one place.">
-<meta name="twitter:image" content="assets/logo.png">
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Organization","name":"RevenueForge","url":"https://revenueforge.example","logo":"assets/logo.png","email":"adeolaayodeji4666@gmail.com","sameAs":["https://github.com/SilentGoodByeLabs"]}
-</script>
-
-<link rel="icon" type="image/png" href="assets/logo.png">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-<script>(function(){var q=new URLSearchParams(location.search);var a=q.get("authed");if(a){localStorage.setItem("rf_session",JSON.stringify({email:a}));history.replaceState(null,"",location.pathname);}})();</script>
-<div id="header"></div>
-
-<section class="section" style="padding-top:48px">
-  <div class="container">
-    <div class="portal-banner">
-      <div>
-        <h1>Welcome back, <span id="pName">Client</span></h1>
-        <p id="pEmail"></p>
-      </div>
-      <button class="btn btn-light" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Log Out</button>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><title>Dashboard | RevenueForge</title><link rel="icon" type="image/png" href="assets/logo.png"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><link rel="stylesheet" href="css/style.css">
+<style>
+body{background:#F4F6FA}
+.dash{display:grid;grid-template-columns:250px 1fr;gap:24px;max-width:1200px;margin:0 auto;padding:24px 16px}
+.side{background:#0B2239;border-radius:16px;padding:20px 14px;color:#fff;height:fit-content;position:sticky;top:80px}
+.side .brand{display:flex;gap:10px;align-items:center;font-family:'Sora';font-weight:800;margin-bottom:18px}
+.side .brand img{width:30px;border-radius:8px}
+.side .user{font-size:.8rem;color:#7C93A8;background:#123B5C;border-radius:10px;padding:8px 10px;margin-bottom:14px;word-break:break-all}
+.nav-i{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:none;border:0;color:#A9BBD0;padding:12px 12px;border-radius:10px;font-weight:600;font-size:.9rem;cursor:pointer}
+.nav-i i{width:18px;text-align:center}
+.nav-i.active,.nav-i:hover{background:#1D4E75;color:#fff}
+.panel{display:none}.panel.active{display:block;animation:fade .25s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+.crumb{font-size:.8rem;color:var(--muted);margin-bottom:4px}
+.ptitle{font-family:'Sora';font-size:1.3rem;margin-bottom:16px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.kpi .n{font-family:'Sora';font-size:1.6rem;font-weight:800}
+.kpi .l{color:var(--muted);font-size:.8rem;margin-top:2px}
+.kpi .ic{float:right;color:var(--accent);font-size:1.1rem}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
+.card h3{font-family:'Sora';font-size:1rem;margin-bottom:12px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.badge{font-size:.7rem;font-weight:700;border-radius:99px;padding:3px 10px}
+.b-green{background:#DCFCE7;color:#15803D}.b-blue{background:#DBEAFE;color:#1D4ED8}.b-amber{background:#FEF3C7;color:#B45309}
+.bar{height:8px;background:#EEF2F7;border-radius:99px;overflow:hidden;margin-top:6px}
+.bar>div{height:100%;background:var(--accent)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+input,select,textarea{width:100%;margin:6px 0 12px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:14px}
+.btn{border:0;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer}
+.btn-p{background:var(--accent);color:#fff}.btn-g{background:#fff;border:1.5px solid var(--line);color:var(--ink)}
+@media (max-width:900px){.dash{grid-template-columns:1fr}.side{position:static}.kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}}
+</style></head><body><div id="header"></div>
+<script>(function(){var q=new URLSearchParams(location.search);var a=q.get('authed');if(a){localStorage.setItem('rf_session',JSON.stringify({email:a}));history.replaceState(null,'',location.pathname);}})();</script>
+<div class="dash">
+<aside class="side">
+  <div class="brand"><img src="assets/logo.png" alt="">Revenue<b style="color:var(--accent)">Forge</b></div>
+  <div class="user" id="uEmail">…</div>
+  <button class="nav-i active" data-p="ov"><i class="fa-solid fa-chart-line"></i> Overview</button>
+  <button class="nav-i" data-p="jobs"><i class="fa-solid fa-briefcase"></i> Jobs & Progress</button>
+  <button class="nav-i" data-p="serv"><i class="fa-solid fa-boxes-stacked"></i> My Services</button>
+  <button class="nav-i" data-p="plan"><i class="fa-solid fa-crown"></i> Plan & Billing</button>
+  <button class="nav-i" data-p="set"><i class="fa-solid fa-sliders"></i> Settings & Alerts</button>
+  <button class="nav-i" data-p="help"><i class="fa-solid fa-life-ring"></i> Help & Guide</button>
+</aside>
+<main>
+  <section id="p-ov" class="panel active">
+    <div class="crumb">Dashboard / Overview</div><div class="ptitle">Welcome back 👋</div>
+    <div class="kpis">
+      <div class="kpi"><i class="ic fa-solid fa-briefcase"></i><div class="n" id="kJobs">0</div><div class="l">Jobs delivered</div></div>
+      <div class="kpi"><i class="ic fa-solid fa-boxes-stacked"></i><div class="n" id="kServ">0</div><div class="l">Active services</div></div>
+      <div class="kpi"><i class="ic fa-solid fa-crown"></i><div class="n" id="kPlan" style="font-size:1.1rem">Free</div><div class="l">Current plan</div></div>
+      <div class="kpi"><i class="ic fa-solid fa-bell"></i><div class="n" id="kAlert" style="font-size:1.1rem">Off</div><div class="l">Alerts</div></div>
     </div>
-
-    
-    <div class="card" style="margin-bottom:26px;border:2px solid var(--accent)" id="subCard">
-      <h3><i class="fa-solid fa-crown" style="color:var(--accent)"></i> Your Subscription</h3>
-      <p id="subInfo" style="color:var(--muted);margin-top:8px">Loading your plan…</p>
-    </div>
-    <div class="cards" style="grid-template-columns:repeat(4,1fr);margin-bottom:28px">
-      <div class="card"><div class="icon"><i class="fa-solid fa-diagram-project"></i></div><h3>Active Projects</h3><p id="statProjects">0</p></div>
-      <div class="card"><div class="icon"><i class="fa-solid fa-file-lines"></i></div><h3>Open Proposals</h3><p id="statProposals">0</p></div>
-      <div class="card"><div class="icon"><i class="fa-solid fa-receipt"></i></div><h3>Open Invoices</h3><p id="statInvoices">0</p></div>
-      <div class="card"><div class="icon"><i class="fa-solid fa-comments"></i></div><h3>Unread Updates</h3><p id="statMessages">0</p></div>
-    </div>
-
-    <div class="cards two">
-      <div class="card">
-        <h3><i class="fa-solid fa-diagram-project" style="color:var(--accent)"></i> Your Projects</h3>
-        <p style="color:var(--muted);margin-top:10px">No active projects yet. Once your consultant starts a build, live status, milestones and delivery dates appear here.</p>
+    <div class="grid2">
+      <div class="card"><h3><i class="fa-solid fa-rocket"></i> Quick start</h3>
+        <div class="row"><span>1 · Set up your robot</span><button class="btn btn-g" onclick="go('set')">Open</button></div>
+        <div class="row"><span>2 · Add your services</span><button class="btn btn-g" onclick="go('serv')">Open</button></div>
+        <div class="row"><span>3 · Activate a plan</span><button class="btn btn-p" onclick="go('plan')">Upgrade</button></div>
       </div>
-      <div class="card">
-        <h3><i class="fa-solid fa-file-lines" style="color:var(--accent)"></i> Proposals & Quotes</h3>
-        <p style="color:var(--muted);margin-top:10px">Proposals and fixed quotes shared with you will appear here for review and approval.</p>
-      </div>
-      <div class="card">
-        <h3><i class="fa-solid fa-receipt" style="color:var(--accent)"></i> Invoices & Payments</h3>
-        <p style="color:var(--muted);margin-top:10px">Invoices with payment status (Unpaid / Invoice Sent / Paid) will appear here. You will never be charged outside an agreed fixed quote.</p>
-      </div>
-      <div class="card">
-        <h3><i class="fa-solid fa-folder-open" style="color:var(--accent)"></i> Documents & Deliverables</h3>
-        <p style="color:var(--muted);margin-top:10px">Final deliverables, documentation and handover files are stored here at project completion.</p>
+      <div class="card"><h3><i class="fa-solid fa-chart-simple"></i> This month</h3>
+        <div style="color:var(--muted);font-size:.85rem">Job-match activity</div>
+        <div class="bar"><div id="actBar" style="width:10%"></div></div>
+        <p id="actTxt" style="color:var(--muted);font-size:.85rem;margin-top:10px">Your robot scans every 30 minutes.</p>
       </div>
     </div>
-
-    <div class="card" style="margin-top:26px">
-      <h3><i class="fa-solid fa-headset" style="color:var(--accent)"></i> Need help?</h3>
-      <p style="color:var(--muted);margin-top:10px">Email <a href="mailto:adeolaayodeji4666@gmail.com" style="color:var(--accent);font-weight:600">adeolaayodeji4666@gmail.com</a> or use the chat bubble in the corner — we reply within 24 hours.</p>
+  </section>
+  <section id="p-jobs" class="panel">
+    <div class="crumb">Dashboard / Jobs</div><div class="ptitle">Jobs & Progress</div>
+    <div class="card"><div id="jobsBody" style="color:var(--muted)">Loading…</div></div>
+  </section>
+  <section id="p-serv" class="panel">
+    <div class="crumb">Dashboard / Services</div><div class="ptitle">My Services</div>
+    <div class="card"><h3><i class="fa-solid fa-plus"></i> Add a service</h3>
+      <div class="grid2">
+        <div><input id="sv_name" placeholder="Service name (e.g. PDF → Excel automation)"></div>
+        <div><input id="sv_price" type="number" placeholder="Price (USD)"></div>
+      </div>
+      <textarea id="sv_desc" rows="2" placeholder="Short description customers will see"></textarea>
+      <button class="btn btn-p" onclick="addServ()"><i class="fa-solid fa-floppy-disk"></i> Publish service</button>
     </div>
-  </div>
-</section>
-
+    <div class="card"><h3><i class="fa-solid fa-list"></i> Your published services</h3><div id="servBody" style="color:var(--muted)">Loading…</div></div>
+  </section>
+  <section id="p-plan" class="panel">
+    <div class="crumb">Dashboard / Plan</div><div class="ptitle">Plan & Billing</div>
+    <div class="card"><div id="planBody" style="color:var(--muted)">Loading…</div></div>
+  </section>
+  <section id="p-set" class="panel">
+    <div class="crumb">Dashboard / Settings</div><div class="ptitle">Settings & Alerts</div>
+    <div class="card"><h3><i class="fa-solid fa-robot"></i> Robot configuration</h3>
+      <label style="font-size:12px;font-weight:700;color:var(--muted)">MODE</label>
+      <select id="ob_mode"><option value="jobs">Find me jobs</option><option value="outreach">Find me clients</option><option value="both">Both</option></select>
+      <label style="font-size:12px;font-weight:700;color:var(--muted)">SKILLS</label><textarea id="ob_skills" rows="2"></textarea>
+      <label style="font-size:12px;font-weight:700;color:var(--muted)">TARGET</label><textarea id="ob_target" rows="2"></textarea>
+      <label style="font-size:12px;font-weight:700;color:var(--muted)">WHATSAPP (Growth+)</label><input id="ob_wa" type="tel" placeholder="+234…">
+      <label style="font-size:12px;font-weight:700;color:var(--muted)">TELEGRAM (Growth+)</label><input id="ob_tg" placeholder="@username">
+      <p id="setMsg" style="color:#16A34A;min-height:18px"></p>
+      <button class="btn btn-p" onclick="saveSet()">Save settings</button>
+    </div>
+  </section>
+  <section id="p-help" class="panel">
+    <div class="crumb">Dashboard / Help</div><div class="ptitle">Help & Guide</div>
+    <div class="card"><h3><i class="fa-solid fa-book"></i> How RevenueForge works</h3>
+      <div class="row"><span><i class="fa-solid fa-1"></i> Configure your robot (Settings)</span></div>
+      <div class="row"><span><i class="fa-solid fa-2"></i> Publish your services so we know what to sell</span></div>
+      <div class="row"><span><i class="fa-solid fa-3"></i> Choose a plan to unlock volume + alerts</span></div>
+      <div class="row"><span><i class="fa-solid fa-4"></i> Watch Jobs & Progress — approve drafts, track wins</span></div>
+      <div class="row"><span><i class="fa-solid fa-5"></i> Get WhatsApp/Telegram alerts on wins & sales</span></div>
+    </div>
+  </section>
+</main>
+</div>
 <div id="footer"></div>
-<script src="js/config.js?v=5"></script>
-<script src="js/chatbot.js"></script>
-<script src="js/layout.js?v=4"></script>
+<script src="js/config.js?v=4"></script><script src="js/layout.js?v=11"></script>
 <script>
-(function () {
-  var sess = null;
-  try { sess = JSON.parse(localStorage.getItem('rf_session') || 'null'); } catch (e) {}
-  if (!sess) { window.location.href = 'login.html'; return; }
-  document.getElementById('pName').textContent = sess.name || 'Client';
-  document.getElementById('pEmail').textContent = sess.email || '';
-})();
-function logout() {
-  localStorage.removeItem('rf_session');
-  window.location.href = 'index.html';
-}
-</script>
-<script>
-(function () {
-  var sess = null;
-  try { sess = JSON.parse(localStorage.getItem('rf_session') || 'null'); } catch (e) {}
-  if (sess && sess.email) {
-    fetch((window.RF_API || 'http://localhost:8502') + '/api/subscription/' + encodeURIComponent(sess.email))
-      .then(function (r) { return r.json(); })
-      .then(function (d) {
-        var el = document.getElementById('subInfo');
-        if (d.active) el.innerHTML = '<strong>' + d.plan + '</strong> — ' + d.modules.join(', ') + ' · ' + (d.volume || '') + ' · $' + d.price + '/mo · renews ' + (d.renews || '').slice(0, 10);
-        else el.innerHTML = 'No active subscription. <a href="pricing.html" style="color:var(--accent);font-weight:600">Build your plan →</a>';
-      }).catch(function () { document.getElementById('subInfo').textContent = 'Plan info unavailable.'; });
-  }
-})();
-</script>
-</body>
-</html>
+var sess=null;try{sess=JSON.parse(localStorage.getItem('rf_session')||'null');}catch(e){}
+if(!sess||!sess.email)location.href='signin.html';
+var API=window.RF_API||'';var E=encodeURIComponent(sess.email);
+document.getElementById('uEmail').textContent=sess.email;
+function go(p){document.querySelectorAll('.nav-i').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));var b=document.querySelector('[data-p="'+p+'"]');if(b)b.classList.add('active');document.getElementById('p-'+p).classList.add('active');}
+document.querySelectorAll('.nav-i').forEach(b=>b.addEventListener('click',()=>go(b.dataset.p)));
+fetch(API+'/api/sub/'+E).then(r=>r.json()).then(d=>{
+  document.getElementById('kPlan').textContent=d.has?d.plan:'Free';
+  document.getElementById('planBody').innerHTML=d.has
+   ?'<div class="row"><span>Plan</span><span class="badge b-blue">'+d.plan+'</span></div><div class="row"><span>Volume</span><span>'+d.volume+'</span></div><div class="row"><span>Status</span><span class="badge b-green">'+d.status+'</span></div><div class="row"><span>Manage</span><a class="btn btn-g" href="pricing.html">Change plan</a></div>'
+   :'<p>You are on the free tier. Activate a plan to unlock volume and alerts.</p><a class="btn btn-p" href="pricing.html">View packages</a>';
+});
+fetch(API+'/api/subscriber/'+E+'/results').then(r=>r.json()).then(d=>{
+  var n=(d.results||[]).length;document.getElementById('kJobs').textContent=n;
+  document.getElementById('actBar').style.width=Math.min(100,n*10)+'%';
+  var b=document.getElementById('jobsBody');
+  if(!n){b.textContent='No jobs yet. Configure your robot and activate a plan — deliveries appear here.';return;}
+  b.innerHTML=d.results.map(r=>{var st=r.draft?'Drafted':'New';return '<div class="row"><div><strong>'+r.title+'</strong><br><span style="color:var(--muted);font-size:.8rem">'+(r.platform||'')+'</span></div><div style="text-align:right"><span class="badge '+(r.draft?'b-blue':'b-amber')+'">'+st+'</span><br><span style="font-size:.8rem;color:var(--muted)">'+r.score+'% match</span></div></div>';}).join('');
+});
+function loadServ(){fetch(API+'/api/my/products?email='+E).then(r=>r.json()).then(d=>{
+  document.getElementById('kServ').textContent=(d.products||[]).length;
+  var b=document.getElementById('servBody');
+  b.innerHTML=(d.products||[]).length?d.products.map(p=>'<div class="row"><div><strong>'+p.name+'</strong><br><span style="color:var(--muted);font-size:.8rem">'+p.description+'</span></div><div style="text-align:right"><strong>$'+p.price+'</strong><br><span class="badge b-green">'+p.status+'</span></div></div>').join(''):'No services yet — publish your first one above.';
+});}
+loadServ();
+function addServ(){fetch(API+'/api/my/products',{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({email:sess.email,name:document.getElementById('sv_name').value,price:document.getElementById('sv_price').value,description:document.getElementById('sv_desc').value})}).then(r=>r.json()).then(()=>{document.getElementById('sv_name').value='';document.getElementById('sv_price').value='';document.getElementById('sv_desc').value='';loadServ();});}
+fetch(API+'/api/subscriber/'+E+'/profile').then(r=>r.json()).then(d=>{if(d.has){document.getElementById('ob_mode').value=d.mode||'jobs';document.getElementById('ob_skills').value=d.skills||'';document.getElementById('ob_target').value=d.target||'';document.getElementById('ob_wa').value=d.whatsapp||'';document.getElementById('ob_tg').value=d.telegram||'';document.getElementById('kAlert').textContent=(d.whatsapp||d.telegram)?'On':'Off';}});
+function saveSet(){fetch(API+'/api/subscriber/profile',{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({email:sess.email,mode:document.getElementById('ob_mode').value,skills:document.getElementById('ob_skills').value,target:document.getElementById('ob_target').value,whatsapp:document.getElementById('ob_wa').value,telegram:document.getElementById('ob_tg').value})}).then(()=>{document.getElementById('setMsg').textContent='✓ Saved';});}
+</script></body></html>
