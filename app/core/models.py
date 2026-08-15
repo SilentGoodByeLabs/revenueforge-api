@@ -204,5 +204,14 @@ class Member(Base):
     email = Column(String, unique=True, index=True)
     password_hash = Column(String)
     phone = Column(String, nullable=True)
+    verified = Column(Boolean, default=False)
+    verify_code = Column(String, nullable=True)
     role = Column(String, default="client")
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+class AuditUse(Base):
+    __tablename__ = "audit_uses"
+    id = Column(Integer, primary_key=True, index=True)
+    ip = Column(String, index=True)
+    email = Column(String, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

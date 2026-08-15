@@ -942,7 +942,7 @@ SITE = "https://silentgoodbyelabs.github.io/revenueforge"
 
 @app.post("/api/join-form")
 async def join_form(request: Request):
-    import hashlib, re as _re
+    import hashlib, re as _re, random, os
     from urllib.parse import quote
     from fastapi.responses import RedirectResponse
     from app.core.models import Member
@@ -961,21 +961,30 @@ async def join_form(request: Request):
         elif not verify_recaptcha(captcha):
             err = "Please tick the I'm-not-a-robot box"
         if err:
-            return RedirectResponse(SITE + "/signup.html?err=" + quote(err), status_code=303)
+            return RedirectResponse(SITE + "/signup.html?err=" + quote(err))
         s = SessionLocal()
         try:
-            if not s.query(Member).filter_by(email=email).first():
-                s.add(Member(email=email, password_hash=hashlib.sha256(password.encode()).hexdigest(), role="client"))
-                s.commit()
-            return RedirectResponse(SITE + "/portal.html?authed=" + quote(email), status_code=303)
+            m = s.query(Member).filter_by(email=email).first()
+            if m and getattr(m, "verified", True):
+                return RedirectResponse(SITE + "/login.html?err=" + quote("Account exists — please log in"))
+            if not m:
+                m = Member(email=email, password_hash=hashlib.sha256(password.encode()).hexdigest(), role="client")
+                s.add(m)
+            if os.getenv("GMAIL_USER") and os.getenv("GMAIL_APP_PASS"):
+                code6 = str(random.randint(100000, 999999))
+                m.verify_code = code6; m.verified = False; s.commit()
+                send_code(email, code6)
+                return RedirectResponse(SITE + "/verify.html?email=" + quote(email))
+            m.verified = True; s.commit()
+            return RedirectResponse(SITE + "/portal.html?authed=" + quote(email))
         finally:
             s.close()
     except Exception as e:
-        return RedirectResponse(SITE + "/signup.html?err=" + quote("Server: " + str(e)[:120]), status_code=303)
+        return RedirectResponse(SITE + "/signup.html?err=" + quote("Server: " + str(e)[:120]))
 
 @app.post("/api/login-form")
 async def login_form(request: Request):
-    import hashlib
+    import hashlib, random, os
     from urllib.parse import quote
     from fastapi.responses import RedirectResponse
     from app.core.models import Member
@@ -985,19 +994,24 @@ async def login_form(request: Request):
         password = form.get("password") or ""
         captcha = form.get("g-recaptcha-response") or ""
         if not verify_recaptcha(captcha):
-            return RedirectResponse(SITE + "/login.html?err=" + quote("Please tick the captcha box"), status_code=303)
+            return RedirectResponse(SITE + "/login.html?err=" + quote("Please tick the captcha box"))
         s = SessionLocal()
         try:
             m = s.query(Member).filter_by(email=email).first()
             ok = bool(m and m.password_hash == hashlib.sha256(password.encode()).hexdigest())
+            if not ok:
+                return RedirectResponse(SITE + "/login.html?err=" + quote("Wrong email or password"))
+            if not getattr(m, "verified", True):
+                if os.getenv("GMAIL_USER"):
+                    code6 = str(random.randint(100000, 999999))
+                    m.verify_code = code6; s.commit(); send_code(email, code6)
+                    return RedirectResponse(SITE + "/verify.html?email=" + quote(email) + "&err=" + quote("Verify your email first — code sent"))
+                m.verified = True; s.commit()
+            return RedirectResponse(SITE + "/portal.html?authed=" + quote(email))
         finally:
             s.close()
-        if not ok:
-            return RedirectResponse(SITE + "/login.html?err=" + quote("Wrong email or password"), status_code=303)
-        return RedirectResponse(SITE + "/portal.html?authed=" + quote(email), status_code=303)
     except Exception as e:
-        return RedirectResponse(SITE + "/login.html?err=" + quote("Server: " + str(e)[:120]), status_code=303)
-
+        return RedirectResponse(SITE + "/login.html?err=" + quote("Server: " + str(e)[:120]))
 
 
 @app.get("/api/paystack-public")
@@ -1044,10 +1058,18 @@ async def subscribe(request: Request):
         s.close()
 
 @app.get("/api/audit")
-async def free_audit(skills: str = "", target: str = ""):
-    from app.core.models import Job, Product
+async def free_audit(request: Request, skills: str = "", target: str = "", member: str = ""):
+    from app.core.models import Job, Product, AuditUse, Member
+    ip = (request.headers.get("x-forwarded-for") or "").split(",")[0].strip()
+    if not ip and request.client: ip = request.client.host
     s = SessionLocal()
     try:
+        allowed = False
+        if member:
+            mm = s.query(Member).filter_by(email=member.strip().lower()).first()
+            allowed = bool(mm and mm.verified)
+        if not allowed and ip and s.query(AuditUse).filter_by(ip=ip).first():
+            return {"used": True, "jobs": [], "products": []}
         jobs = s.query(Job).order_by(Job.opportunity_score.desc()).limit(20).all()
         kw = [k for k in (skills + " " + target).lower().split() if len(k) > 2]
         out = []
@@ -1058,7 +1080,44 @@ async def free_audit(skills: str = "", target: str = ""):
             out.append({"title": j.title, "url": j.url, "platform": j.platform, "score": min(99, base + hits * 5)})
         out.sort(key=lambda x: -x["score"])
         prods = [{"name": pr.name, "price": pr.price} for pr in s.query(Product).filter_by(status="active").all()]
+        if not allowed and ip:
+            s.add(AuditUse(ip=ip, email=member or None)); s.commit()
         return {"jobs": out[:6], "products": prods}
+    finally:
+        s.close()
+
+
+@app.get("/api/verify")
+async def verify_email(email: str = "", code: str = ""):
+    from urllib.parse import quote
+    from fastapi.responses import RedirectResponse
+    from app.core.models import Member
+    email = email.strip().lower()
+    s = SessionLocal()
+    try:
+        m = s.query(Member).filter_by(email=email).first()
+        if m and m.verify_code and m.verify_code == code.strip():
+            m.verified = True; m.verify_code = None; s.commit()
+            return RedirectResponse(SITE + "/portal.html?authed=" + quote(email))
+        return RedirectResponse(SITE + "/verify.html?email=" + quote(email) + "&err=" + quote("Wrong code — try again"))
+    finally:
+        s.close()
+
+@app.get("/api/resend")
+async def resend_code(email: str = ""):
+    import random
+    from urllib.parse import quote
+    from fastapi.responses import RedirectResponse
+    from app.core.models import Member
+    email = email.strip().lower()
+    s = SessionLocal()
+    try:
+        m = s.query(Member).filter_by(email=email).first()
+        if m:
+            code = str(random.randint(100000, 999999))
+            m.verify_code = code; m.verified = False; s.commit()
+            send_code(email, code)
+        return RedirectResponse(SITE + "/verify.html?email=" + quote(email) + "&err=" + quote("New code sent — check your inbox"))
     finally:
         s.close()
 
