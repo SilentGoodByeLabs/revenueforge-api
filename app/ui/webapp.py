@@ -961,12 +961,12 @@ async def join_form(request: Request):
         elif not verify_recaptcha(captcha):
             err = "Please tick the I'm-not-a-robot box"
         if err:
-            return RedirectResponse(SITE + "/signup.html?err=" + quote(err))
+            return RedirectResponse(SITE + "/register.html?err=" + quote(err))
         s = SessionLocal()
         try:
             m = s.query(Member).filter_by(email=email).first()
             if m and getattr(m, "verified", True):
-                return RedirectResponse(SITE + "/login.html?err=" + quote("Account exists — please log in"))
+                return RedirectResponse(SITE + "/signin.html?err=" + quote("Account exists — please log in"))
             if not m:
                 m = Member(email=email, password_hash=hashlib.sha256(password.encode()).hexdigest(), role="client")
                 s.add(m)
@@ -980,7 +980,7 @@ async def join_form(request: Request):
         finally:
             s.close()
     except Exception as e:
-        return RedirectResponse(SITE + "/signup.html?err=" + quote("Server: " + str(e)[:120]))
+        return RedirectResponse(SITE + "/register.html?err=" + quote("Server: " + str(e)[:120]))
 
 @app.post("/api/login-form")
 async def login_form(request: Request):
@@ -994,13 +994,13 @@ async def login_form(request: Request):
         password = form.get("password") or ""
         captcha = form.get("g-recaptcha-response") or ""
         if not verify_recaptcha(captcha):
-            return RedirectResponse(SITE + "/login.html?err=" + quote("Please tick the captcha box"))
+            return RedirectResponse(SITE + "/signin.html?err=" + quote("Please tick the captcha box"))
         s = SessionLocal()
         try:
             m = s.query(Member).filter_by(email=email).first()
             ok = bool(m and m.password_hash == hashlib.sha256(password.encode()).hexdigest())
             if not ok:
-                return RedirectResponse(SITE + "/login.html?err=" + quote("Wrong email or password"))
+                return RedirectResponse(SITE + "/signin.html?err=" + quote("Wrong email or password"))
             if not getattr(m, "verified", True):
                 code6 = str(random.randint(100000, 999999))
                 m.verify_code = code6; s.commit()
@@ -1011,7 +1011,7 @@ async def login_form(request: Request):
         finally:
             s.close()
     except Exception as e:
-        return RedirectResponse(SITE + "/login.html?err=" + quote("Server: " + str(e)[:120]))
+        return RedirectResponse(SITE + "/signin.html?err=" + quote("Server: " + str(e)[:120]))
 
 
 @app.get("/api/paystack-public")
