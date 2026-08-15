@@ -970,10 +970,10 @@ async def join_form(request: Request):
             if not m:
                 m = Member(email=email, password_hash=hashlib.sha256(password.encode()).hexdigest(), role="client")
                 s.add(m)
-            if os.getenv("GMAIL_USER") and os.getenv("GMAIL_APP_PASS"):
-                code6 = str(random.randint(100000, 999999))
-                m.verify_code = code6; m.verified = False; s.commit()
-                send_code(email, code6)
+            code6 = str(random.randint(100000, 999999))
+            m.verify_code = code6; m.verified = False
+            s.commit()
+            if send_code(email, code6):
                 return RedirectResponse(SITE + "/verify.html?email=" + quote(email))
             m.verified = True; s.commit()
             return RedirectResponse(SITE + "/portal.html?authed=" + quote(email))
@@ -1002,9 +1002,9 @@ async def login_form(request: Request):
             if not ok:
                 return RedirectResponse(SITE + "/login.html?err=" + quote("Wrong email or password"))
             if not getattr(m, "verified", True):
-                if os.getenv("GMAIL_USER"):
-                    code6 = str(random.randint(100000, 999999))
-                    m.verify_code = code6; s.commit(); send_code(email, code6)
+                code6 = str(random.randint(100000, 999999))
+                m.verify_code = code6; s.commit()
+                if send_code(email, code6):
                     return RedirectResponse(SITE + "/verify.html?email=" + quote(email) + "&err=" + quote("Verify your email first — code sent"))
                 m.verified = True; s.commit()
             return RedirectResponse(SITE + "/portal.html?authed=" + quote(email))
@@ -1123,18 +1123,30 @@ async def resend_code(email: str = ""):
 
 
 def send_code(email, code):
-    import os, smtplib
-    from email.mime.text import MIMEText
-    u = os.getenv("GMAIL_USER", ""); pw = os.getenv("GMAIL_APP_PASS", "")
-    if not u or not pw:
-        print("DEV verification code for", email, "=", code)
-        return False
-    msg = MIMEText("Your RevenueForge verification code is: " + code + "\nIf you didn't request this, ignore this email.")
-    msg["Subject"] = "RevenueForge verification code"
-    msg["From"] = u; msg["To"] = email
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as s:
-        s.login(u, pw); s.sendmail(u, [email], msg.as_string())
-    return True
+    import os, json as _json
+    txt = "Your RevenueForge verification code is: " + code
+    try:
+        rk = os.getenv("RESEND_KEY", "")
+        if rk:
+            from urllib.request import urlopen, Request
+            req = Request("https://api.resend.com/emails",
+                          data=_json.dumps({"from": "RevenueForge <noreply@resend.dev>", "to": [email],
+                                            "subject": "Your verification code", "html": "<p>" + txt + "</p>"}).encode(),
+                          headers={"Authorization": "Bearer " + rk, "Content-Type": "application/json"}, method="POST")
+            with urlopen(req, timeout=8) as r: r.read()
+            return True
+        u = os.getenv("GMAIL_USER", ""); pw = os.getenv("GMAIL_APP_PASS", "")
+        if u and pw:
+            import smtplib
+            from email.mime.text import MIMEText
+            msg = MIMEText(txt); msg["Subject"] = "RevenueForge verification code"; msg["From"] = u; msg["To"] = email
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=8) as s:
+                s.login(u, pw); s.sendmail(u, [email], msg.as_string())
+            return True
+    except Exception as e:
+        print("email send failed:", str(e)[:120])
+    return False
+
 
 @app.get("/api/verify")
 async def verify_email(email: str = "", code: str = ""):
