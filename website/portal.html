@@ -32,12 +32,18 @@ input,select,textarea{width:100%;margin:6px 0 12px;padding:11px 12px;border:1.5p
 .btn-p{background:var(--accent);color:#fff}.btn-g{background:#fff;border:1.5px solid var(--line);color:var(--ink)}
 @media (max-width:900px){.dash{grid-template-columns:1fr}.side{position:static}.kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}}
 </style></head><body><div id="header"></div>
-<script>(function(){var q=new URLSearchParams(location.search);var a=q.get('authed');if(a){localStorage.setItem('rf_session',JSON.stringify({email:a}));history.replaceState(null,'',location.pathname);}})();</script>
+<script>(function(){
+  var q=new URLSearchParams(location.search); var a=q.get('authed');
+  if(a) localStorage.setItem('rf_session', JSON.stringify({email:a}));
+  var s=null; try{s=JSON.parse(localStorage.getItem('rf_session')||'null');}catch(e){}
+  if(!s||!s.email) location.href='signin.html';
+})();</script>
 <div class="dash">
 <aside class="side">
   <div class="brand"><img src="assets/logo.png" alt="">Revenue<b style="color:var(--accent)">Forge</b></div>
   <div class="user" id="uEmail">…</div>
   <button class="nav-i active" data-p="ov"><i class="fa-solid fa-chart-line"></i> Overview</button>
+  <button class="nav-i" data-p="robot"><i class="fa-solid fa-robot"></i> My Robot</button>
   <button class="nav-i" data-p="jobs"><i class="fa-solid fa-briefcase"></i> Jobs & Progress</button>
   <button class="nav-i" data-p="serv"><i class="fa-solid fa-boxes-stacked"></i> My Services</button>
   <button class="nav-i" data-p="plan"><i class="fa-solid fa-crown"></i> Plan & Billing</button>
@@ -66,7 +72,18 @@ input,select,textarea{width:100%;margin:6px 0 12px;padding:11px 12px;border:1.5p
       </div>
     </div>
   </section>
-  <section id="p-jobs" class="panel">
+  <section id="p-robot" class="panel">
+  <div class="crumb">Dashboard / My Robot</div><div class="ptitle">My Robot</div>
+  <div class="card"><h3><i class="fa-solid fa-robot"></i> Your autonomous robot</h3>
+    <p id="robotStatus" style="color:var(--muted)">Loading…</p>
+    <button id="runBtn" class="btn btn-p" style="width:100%;margin-top:10px" onclick="runRobot()"><i class="fa-solid fa-play"></i> Run my robot now</button>
+    <p id="runMsg" style="color:#16A34A;min-height:20px;margin-top:8px"></p>
+  </div>
+  <div class="card"><h3><i class="fa-solid fa-circle-info"></i> How it works</h3>
+    <p style="color:var(--muted);line-height:1.7">1 · Set skills/target in <b>Settings</b>. 2 · Press <b>Run</b> — the robot scans job boards & finds clients for you. 3 · Results land in <b>Jobs & Progress</b> with ready proposal drafts. 4 · Free = a few runs/day; paid plans get many more + alerts.</p>
+  </div>
+</section>
+<section id="p-jobs" class="panel">
     <div class="crumb">Dashboard / Jobs</div><div class="ptitle">Jobs & Progress</div>
     <div class="card"><div id="jobsBody" style="color:var(--muted)">Loading…</div></div>
   </section>
@@ -141,5 +158,22 @@ function loadServ(){fetch(API+'/api/my/products?email='+E).then(r=>r.json()).the
 loadServ();
 function addServ(){fetch(API+'/api/my/products',{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({email:sess.email,name:document.getElementById('sv_name').value,price:document.getElementById('sv_price').value,description:document.getElementById('sv_desc').value})}).then(r=>r.json()).then(()=>{document.getElementById('sv_name').value='';document.getElementById('sv_price').value='';document.getElementById('sv_desc').value='';loadServ();});}
 fetch(API+'/api/subscriber/'+E+'/profile').then(r=>r.json()).then(d=>{if(d.has){document.getElementById('ob_mode').value=d.mode||'jobs';document.getElementById('ob_skills').value=d.skills||'';document.getElementById('ob_target').value=d.target||'';document.getElementById('ob_wa').value=d.whatsapp||'';document.getElementById('ob_tg').value=d.telegram||'';document.getElementById('kAlert').textContent=(d.whatsapp||d.telegram)?'On':'Off';}});
+function runRobot(){
+  var b=document.getElementById('runBtn');var m=document.getElementById('runMsg');
+  b.disabled=true;b.textContent='Running…';
+  fetch(API+'/api/run-now?email='+E).then(function(r){return r.json();}).then(function(d){
+    b.disabled=false;b.innerHTML='<i class="fa-solid fa-play"></i> Run my robot now';
+    if(d.ok){m.textContent=d.delivered?('✓ Delivered '+d.delivered+' new result(s) — open Jobs & Progress.'):(d.message||'✓ Done — no new matches right now.');}
+    else{m.textContent=d.message;}
+  }).catch(function(){b.disabled=false;m.textContent='Server waking up — try again in 20s.';});
+}
+function loadRobot(){
+  fetch(API+'/api/sub/'+E).then(function(r){return r.json();}).then(function(d){
+    document.getElementById('robotStatus').innerHTML = d.has
+      ? 'Plan: <b>'+d.plan+'</b> · '+({v50:'10',v300:'25',v1000:'60'}[d.volume]||'10')+' runs/day · status '+d.status
+      : 'Free tier · 2 runs/day. <a href="pricing.html" style="color:var(--accent)">Upgrade for more</a>.';
+  });
+}
+loadRobot();
 function saveSet(){fetch(API+'/api/subscriber/profile',{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({email:sess.email,mode:document.getElementById('ob_mode').value,skills:document.getElementById('ob_skills').value,target:document.getElementById('ob_target').value,whatsapp:document.getElementById('ob_wa').value,telegram:document.getElementById('ob_tg').value})}).then(()=>{document.getElementById('setMsg').textContent='✓ Saved';});}
 </script></body></html>
