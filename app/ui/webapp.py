@@ -1249,26 +1249,40 @@ async def run_now(email: str = ""):
     s = SessionLocal()
     try:
         if not s.query(SubscriberProfile).filter_by(email=email).first():
-            return {"ok": False, "message": "Set up your robot first (Settings & Alerts)."}
+            return {"ok": False, "message": "Set up your robot first in Settings."}
         sub = s.query(Subscription).filter_by(email=email, status="active").first()
         active = bool(sub) and (getattr(sub, "expires_at", None) is None or sub.expires_at > _dt.now())
-        vol = sub.volume if active else ""
+        vol = getattr(sub, "volume", "") if active else ""
         limit = RUN_LIMITS.get(vol, 2)
+        # count today's deliveries (safe: skip if no created_at column)
+        have = 0
         try:
-            first = _dt.now().replace(hour=0, minute=0, second=0, microsecond=0)
-            have = s.query(SubscriberJob).filter_by(owner_email=email).filter(SubscriberJob.created_at >= first).count()
+            today = _dt.now().date()
+            for sj in s.query(SubscriberJob).filter_by(owner_email=email).all():
+                ca = getattr(sj, "created_at", None)
+                if ca and getattr(ca, "date", None) and ca.date() == today:
+                    have += 1
         except Exception:
-            have = s.query(SubscriberJob).filter_by(owner_email=email).count()
+            have = 0
         room = limit - have
         if room <= 0:
-            return {"ok": True, "delivered": 0, "message": "Daily limit reached — resets tomorrow. Upgrade for more."}
+            return {"ok": True, "delivered": 0, "message": "Daily limit reached. Upgrade for more."}
         pool = s.query(Job).order_by(Job.id.desc()).limit(40).all()
         added = 0
         for j in pool:
             if added >= room: break
-            if s.query(SubscriberJob).filter_by(owner_email=email, url=j.url).first(): continue
-            s.add(SubscriberJob(owner_email=email, title=j.title, url=j.url, platform=j.platform,
-                                score=j.opportunity_score or 0, draft=j.proposal_draft)); added += 1
+            if s.query(SubscriberJob).filter_by(owner_email=email, url=getattr(j,"url","")).first(): continue
+            try:
+                s.add(SubscriberJob(
+                    owner_email=email,
+                    title=getattr(j,"title","")[:200],
+                    url=getattr(j,"url",""),
+                    platform=getattr(j,"platform","") or "",
+                    score=getattr(j,"opportunity_score",0) or 0,
+                    draft=getattr(j,"proposal_draft","") or ""))
+                added += 1
+            except Exception:
+                continue
         s.commit()
         return {"ok": True, "delivered": added}
     except Exception as e:
