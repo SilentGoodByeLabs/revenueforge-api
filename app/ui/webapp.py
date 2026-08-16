@@ -1238,6 +1238,39 @@ async def add_my_product(request: Request):
     finally:
         s.close()
 
+
+RUN_LIMITS = {"": 2, "v50": 10, "v300": 25, "v1000": 60}
+
+@app.get("/api/run-now")
+async def run_now(email: str = ""):
+    from datetime import datetime as _dt
+    from app.core.models import Subscription, SubscriberProfile, SubscriberJob, Job
+    email = email.strip().lower()
+    s = SessionLocal()
+    try:
+        if not s.query(SubscriberProfile).filter_by(email=email).first():
+            return {"ok": False, "message": "Set up your robot first (Settings & Alerts)."}
+        sub = s.query(Subscription).filter_by(email=email, status="active").first()
+        active = bool(sub) and (getattr(sub, "expires_at", None) is None or sub.expires_at > _dt.now())
+        vol = sub.volume if active else ""
+        limit = RUN_LIMITS.get(vol, 2)
+        first = _dt.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        have = s.query(SubscriberJob).filter_by(owner_email=email).filter(SubscriberJob.created_at >= first).count()
+        room = limit - have
+        if room <= 0:
+            return {"ok": True, "delivered": 0, "message": "Daily limit reached — resets tomorrow. Upgrade for more."}
+        pool = s.query(Job).filter(Job.opportunity_score >= 60).order_by(Job.id.desc()).limit(40).all()
+        added = 0
+        for j in pool:
+            if added >= room: break
+            if s.query(SubscriberJob).filter_by(owner_email=email, url=j.url).first(): continue
+            s.add(SubscriberJob(owner_email=email, title=j.title, url=j.url, platform=j.platform,
+                                score=j.opportunity_score or 0, draft=j.proposal_draft)); added += 1
+        s.commit()
+        return {"ok": True, "delivered": added}
+    finally:
+        s.close()
+
 @app.get("/api/join-get")
 async def join_get(request: Request, email: str = "", password: str = "", slide_ms: int = 0, website: str = "", captcha: str = ""):
     import hashlib, re as _re, random, os
