@@ -1254,12 +1254,15 @@ async def run_now(email: str = ""):
         active = bool(sub) and (getattr(sub, "expires_at", None) is None or sub.expires_at > _dt.now())
         vol = sub.volume if active else ""
         limit = RUN_LIMITS.get(vol, 2)
-        first = _dt.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        have = s.query(SubscriberJob).filter_by(owner_email=email).filter(SubscriberJob.created_at >= first).count()
+        try:
+            first = _dt.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            have = s.query(SubscriberJob).filter_by(owner_email=email).filter(SubscriberJob.created_at >= first).count()
+        except Exception:
+            have = s.query(SubscriberJob).filter_by(owner_email=email).count()
         room = limit - have
         if room <= 0:
             return {"ok": True, "delivered": 0, "message": "Daily limit reached — resets tomorrow. Upgrade for more."}
-        pool = s.query(Job).filter(Job.opportunity_score >= 60).order_by(Job.id.desc()).limit(40).all()
+        pool = s.query(Job).order_by(Job.id.desc()).limit(40).all()
         added = 0
         for j in pool:
             if added >= room: break
@@ -1268,8 +1271,11 @@ async def run_now(email: str = ""):
                                 score=j.opportunity_score or 0, draft=j.proposal_draft)); added += 1
         s.commit()
         return {"ok": True, "delivered": added}
+    except Exception as e:
+        return {"ok": False, "message": "Server: " + str(e)[:120]}
     finally:
         s.close()
+
 
 @app.get("/api/join-get")
 async def join_get(request: Request, email: str = "", password: str = "", slide_ms: int = 0, website: str = "", captcha: str = ""):
