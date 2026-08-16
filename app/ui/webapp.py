@@ -1059,26 +1059,13 @@ async def subscribe(request: Request):
 
 
 SERVICE_MAP = {
- "python": ["Custom automation scripts","Data extraction (scraping) tools","API integrations","Bot development"],
- "ocr": ["Document digitization services","Invoice / receipt data-entry automation","PDF to Excel conversion"],
- "automation": ["Workflow automation for small business","Email & report automation","Zapier / Make setup services"],
- "web": ["Business websites & landing pages","E-commerce stores","Website speed optimization"],
- "data": ["Data cleaning & analysis","Dashboards & reporting","Spreadsheet automation"],
- "design": ["Brand identity & logos","Social media design kits","UI/UX for apps"],
- "ai": ["AI chatbots for customer support","AI content pipelines","LLM integrations"],
+ "python": [("Custom automation scripts","Turn repetitive tasks into one-click Python tools"),("Data extraction tools","Scrape & structure data from any website"),("API integrations","Connect apps so data flows automatically")],
+ "ocr": [("Document digitization","Convert scanned PDFs/images into editable data"),("Invoice data-entry automation","Extract invoice fields straight into Excel")],
+ "automation": [("Workflow automation","Automate emails, reports & approvals for small business"),("Zapier / Make setup","Design no-code automations that save hours weekly")],
+ "web": [("Business websites","Fast, mobile-friendly sites that convert visitors"),("E-commerce stores","Online shops with payments built in")],
+ "data": [("Dashboards & reporting","Live dashboards built from messy spreadsheets"),("Data cleaning","Reliable, de-duplicated datasets")],
+ "ai": [("AI chatbots","24/7 customer-support bots for any business"),("AI content pipelines","Automate drafting, summarizing & research")],
 }
-def suggest_services(skills):
-    low = (skills or "").lower(); out = []
-    for k, v in SERVICE_MAP.items():
-        if k in low: out += v
-    if not out and skills.strip():
-        t = skills.strip().title()
-        out = [t + " services for your niche", "Done-for-you " + skills.strip() + " projects", "Consulting & audits in " + skills.strip()]
-    seen = set(); res = []
-    for s2 in out:
-        if s2 not in seen: seen.add(s2); res.append(s2)
-    return res[:6]
-
 LEAD_MAP = {
  "account": ["Accounting & bookkeeping firms","Tax preparation services","Payroll companies"],
  "ecommerce": ["E-commerce store owners","Dropshipping brands","Amazon FBA sellers"],
