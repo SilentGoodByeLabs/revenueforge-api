@@ -1294,6 +1294,51 @@ async def run_now(email: str = ""):
         s.close()
 
 
+
+@app.get("/api/run-robot")
+async def run_robot(email: str = ""):
+    import json, urllib.request, xml.etree.ElementTree as ET
+    from datetime import datetime
+    from app.core.models import Job, SubscriberJob, SubscriberProfile, Subscription
+    email = email.strip().lower()
+    s = SessionLocal()
+    def add(title, url, platform):
+        if not url or s.query(Job).filter_by(url=url).first(): return
+        s.add(Job(title=title[:200], url=url, platform=platform, opportunity_score=70))
+    try:
+        with urllib.request.urlopen("https://hn.algolia.com/api/v1/search?query=python+developer&tags=story", timeout=12) as r:
+            for h in json.loads(r.read())["hits"][:6]:
+                if h.get("url"): add(h.get("title"), h["url"], "HackerNews")
+    except Exception: pass
+    try:
+        with urllib.request.urlopen("https://weworkremotely.com/categories/remote-programming-jobs.rss", timeout=12) as r:
+            for it in ET.fromstring(r.read()).findall(".//item")[:6]:
+                add(it.findtext("title"), it.findtext("link"), "WeWorkRemotely")
+    except Exception: pass
+    try:
+        with urllib.request.urlopen("https://www.reddit.com/r/PythonJobs.json", timeout=12) as r:
+            for c in json.loads(r.read())["data"]["children"][:6]:
+                d = c["data"]; add(d.get("title"), "https://reddit.com" + d.get("permalink"), "Reddit")
+    except Exception: pass
+    s.commit()
+    sub = s.query(Subscription).filter_by(email=email, status="active").first()
+    vol = sub.volume if sub else ""
+    limit = {"": 2, "v50": 10, "v300": 25, "v1000": 60}.get(vol, 2)
+    first = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    have = s.query(SubscriberJob).filter_by(owner_email=email).filter(SubscriberJob.created_at >= first).count()
+    room = limit - have
+    pool = s.query(Job).order_by(Job.opportunity_score.desc()).limit(40).all()
+    if room > 0:
+        for j in pool[:room]:
+            if not s.query(SubscriberJob).filter_by(owner_email=email, url=j.url).first():
+                s.add(SubscriberJob(owner_email=email, title=j.title, url=j.url, platform=j.platform,
+                                    score=j.opportunity_score or 0, draft=j.proposal_draft))
+    s.commit()
+    rows = s.query(SubscriberJob).filter_by(owner_email=email).order_by(SubscriberJob.id.desc()).limit(20).all()
+    out = [{"title": r.title, "url": r.url, "platform": r.platform, "score": r.score, "draft": r.draft} for r in rows]
+    s.close()
+    return {"results": out}
+
 @app.get("/api/join-get")
 async def join_get(request: Request, email: str = "", password: str = "", slide_ms: int = 0, website: str = "", captcha: str = ""):
     import hashlib, re as _re, random, os
