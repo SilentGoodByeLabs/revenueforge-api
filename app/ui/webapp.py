@@ -1239,7 +1239,9 @@ async def add_my_product(request: Request):
         s.close()
 
 @app.get("/api/join-get")
-async def join_get(email: str = "", password: str = "", slide_ms: int = 0, website: str = "", captcha: str = ""):
+async def join_get(request: Request, email: str = "", password: str = "", slide_ms: int = 0, website: str = "", captcha: str = ""):
+    if not captcha:
+        captcha = request.query_params.get("g-recaptcha-response", "")
     import hashlib, re as _re
     from app.core.models import Member
     if website.strip():
@@ -1264,7 +1266,9 @@ async def join_get(email: str = "", password: str = "", slide_ms: int = 0, websi
         s.close()
 
 @app.get("/api/login-get")
-async def login_get(email: str = "", password: str = "", captcha: str = ""):
+async def login_get(request: Request, email: str = "", password: str = "", captcha: str = ""):
+    if not captcha:
+        captcha = request.query_params.get("g-recaptcha-response", "")
     if not verify_recaptcha(captcha):
         return {"ok": False, "message": "Please tick the \"I'm not a robot\" box"}
     import hashlib
