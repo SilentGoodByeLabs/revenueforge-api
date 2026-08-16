@@ -1316,6 +1316,11 @@ def deliver_all():
                 add(it.findtext("title"), it.findtext("link"), "WeWorkRemotely")
     except Exception: pass
     try:
+        with urllib.request.urlopen("https://remoteok.com/api", timeout=12) as r:
+            for h in json.loads(r.read())[1:7]:
+                if h.get("url") and h.get("position"): add(h["position"], h["url"], "RemoteOK")
+    except Exception: pass
+    try:
         with urllib.request.urlopen("https://www.reddit.com/r/PythonJobs.json", timeout=12) as r:
             for c in json.loads(r.read())["data"]["children"][:6]:
                 d = c["data"]; add(d.get("title"), "https://reddit.com" + d.get("permalink"), "Reddit")
@@ -1324,7 +1329,7 @@ def deliver_all():
     LIMITS = {"": 2, "v50": 10, "v300": 25, "v1000": 60}
     first = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     for m in s.query(Member).all():
-        if not s.query(SubscriberProfile).filter_by(email=m.email).first(): continue
+        # deliver to every member (profile optional)
         sub = s.query(Subscription).filter_by(email=m.email, status="active").first()
         vol = sub.volume if sub else ""
         room = LIMITS.get(vol, 2) - s.query(SubscriberJob).filter_by(owner_email=m.email).filter(SubscriberJob.created_at >= first).count()
@@ -1381,7 +1386,10 @@ async def run_robot(email: str = ""):
     vol = sub.volume if sub else ""
     limit = {"": 2, "v50": 10, "v300": 25, "v1000": 60}.get(vol, 2)
     first = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    have = s.query(SubscriberJob).filter_by(owner_email=email).filter(SubscriberJob.created_at >= first).count()
+    try:
+        have = s.query(SubscriberJob).filter_by(owner_email=email).filter(SubscriberJob.created_at >= first).count()
+    except Exception:
+        have = s.query(SubscriberJob).filter_by(owner_email=email).count()
     room = limit - have
     pool = s.query(Job).order_by(Job.opportunity_score.desc()).limit(40).all()
     if room > 0:
