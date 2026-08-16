@@ -186,6 +186,7 @@ class ClientProject(Base):
 
 
 class Subscription(Base):
+    expires_at = Column(DateTime, nullable=True)
     __tablename__ = "subscriptions"
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, nullable=False, index=True)
