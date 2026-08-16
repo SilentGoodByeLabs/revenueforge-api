@@ -3,7 +3,7 @@ from datetime import datetime
 from app.core.db import SessionLocal
 from app.core.models import Member, Subscription, SubscriberProfile, SubscriberJob, Job
 
-LIMITS = {"": 3, "v50": 10, "v300": 50, "v1000": 150}
+LIMITS = {"": 2, "v50": 10, "v300": 25, "v1000": 60}  # per DAY
 
 
 def scan():
