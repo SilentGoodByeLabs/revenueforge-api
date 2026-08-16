@@ -1254,7 +1254,6 @@ async def run_now(email: str = ""):
         active = bool(sub) and (getattr(sub, "expires_at", None) is None or sub.expires_at > _dt.now())
         vol = getattr(sub, "volume", "") if active else ""
         limit = RUN_LIMITS.get(vol, 2)
-        # count today's deliveries (safe: skip if no created_at column)
         have = 0
         try:
             today = _dt.now().date()
@@ -1271,17 +1270,21 @@ async def run_now(email: str = ""):
         added = 0
         for j in pool:
             if added >= room: break
-            if s.query(SubscriberJob).filter_by(owner_email=email, url=getattr(j,"url","")).first(): continue
+            j_url = getattr(j, "url", "") or ""
+            if not j_url: continue
+            if s.query(SubscriberJob).filter_by(owner_email=email, url=j_url).first(): continue
             try:
-                s.add(SubscriberJob(
-                    owner_email=email,
-                    title=getattr(j,"title","")[:200],
-                    url=getattr(j,"url",""),
-                    platform=getattr(j,"platform","") or "",
-                    score=getattr(j,"opportunity_score",0) or 0,
-                    draft=getattr(j,"proposal_draft","") or ""))
+                nj = SubscriberJob()
+                nj.owner_email = email
+                nj.title = getattr(j, "title", "")[:200] or ""
+                nj.url = j_url
+                # Only write extra columns if they exist on the class
+                if hasattr(nj, "platform"): nj.platform = getattr(j, "platform", "") or ""
+                if hasattr(nj, "score"): nj.score = getattr(j, "opportunity_score", 0) or 0
+                if hasattr(nj, "draft"): nj.draft = getattr(j, "proposal_draft", "") or ""
+                s.add(nj)
                 added += 1
-            except Exception:
+            except Exception as e:
                 continue
         s.commit()
         return {"ok": True, "delivered": added}
