@@ -1057,9 +1057,53 @@ async def subscribe(request: Request):
     finally:
         s.close()
 
+
+SERVICE_MAP = {
+ "python": ["Custom automation scripts","Data extraction (scraping) tools","API integrations","Bot development"],
+ "ocr": ["Document digitization services","Invoice / receipt data-entry automation","PDF to Excel conversion"],
+ "automation": ["Workflow automation for small business","Email & report automation","Zapier / Make setup services"],
+ "web": ["Business websites & landing pages","E-commerce stores","Website speed optimization"],
+ "data": ["Data cleaning & analysis","Dashboards & reporting","Spreadsheet automation"],
+ "design": ["Brand identity & logos","Social media design kits","UI/UX for apps"],
+ "ai": ["AI chatbots for customer support","AI content pipelines","LLM integrations"],
+}
+def suggest_services(skills):
+    low = (skills or "").lower(); out = []
+    for k, v in SERVICE_MAP.items():
+        if k in low: out += v
+    if not out and skills.strip():
+        t = skills.strip().title()
+        out = [t + " services for your niche", "Done-for-you " + skills.strip() + " projects", "Consulting & audits in " + skills.strip()]
+    seen = set(); res = []
+    for s2 in out:
+        if s2 not in seen: seen.add(s2); res.append(s2)
+    return res[:6]
+
+LEAD_MAP = {
+ "account": ["Accounting & bookkeeping firms","Tax preparation services","Payroll companies"],
+ "ecommerce": ["E-commerce store owners","Dropshipping brands","Amazon FBA sellers"],
+ "real": ["Real-estate agencies","Property managers","Airbnb hosts"],
+ "clinic": ["Medical & dental clinics","Physiotherapy centers","Vet clinics"],
+ "restaurant": ["Restaurants & cafes","Catering companies","Food delivery brands"],
+ "school": ["Private schools","Tutoring centers","Online course creators"],
+ "law": ["Law firms","Legal consultancies"],
+ "fitness": ["Gyms & personal trainers","Yoga studios","Supplement brands"],
+}
+def suggest_leads(target):
+    low = (target or "").lower(); out = []
+    for k, v in LEAD_MAP.items():
+        if k in low: out += v
+    if not out and target.strip():
+        t = target.strip().title()
+        out = [t + " businesses", "Companies hiring for " + target.strip(), "Agencies serving " + target.strip()]
+    seen = set(); res = []
+    for s2 in out:
+        if s2 not in seen: seen.add(s2); res.append(s2)
+    return res[:6]
+
 @app.get("/api/audit")
 async def free_audit(request: Request, skills: str = "", target: str = "", member: str = ""):
-    from app.core.models import Job, Product, AuditUse, Member
+    from app.core.models import Job, AuditUse, Member
     ip = (request.headers.get("x-forwarded-for") or "").split(",")[0].strip()
     if not ip and request.client: ip = request.client.host
     s = SessionLocal()
@@ -1069,7 +1113,7 @@ async def free_audit(request: Request, skills: str = "", target: str = "", membe
             mm = s.query(Member).filter_by(email=member.strip().lower()).first()
             allowed = bool(mm and mm.verified)
         if not allowed and ip and s.query(AuditUse).filter_by(ip=ip).first():
-            return {"used": True, "jobs": [], "products": []}
+            return {"used": True, "jobs": [], "services": [], "leads": []}
         jobs = s.query(Job).order_by(Job.opportunity_score.desc()).limit(20).all()
         kw = [k for k in (skills + " " + target).lower().split() if len(k) > 2]
         out = []
@@ -1079,10 +1123,9 @@ async def free_audit(request: Request, skills: str = "", target: str = "", membe
             hits = sum(1 for k in kw if k in text)
             out.append({"title": j.title, "url": j.url, "platform": j.platform, "score": min(99, base + hits * 5)})
         out.sort(key=lambda x: -x["score"])
-        prods = [{"name": pr.name, "price": pr.price} for pr in s.query(Product).filter_by(status="active").all()]
         if not allowed and ip:
             s.add(AuditUse(ip=ip, email=member or None)); s.commit()
-        return {"jobs": out[:6], "products": prods}
+        return {"jobs": out[:6], "services": suggest_services(skills), "leads": suggest_leads(target)}
     finally:
         s.close()
 
