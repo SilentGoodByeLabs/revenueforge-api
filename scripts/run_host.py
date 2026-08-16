@@ -5,6 +5,34 @@ from app.core.models import Member, Subscription, SubscriberProfile, SubscriberJ
 
 LIMITS = {"": 3, "v50": 10, "v300": 50, "v1000": 150}
 
+
+def scan():
+    import json, urllib.request, xml.etree.ElementTree as ET
+    added = 0
+    s = SessionLocal()
+    def add(title, url, platform):
+        nonlocal added
+        if not url or s.query(Job).filter_by(url=url).first(): return
+        s.add(Job(title=title[:200], url=url, platform=platform, opportunity_score=70)); added += 1
+    try:
+        with urllib.request.urlopen("https://hn.algolia.com/api/v1/search?query=python+developer&tags=story", timeout=15) as r:
+            for h in json.loads(r.read())["hits"][:8]:
+                if h.get("url"): add(h.get("title"), h["url"], "HackerNews")
+    except Exception: pass
+    try:
+        with urllib.request.urlopen("https://weworkremotely.com/categories/remote-programming-jobs.rss", timeout=15) as r:
+            root = ET.fromstring(r.read())
+            for it in root.findall(".//item")[:8]:
+                add(it.findtext("title"), it.findtext("link"), "WeWorkRemotely")
+    except Exception: pass
+    try:
+        with urllib.request.urlopen("https://www.reddit.com/r/PythonJobs.json", timeout=15) as r:
+            for c in json.loads(r.read())["data"]["children"][:8]:
+                d = c["data"]; add(d.get("title"), "https://reddit.com"+d.get("permalink"), "Reddit")
+    except Exception: pass
+    s.commit(); s.close()
+    print("scan added", added, "multi-platform jobs")
+
 def deliver():
     s = SessionLocal()
     try:
@@ -32,6 +60,8 @@ def deliver():
 if __name__ == "__main__":
     print("Host runner active (free + paid). Ctrl+C to stop.")
     while True:
-        try: deliver()
+        try:
+            scan()
+            deliver()
         except Exception as e: print("host error:", e)
         time.sleep(600)
