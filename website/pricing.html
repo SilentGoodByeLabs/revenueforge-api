@@ -24,20 +24,24 @@ body{background:#F4F6FA}
 .co{max-width:520px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px}
 .co h3{font-family:'Sora';text-align:center}
 .co input{width:100%;margin:8px 0 14px;padding:12px;border:1.5px solid var(--line);border-radius:10px}
+.curs{display:flex;gap:8px;margin:4px 0 12px}
+.cur{flex:1;border:1.5px solid var(--line);border-radius:10px;padding:10px 6px;font-size:.78rem;font-weight:600;display:flex;gap:6px;align-items:center;justify-content:center;cursor:pointer;color:var(--muted)}
+.cur input{width:auto;margin:0}
+.cur.on{border-color:var(--accent);color:var(--ink);background:#EFF4FF}
 .trust{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;color:var(--muted);font-size:.8rem;margin-top:16px}
 @media (max-width:900px){.tiers{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}.hero h1{font-size:1.5rem}}
 </style></head><body><div id="header"></div>
-<div class="hero"><div class="wrap"><h1>Simple packages. Real results.</h1><p>Every plan is cumulative — the higher you go, the more you get. Agency includes everything.</p></div></div>
+<div class="hero"><div class="wrap"><h1>Simple packages. Real results.</h1><p>Every plan includes the full dashboard for a month. Daily matches reset each day. Agency includes everything.</p></div></div>
 <div class="wrap">
 <div class="tiers">
   <div class="tier"><h3>Starter</h3><div class="price">$29<span>/mo</span></div>
-    <ul><li><i class="fa-solid fa-check"></i>10 matched jobs / month</li><li><i class="fa-solid fa-check"></i>AI proposal drafts</li><li><i class="fa-solid fa-check"></i>Job radar (3 boards)</li><li><i class="fa-solid fa-check"></i>Dashboard + progress tracking</li><li><i class="fa-solid fa-check"></i>Publish your services</li><li><i class="fa-solid fa-check"></i>Email support</li></ul>
+    <ul><li><i class="fa-solid fa-check"></i>10 job matches every day</li><li><i class="fa-solid fa-check"></i>Full dashboard for 1 month</li><li><i class="fa-solid fa-check"></i>AI proposal drafts</li><li><i class="fa-solid fa-check"></i>Job radar (3 boards)</li><li><i class="fa-solid fa-check"></i>Dashboard + progress tracking</li><li><i class="fa-solid fa-check"></i>Publish your services</li><li><i class="fa-solid fa-check"></i>Email support</li></ul>
     <button class="btn btn-g" onclick="buy('Starter','v50',29)">Start with Starter</button></div>
   <div class="tier pop"><span class="pop-tag">MOST POPULAR</span><h3>Growth</h3><div class="price">$79<span>/mo</span></div>
-    <ul><li><i class="fa-solid fa-check"></i><strong>Everything in Starter</strong></li><li><i class="fa-solid fa-check"></i>50 actions / month</li><li><i class="fa-solid fa-check"></i>Client outreach engine</li><li><i class="fa-solid fa-check"></i><strong>WhatsApp + Telegram alerts</strong></li><li><i class="fa-solid fa-check"></i>Unlimited services</li><li><i class="fa-solid fa-check"></i>Priority support</li></ul>
+    <ul><li><i class="fa-solid fa-check"></i><strong>Everything in Starter</strong></li><li><i class="fa-solid fa-check"></i>25 job matches every day</li><li><i class="fa-solid fa-check"></i>Job radar across 6 platforms</li><li><i class="fa-solid fa-check"></i>Client outreach engine</li><li><i class="fa-solid fa-check"></i><strong>WhatsApp + Telegram alerts</strong></li><li><i class="fa-solid fa-check"></i>Unlimited services</li><li><i class="fa-solid fa-check"></i>Priority support</li></ul>
     <button class="btn btn-p" onclick="buy('Growth','v300',79)">Choose Growth</button></div>
   <div class="tier"><h3>Agency</h3><div class="price">$199<span>/mo</span></div>
-    <ul><li><i class="fa-solid fa-check"></i><strong>Everything in Growth</strong></li><li><i class="fa-solid fa-check"></i>150 actions / month</li><li><i class="fa-solid fa-check"></i>Dedicated autonomous robot</li><li><i class="fa-solid fa-check"></i>Weekly strategy report</li><li><i class="fa-solid fa-check"></i>1-on-1 onboarding call</li><li><i class="fa-solid fa-check"></i><strong>All current + future features</strong></li></ul>
+    <ul><li><i class="fa-solid fa-check"></i><strong>Everything in Growth</strong></li><li><i class="fa-solid fa-check"></i>60 job matches every day</li><li><i class="fa-solid fa-check"></i>Job radar across ALL platforms</li><li><i class="fa-solid fa-check"></i>Dedicated autonomous robot</li><li><i class="fa-solid fa-check"></i>Weekly strategy report</li><li><i class="fa-solid fa-check"></i>1-on-1 onboarding call</li><li><i class="fa-solid fa-check"></i><strong>All current + future features</strong></li></ul>
     <button class="btn btn-g" onclick="buy('Agency','v1000',199)">Go Agency</button></div>
 </div>
 <div class="steps">
@@ -51,6 +55,12 @@ body{background:#F4F6FA}
   <h3>Secure checkout</h3>
   <label style="font-size:12px;font-weight:700;color:var(--muted)">YOUR ACCOUNT EMAIL</label>
   <input id="payEmail" type="email" placeholder="you@example.com">
+  <label style="font-size:12px;font-weight:700;color:var(--muted)">PAY WITH</label>
+  <div class="curs">
+    <label class="cur on" id="cNGN"><input type="radio" name="cur" value="NGN" checked onchange="pickCur('NGN')"> ₦ NGN · transfer / USSD</label>
+    <label class="cur" id="cUSD"><input type="radio" name="cur" value="USD" onchange="pickCur('USD')"> $ USD · intl card</label>
+  </div>
+  <p id="curHint" style="font-size:.8rem;color:var(--muted);text-align:center;margin:-4px 0 10px"></p>
   <p id="paySel" style="color:var(--muted);font-size:.9rem;text-align:center">Selected: <strong>Growth — $79/mo</strong></p>
   <p id="payMsg" style="color:#B91C1C;min-height:18px;text-align:center"></p>
   <button class="btn btn-p" style="width:100%" onclick="payNow()"><i class="fa-solid fa-lock"></i> Pay securely →</button>
@@ -60,15 +70,19 @@ body{background:#F4F6FA}
 <div style="height:50px"></div><div id="footer"></div>
 <script src="js/config.js?v=4"></script><script src="js/layout.js?v=11"></script>
 <script>
-var SEL={plan:'Growth',vol:'v300',price:79};
+var SEL={plan:'Growth',vol:'v300',price:79};var RATE=1;
+function pickCur(c){document.getElementById('cNGN').classList.toggle('on',c==='NGN');document.getElementById('cUSD').classList.toggle('on',c==='USD');hint();}
+function hint(){var h=document.getElementById('curHint');if(!h)return;h.textContent=( (document.querySelector('input[name=cur]:checked')||{}).value==='USD') ? 'Charged in US Dollars — international cards accepted' : '≈ ₦'+Math.round(SEL.price*RATE).toLocaleString()+' / month';}
+fetch((window.RF_API||'')+'/api/paystack-public').then(function(r){return r.json();}).then(function(c){RATE=c.rate||1;hint();}).catch(function(){});
 function buy(p,v,pr){SEL={plan:p,vol:v,price:pr};document.getElementById('paySel').innerHTML='Selected: <strong>'+p+' — $'+pr+'/mo</strong>';document.getElementById('checkout').scrollIntoView({behavior:'smooth'});}
 function payNow(){
   var email=document.getElementById('payEmail').value.trim().toLowerCase();var msg=document.getElementById('payMsg');
   if(!email||email.indexOf('@')<0){msg.textContent='Enter your account email first.';return;}
   var API=window.RF_API||'';msg.textContent='';
   fetch(API+'/api/paystack-public').then(r=>r.json()).then(function(cfg){
-    var amount=cfg.currency==='USD'?SEL.price*100:Math.round(SEL.price*cfg.rate)*100;
-    PaystackPop.setup({key:cfg.key,email:email,amount:amount,currency:cfg.currency==='USD'?'USD':cfg.currency,
+    var cur=(document.querySelector('input[name=cur]:checked')||{}).value||'NGN';
+    var amount= cur==='USD' ? SEL.price*100 : Math.round(SEL.price*cfg.rate)*100;
+    PaystackPop.setup({key:cfg.key,email:email,amount:amount,currency:cur,
       callback:function(resp){fetch(API+'/api/subscribe',{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({email:email,plan:SEL.plan,volume:SEL.vol,modules:SEL.plan,ref:resp.reference})}).then(function(){location.href='portal.html?authed='+encodeURIComponent(email);});},
       onClose:function(){}}).openIframe();
   }).catch(function(){msg.textContent='Server waking up — try again in 20s.';});
