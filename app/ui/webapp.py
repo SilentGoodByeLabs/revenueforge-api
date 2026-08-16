@@ -1240,48 +1240,62 @@ async def add_my_product(request: Request):
 
 @app.get("/api/join-get")
 async def join_get(request: Request, email: str = "", password: str = "", slide_ms: int = 0, website: str = "", captcha: str = ""):
-    if not captcha:
-        captcha = request.query_params.get("g-recaptcha-response", "")
-    import hashlib, re as _re
+    import hashlib, re as _re, random, os
+    from urllib.parse import quote
+    from fastapi.responses import RedirectResponse
     from app.core.models import Member
-    if website.strip():
-        return {"ok": False, "message": "Spam detected"}
-    if not verify_recaptcha(captcha):
-        return {"ok": False, "message": "Please tick the \"I'm not a robot\" box"}
-    email = email.strip().lower()
-    if not _re.match(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", email):
-        return {"ok": False, "message": "Enter a valid email address"}
-    if email.split("@")[1] in DISPOSABLE_DOMAINS:
-        return {"ok": False, "message": "Temporary emails are not allowed. Use a real inbox (Gmail, Outlook, Yahoo or work email)."}
-    if len(password) < 6:
-        return {"ok": False, "message": "Password must be 6+ characters"}
-    s = SessionLocal()
+    if not captcha: captcha = request.query_params.get("g-recaptcha-response", "")
     try:
-        if s.query(Member).filter_by(email=email).first():
-            return {"ok": False, "message": "Account exists — please log in"}
-        s.add(Member(email=email, password_hash=hashlib.sha256(password.encode()).hexdigest(), role="client"))
-        s.commit()
-        return {"ok": True, "key": email}
-    finally:
-        s.close()
+        email = email.strip().lower(); err = ""
+        if not _re.match(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", email): err = "Enter a valid email address"
+        elif email.split("@")[1] in DISPOSABLE_DOMAINS: err = "Temporary emails not allowed"
+        elif len(password) < 6: err = "Password must be 6+ characters"
+        elif not verify_recaptcha(captcha): err = "Please tick the I'm-not-a-robot box"
+        if err: return RedirectResponse(SITE + "/register.html?err=" + quote(err))
+        s = SessionLocal()
+        try:
+            m = s.query(Member).filter_by(email=email).first()
+            if m and getattr(m, "verified", True):
+                return RedirectResponse(SITE + "/signin.html?err=" + quote("Account exists — please log in"))
+            if not m:
+                m = Member(email=email, password_hash=hashlib.sha256(password.encode()).hexdigest(), role="client"); s.add(m)
+            code6 = str(random.randint(100000, 999999)); m.verify_code = code6; m.verified = False; s.commit()
+            if send_code(email, code6):
+                return RedirectResponse(SITE + "/verify.html?email=" + quote(email))
+            m.verified = True; s.commit()
+            return RedirectResponse(SITE + "/portal.html?authed=" + quote(email))
+        finally:
+            s.close()
+    except Exception as e:
+        return RedirectResponse(SITE + "/register.html?err=" + quote("Server: " + str(e)[:120]))
 
 @app.get("/api/login-get")
 async def login_get(request: Request, email: str = "", password: str = "", captcha: str = ""):
-    if not captcha:
-        captcha = request.query_params.get("g-recaptcha-response", "")
-    if not verify_recaptcha(captcha):
-        return {"ok": False, "message": "Please tick the \"I'm not a robot\" box"}
-    import hashlib
+    import hashlib, random
+    from urllib.parse import quote
+    from fastapi.responses import RedirectResponse
     from app.core.models import Member
-    email = email.strip().lower()
-    s = SessionLocal()
+    if not captcha: captcha = request.query_params.get("g-recaptcha-response", "")
     try:
-        m = s.query(Member).filter_by(email=email).first()
-        if m and m.password_hash == hashlib.sha256(password.encode()).hexdigest():
-            return {"ok": True, "role": m.role, "key": m.email or m.phone}
-        return {"ok": False, "message": "Wrong email or password"}
-    finally:
-        s.close()
+        email = email.strip().lower()
+        if not verify_recaptcha(captcha):
+            return RedirectResponse(SITE + "/signin.html?err=" + quote("Please tick the captcha box"))
+        s = SessionLocal()
+        try:
+            m = s.query(Member).filter_by(email=email).first()
+            ok = bool(m and m.password_hash == hashlib.sha256(password.encode()).hexdigest())
+            if not ok: return RedirectResponse(SITE + "/signin.html?err=" + quote("Wrong email or password"))
+            if not getattr(m, "verified", True):
+                code6 = str(random.randint(100000, 999999)); m.verify_code = code6; s.commit()
+                if send_code(email, code6):
+                    return RedirectResponse(SITE + "/verify.html?email=" + quote(email) + "&err=" + quote("Verify first — code sent"))
+                m.verified = True; s.commit()
+            return RedirectResponse(SITE + "/portal.html?authed=" + quote(email))
+        finally:
+            s.close()
+    except Exception as e:
+        return RedirectResponse(SITE + "/signin.html?err=" + quote("Server: " + str(e)[:120]))
+
 
 @app.post("/api/member-login")
 async def member_login(request: Request):
