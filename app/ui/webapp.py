@@ -1356,6 +1356,37 @@ async def _robot_loop():
 async def _start_robot():
     asyncio.create_task(_robot_loop())
 
+
+@app.post("/api/save-profile")
+async def save_profile(request: Request):
+    from app.core.models import SubscriberProfile
+    d = await request.json()
+    email = (d.get("email") or "").strip().lower()
+    if not email: return {"ok": False}
+    s = SessionLocal()
+    try:
+        r = s.query(SubscriberProfile).filter_by(email=email).first()
+        if not r:
+            r = SubscriberProfile(email=email); s.add(r)
+        for f in ["mode", "skills", "target", "whatsapp", "telegram"]:
+            if hasattr(r, f): setattr(r, f, d.get(f, "") or "")
+        s.commit(); return {"ok": True}
+    finally:
+        s.close()
+
+@app.get("/api/get-profile")
+async def get_profile(email: str = ""):
+    from app.core.models import SubscriberProfile
+    email = email.strip().lower()
+    s = SessionLocal()
+    try:
+        r = s.query(SubscriberProfile).filter_by(email=email).first()
+        if not r: return {"has": False}
+        return {"has": True, "mode": r.mode or "", "skills": r.skills or "", "target": r.target or "",
+                "whatsapp": r.whatsapp or "", "telegram": r.telegram or ""}
+    finally:
+        s.close()
+
 @app.get("/api/run-robot")
 async def run_robot(email: str = ""):
     import json, urllib.request, xml.etree.ElementTree as ET
