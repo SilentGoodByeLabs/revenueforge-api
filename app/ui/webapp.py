@@ -341,6 +341,11 @@ async def studio():
     return FileResponse(os.path.join(os.path.dirname(__file__), "..", "..", "website", "products-studio.html"))
 
 @app.get("/products")
+async def products_studio():
+    from fastapi.responses import FileResponse
+    import os
+    return FileResponse(os.path.join(os.path.dirname(__file__), "..", "..", "website", "products-studio.html"))
+
 def products_page(request: Request):
     s = SessionLocal()
     try:
