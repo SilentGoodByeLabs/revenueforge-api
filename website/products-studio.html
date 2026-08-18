@@ -1,0 +1,100 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Products Studio | RevenueForge</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>:root{--accent:#2563EB;--ink:#0B2239;--muted:#64748B;--line:#E2E8F0}*{box-sizing:border-box}body{background:#F4F6FA;font-family:'Inter',sans-serif;color:var(--ink);margin:0;padding:24px 16px}
+.wrap{max-width:900px;margin:0 auto}h1{font-family:'Sora';font-size:1.6rem;margin-bottom:8px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
+.card h3{font-family:'Sora';margin:0 0 12px;font-size:1rem}
+input,select,textarea{width:100%;margin:6px 0 12px;padding:11px;border:1.5px solid var(--line);border-radius:10px;font-size:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn{border:0;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+.btn-p{background:var(--accent);color:#fff}.btn-g{background:#fff;border:1.5px solid var(--line);color:var(--ink)}
+.btn-s{background:#EFF4FF;color:var(--accent);font-size:.78rem;padding:6px 10px}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}.row:last-child{border:0}
+.badge{background:#DCFCE7;color:#15803D;font-size:.7rem;padding:3px 8px;border-radius:99px;font-weight:700}
+.muted{color:var(--muted);font-size:.85rem}
+.switch{position:relative;width:56px;height:30px;background:#ccc;border-radius:99px;cursor:pointer;transition:.2s;display:inline-block}
+.switch.on{background:#16A34A}.switch .knob{position:absolute;top:3px;left:3px;width:24px;height:24px;background:#fff;border-radius:50%;transition:.2s}.switch.on .knob{left:29px}
+.share-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.share-row a{padding:6px 10px;background:#EFF4FF;color:var(--accent);border-radius:8px;text-decoration:none;font-size:.78rem;font-weight:600}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+</style></head><body>
+<div class="wrap">
+<h1><i class="fa-solid fa-boxes-stacked"></i> Products — Selling Studio</h1>
+
+<div class="card">
+<h3><i class="fa-solid fa-robot"></i> Auto-Advertise Engine</h3>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+  <div style="flex:1"><div id="engStatus" class="muted">Engine OFF — turn ON to auto-advertise everywhere.</div></div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <button class="btn btn-p" onclick="advertiseNow()"><i class="fa-solid fa-bullhorn"></i> Advertise Now</button>
+    <div class="switch" id="engSwitch" onclick="toggleEngine()"><div class="knob"></div></div>
+  </div>
+</div>
+<p class="muted" style="margin-top:8px">When ON + rf-agent running: advertises on Marketplace + Telegram + 9 platforms. You wait for messages on your contact.</p>
+</div>
+
+<div class="card">
+<h3><i class="fa-solid fa-plus"></i> Publish a product</h3>
+<div class="grid"><div><input id="p_name" placeholder="Product name"></div><div><input id="p_price" type="number" placeholder="Price (USD)"></div></div>
+<textarea id="p_desc" rows="2" placeholder="Description"></textarea>
+<label class="muted">IMAGE (optional)</label><input id="p_image" type="file" accept="image/*">
+<label class="muted">VIDEO (optional)</label><input id="p_video" type="file" accept="video/*">
+<label class="muted">CONTACT METHOD</label>
+<select id="p_contact"><option value="whatsapp">WhatsApp</option><option value="telegram">Telegram</option><option value="email">Email</option><option value="phone">Phone</option></select>
+<label class="muted">CONTACT VALUE</label><input id="p_contactval" placeholder="+234... or @username or email">
+<button class="btn btn-p" onclick="addProduct()"><i class="fa-solid fa-rocket"></i> Publish & Advertise</button>
+</div>
+
+<div class="card">
+<h3><i class="fa-solid fa-list"></i> Your products</h3>
+<div id="prodList"><p class="muted">Loading…</p></div>
+</div>
+
+<div class="card">
+<h3><i class="fa-solid fa-share-nodes"></i> Share ALL platforms</h3>
+<p class="muted">Click any platform to share, or copy all ads at once.</p>
+<div id="shareAll"></div>
+</div>
+</div>
+
+<script>
+var API=location.hostname==='localhost'?'http://localhost:8502':(window.RF_API||'');
+var OWNER='admin@gmail.com';var ENGINE_ON=false;var PRODS=[];
+
+function loadEngine(){fetch(API+'/api/get-profile?email='+OWNER).then(r=>r.json()).then(d=>{ENGINE_ON=!!(d&&d.engine_on);paintEngine();}).catch(()=>{});}
+function paintEngine(){var sw=document.getElementById('engSwitch');sw.classList.toggle('on',ENGINE_ON);
+ document.getElementById('engStatus').innerHTML=ENGINE_ON?'<span style="color:#16A34A">●</span> Engine ON — advertising everywhere. Waiting for messages.':'Engine OFF — turn ON to auto-advertise.';}
+function toggleEngine(){ENGINE_ON=!ENGINE_ON;paintEngine();
+ fetch(API+'/api/engine-toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:OWNER,on:ENGINE_ON})}).catch(e=>alert('Start rf first.'));}
+
+function advertiseNow(){fetch(API+'/api/owner/advertise-now',{method:'POST'}).then(r=>r.json()).then(d=>{alert('✓ Advertised '+d.advertised+' product(s) everywhere.');loadProducts();}).catch(()=>alert('Start rf first.'));}
+
+function allPlatforms(){return ['X (Twitter)','Facebook','Instagram','LinkedIn','WhatsApp','Telegram','TikTok','YouTube','Pinterest','Snapchat','Reddit'];}
+function adCopy(p,pl){return pl+' ad: '+p.name+' — '+(p.description||'')+' Only $'+p.price+'! Contact: '+(p.contact_value||OWNER);}
+function copyAllAds(i){var p=PRODS[i];var ads=allPlatforms().map(pl=>adCopy(p,pl)).join('\n\n');
+ if(navigator.clipboard){navigator.clipboard.writeText(ads).then(()=>alert('All ads copied for 11 platforms!'));}else{prompt('Copy:',ads);}}
+
+function shareLinks(p){var cap=p.name+' — '+(p.description||'')+' $'+p.price+'. Contact: '+(p.contact_value||OWNER);var ce=encodeURIComponent(cap);var u=encodeURIComponent('https://silentgoodbyelabs.github.io/revenueforge/marketplace.html');
+ return '<div class="share-row">'
+ +'<a target="_blank" href="https://twitter.com/intent/tweet?text='+ce+'">X</a>'
+ +'<a target="_blank" href="https://www.facebook.com/sharer/sharer.php?quote='+ce+'">FB</a>'
+ +'<a target="_blank" href="https://www.instagram.com/">IG</a>'
+ +'<a target="_blank" href="https://www.linkedin.com/sharing/share-offsite/?url='+u+'">in</a>'
+ +'<a target="_blank" href="https://wa.me/?text='+ce+'">WA</a>'
+ +'<a target="_blank" href="https://t.me/share/url?text='+ce+'">TG</a>'
+ +'<a target="_blank" href="https://www.tiktok.com/">TT</a>'
+ +'<a target="_blank" href="https://www.youtube.com/">YT</a>'
+ +'<a target="_blank" href="https://www.pinterest.com/pin/create/button/?description='+ce+'">Pin</a>'
+ +'<a target="_blank" href="https://www.snapchat.com/">Snap</a>'
+ +'<a target="_blank" href="https://www.reddit.com/submit?title='+ce+'">Reddit</a>'
+ +'</div>';}
+
+function loadProducts(){fetch(API+'/api/owner/products').then(r=>r.json()).then(d=>{PRODS=d.products||[];var b=document.getElementById('prodList');
+ b.innerHTML=PRODS.length?PRODS.map((p,i)=>{var media=p.image?'<img src="'+p.image+'" style="width:60px;height:60px;object-fit:cover;border-radius:6px;margin-right:10px">':p.video?'<video src="'+p.video+'" style="width:60px;height:60px;border-radius:6px;margin-right:10px"></video>':'';
+  return '<div class="row"><div style="display:flex;align-items:center">'+media+'<div><strong>'+p.name+'</strong> <span class="badge">$'+p.price+'</span> '+(p.advertised?'<span class="badge">advertised</span>':'')+'<br><span class="muted">'+(p.description||'')+'</span><br><span class="muted">'+(p.contact_method||'email')+': '+(p.contact_value||OWNER)+'</span></div></div><button class="btn btn-s" onclick="copyAllAds('+i+')">Copy all ads</button></div>'+shareLinks(p);}).join(''):'<p class="muted">No products yet — publish your first one above.</p>';
+ document.getElementById('shareAll').innerHTML='<p class="muted">Publish a product to see share options for all platforms.</p>';}).catch(()=>{document.getElementById('prodList').innerHTML='<p class="muted">Start rf first.</p>';});}
+
+function addProduct(){var img=document.getElementById('p_image').files[0];var vid=document.getElementById('p_video').files[0];
+ function fin(iu,vu){fetch(API+'/api/owner/products',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:p_name.value,price:p_price.value,description:p_desc.value,image_url:iu,video_url:vu,contact_method:p_contact.value,contact_value:p_contactval.value||OWNER})}).then(()=>{p_name.value='';p_price.value='';p_desc.value='';p_image.value='';p_video.value='';p_contactval.value='';loadProducts();alert('✓ Published! Toggle engine ON to auto-advertise.');}).catch(()=>alert('Start rf first.'));}
+ if(img||vid){var fd=new FormData();if(img)fd.append('file',img);if(vid)fd.append('file',vid);fetch('https://file.io',{method:'POST',body:fd}).then(r=>r.json()).then(d=>fin(d.link||'',vid?d.link:'')).catch(()=>fin('',''));}else fin('','');}
+
+loadEngine();loadProducts();
+</script></body></html>
