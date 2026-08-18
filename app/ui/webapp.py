@@ -1219,7 +1219,7 @@ async def my_products(email: str = ""):
     s = SessionLocal()
     try:
         rows = s.query(SubscriberProduct).filter_by(owner_email=email.strip().lower()).order_by(SubscriberProduct.id.desc()).all()
-        return {"products": [{"id": r.id, "name": r.name, "price": r.price, "description": r.description or "", "status": r.status} for r in rows]}
+        return {"products": [{"id": r.id, "name": r.name, "price": r.price, "description": r.description or "", "status": r.status, "image": getattr(r,"image_url","") or "", "video": getattr(r,"video_url","") or "", "contact_method": getattr(r,"contact_method","") or "email", "contact_value": getattr(r,"contact_value","") or ""} for r in rows]}
     finally:
         s.close()
 

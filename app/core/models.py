@@ -79,6 +79,10 @@ class Product(Base):
     objections = Column(Text, nullable=True)
     objection_responses = Column(Text, nullable=True)
     status = Column(String, default="active")
+    image_url = Column(String, nullable=True)
+    video_url = Column(String, nullable=True)
+    contact_method = Column(String, nullable=True)
+    contact_value = Column(String, nullable=True)
 
 
 class Company(Base):
@@ -195,6 +199,10 @@ class Subscription(Base):
     volume = Column(String, nullable=True)
     price_monthly = Column(Float, default=0.0)
     status = Column(String, default="active")
+    image_url = Column(String, nullable=True)
+    video_url = Column(String, nullable=True)
+    contact_method = Column(String, nullable=True)
+    contact_value = Column(String, nullable=True)
     paystack_ref = Column(String, nullable=True)
     started_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     renews_at = Column(DateTime, nullable=True)
@@ -225,4 +233,8 @@ class SubscriberProduct(Base):
     price = Column(Integer, default=0)
     description = Column(Text, nullable=True)
     status = Column(String, default="active")
+    image_url = Column(String, nullable=True)
+    video_url = Column(String, nullable=True)
+    contact_method = Column(String, nullable=True)
+    contact_value = Column(String, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
