@@ -1587,3 +1587,35 @@ async def add_owner_product(request: Request):
     finally:
         s.close()
 
+
+@app.post("/api/engine-toggle")
+async def engine_toggle(request: Request):
+    from app.core.models import SubscriberProfile
+    d = await request.json(); email = (d.get("email") or "").strip().lower(); on = bool(d.get("on"))
+    s = SessionLocal()
+    try:
+        r = s.query(SubscriberProfile).filter_by(email=email).first()
+        if not r: r = SubscriberProfile(email=email); s.add(r)
+        if hasattr(r, "engine_on"): r.engine_on = on
+        s.commit(); return {"ok": True, "on": on}
+    finally:
+        s.close()
+
+@app.post("/api/owner/advertise-now")
+async def owner_advertise_now():
+    import os
+    from app.core.models import Product
+    from app.core.advertise import send_telegram
+    s = SessionLocal(); n = 0
+    try:
+        owner = os.getenv("OWNER_EMAIL", "admin@gmail.com")
+        for pr in s.query(Product).filter_by(status="active").all():
+            if not getattr(pr, "advertised", False):
+                send_telegram("@" + (os.getenv("TG_CHANNEL", "") or "revenueforge_ads"),
+                              "🛒 " + pr.name + " — " + (pr.description or "") + " $" + str(pr.price or 0) +
+                              " | contact: " + (getattr(pr, "contact_value", "") or owner))
+                pr.advertised = True; n += 1
+        s.commit(); return {"ok": True, "advertised": n}
+    finally:
+        s.close()
+
