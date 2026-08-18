@@ -1,0 +1,22 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><title>Marketplace | RevenueForge</title><link rel="icon" type="image/png" href="assets/logo.png"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><link rel="stylesheet" href="css/style.css">
+<style>body{background:#F4F6FA}.wrap{max-width:1000px;margin:0 auto;padding:0 16px}.hero{background:linear-gradient(160deg,#0B2239,#123B5C);color:#fff;padding:50px 0 70px;text-align:center}.hero h1{font-family:'Sora'}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:-40px}.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:0;overflow:hidden}.card img,.card video{width:100%;height:200px;object-fit:cover}.card .body{padding:18px}.card .p{font-family:'Sora';font-weight:800;color:var(--accent);font-size:1.3rem}.muted{color:var(--muted);font-size:.85rem}.btn-c{display:block;width:100%;margin-top:10px;text-align:center;background:#25D366;color:#fff;border:0;border-radius:10px;padding:12px;font-weight:700;text-decoration:none}.btn-c.tg{background:#0088cc}.btn-c.em{background:var(--accent)}@media(max-width:820px){.grid{grid-template-columns:1fr}}</style></head>
+<body><div id="header"></div>
+<div class="hero"><div class="wrap"><h1><i class="fa-solid fa-store"></i> Service Marketplace</h1><p>Real services from real members — contact directly to hire.</p></div></div>
+<div class="wrap"><div class="grid" id="mkBody"><p class="muted">Loading…</p></div></div>
+<div style="height:50px"></div><div id="footer"></div>
+<script src="js/config.js?v=4"></script><script src="js/layout.js?v=11"></script>
+<script>
+function contactLink(p){
+ var m=p.contact_method||'email';var v=p.contact_value||p.seller;
+ if(m==='whatsapp')return '<a class="btn-c" target="_blank" href="https://wa.me/'+v.replace(/[^0-9]/g,'')+'?text='+encodeURIComponent('Hi, I want '+p.name)+'"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>';
+ if(m==='telegram')return '<a class="btn-c tg" target="_blank" href="https://t.me/'+v.replace('@','')+'"><i class="fa-brands fa-telegram"></i> Telegram</a>';
+ if(m==='phone')return '<a class="btn-c" href="tel:'+v+'"><i class="fa-solid fa-phone"></i> Call '+v+'</a>';
+ return '<a class="btn-c em" href="mailto:'+v+'?subject='+encodeURIComponent('I want '+p.name)+'"><i class="fa-solid fa-envelope"></i> Email</a>';
+}
+fetch((window.RF_API||'')+'/api/marketplace').then(function(r){return r.json();}).then(function(d){
+ var b=document.getElementById('mkBody');var l=d.products||[];
+ b.innerHTML=l.length?l.map(function(p){
+  var media=p.image?'<img src="'+p.image+'" alt="'+p.name+'">':p.video?'<video controls><source src="'+p.video+'" type="video/mp4"></video>':'<div style="height:200px;background:#EEF2F7;display:flex;align-items:center;justify-content:center;color:var(--muted)"><i class="fa-solid fa-image" style="font-size:3rem"></i></div>';
+  return '<div class="card">'+media+'<div class="body"><div class="p">$'+(p.price||0)+'</div><strong>'+p.name+'</strong><p class="muted">'+(p.description||'')+'</p>'+contactLink(p)+'</div></div>';}).join(''):'<p class="muted">No services listed yet — publish yours from your dashboard.</p>';
+}).catch(function(){document.getElementById('mkBody').innerHTML='<p class="muted">Marketplace warming up — try again shortly.</p>';});
+</script></body></html>
