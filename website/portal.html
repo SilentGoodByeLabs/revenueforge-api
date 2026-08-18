@@ -37,6 +37,10 @@ input,select,textarea{width:100%;margin:6px 0 12px;padding:11px 12px;border:1.5p
 .bar{height:8px;background:#EEF2F7;border-radius:99px;overflow:hidden;margin:4px 0 10px}.bar>div{height:100%;background:var(--accent)}
 details summary{cursor:pointer;color:var(--accent);font-size:.8rem;font-weight:700}
 .lock{opacity:.55;filter:grayscale(1)}
+.switch{position:relative;width:56px;height:30px;background:#ccc;border-radius:99px;cursor:pointer;transition:.2s}
+.switch.on{background:#16A34A}
+.switch .knob{position:absolute;top:3px;left:3px;width:24px;height:24px;background:#fff;border-radius:50%;transition:.2s}
+.switch.on .knob{left:29px}
 @media (max-width:900px){
  .topbar{display:flex}
  .dash{grid-template-columns:1fr;padding-top:12px}
@@ -88,7 +92,9 @@ details summary{cursor:pointer;color:var(--accent);font-size:.8rem;font-weight:7
   <section id="p-robot" class="panel">
     <div class="crumb">Dashboard / My Engine</div><div class="ptitle">My Autonomous Engine</div>
     <div class="card"><h3><span class="dot"></span> Your autonomous engine</h3>
-      <p class="muted">It never stops. It searches jobs & sells for you across Reddit, X, Facebook, Instagram, LinkedIn, Telegram, WhatsApp, TikTok, Upwork, RemoteOK & more — and writes a proposal for each.</p>
+      <div class="row" style="border:0;padding:6px 0"><span style="font-weight:700">Engine</span><div class="switch" id="engSwitch" onclick="toggleEngine()"><div class="knob"></div></div></div>
+      <div id="engStatus" class="muted" style="margin-bottom:10px">Engine OFF — turn it ON to auto-advertise & get jobs.</div>
+      <p class="muted">It never stops when ON. It searches jobs & sells for you across Reddit, X, Facebook, Instagram, LinkedIn, Telegram, WhatsApp, TikTok, Upwork, RemoteOK & more — and writes a proposal for each.</p>
       <button class="btn btn-p" onclick="runRobot(false)"><i class="fa-solid fa-bolt"></i> Search now (instant)</button>
       <div id="robotStatus" class="muted" style="margin-top:10px"></div>
     </div>
@@ -191,8 +197,7 @@ function prospects(){return ls('rf_prospects','[]');}
 function apps(){return ls('rf_apps','[]');}
 function save(k,v){localStorage.setItem(k,JSON.stringify(v));}
 function localMatches(){var pr=profile();var words=(pr.skills+' '+pr.target).toLowerCase().split(/\W+/).filter(function(w){return w.length>2;});
- if(!words.length)return [];
- var s=OPPS.map(function(o){var hay=(o.t+' '+o.k+' '+o.p).toLowerCase();var h=0;words.forEach(function(w){if(hay.indexOf(w)>-1)h++;});return{t:o.t,p:o.p,u:o.u,score:Math.min(99,55+h*9)};});
+ if(!words.length)return [];var s=OPPS.map(function(o){var hay=(o.t+' '+o.k+' '+o.p).toLowerCase();var h=0;words.forEach(function(w){if(hay.indexOf(w)>-1)h++;});return{t:o.t,p:o.p,u:o.u,score:Math.min(99,55+h*9)};});
  s.sort(function(a,b){return b.score-a.score;});return s;}
 function liveJobs(words,cb){var out=[];var d=0;function f(){d++;if(d>=2)cb(out);}
  var q=encodeURIComponent((words||'python developer').slice(0,60));
@@ -204,6 +209,11 @@ function go(p){var n=document.querySelectorAll('.nav-i');for(var i=0;i<n.length;
  if(window.innerWidth<=900){document.getElementById('side').classList.remove('open');document.getElementById('backdrop').classList.remove('show');}}
 var navs=document.querySelectorAll('.nav-i');for(var i=0;i<navs.length;i++){navs[i].addEventListener('click',function(){go(this.dataset.p);});}
 function restoreTab(){var h=(location.hash||'').replace('#','');var tb=h||localStorage.getItem('rf_tab')||'ov';if(document.getElementById('p-'+tb))go(tb);}
+var ENGINE_ON=false;
+function loadEngine(){fetch(API+'/api/get-profile?email='+E).then(function(r){return r.json();}).then(function(d){ENGINE_ON=!!(d&&d.engine_on);paintEngine();loadDelivered();});}
+function paintEngine(){var sw=document.getElementById('engSwitch');if(sw)sw.classList.toggle('on',ENGINE_ON);var st=document.getElementById('engStatus');if(st)st.innerHTML=ENGINE_ON?'<span style="color:#16A34A">●</span> Engine ON — advertising on Marketplace + Telegram + 9 platforms. It keeps running even if you close this page. Alerts: paid plans only.':'Engine OFF — turn it ON to auto-advertise & receive jobs.';}
+function toggleEngine(){ENGINE_ON=!ENGINE_ON;paintEngine();fetch(API+'/api/engine-toggle',{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({email:sess.email,on:ENGINE_ON})}).catch(function(){});}
+function loadDelivered(){fetch(API+'/api/subscriber/'+E+'/results').then(function(r){return r.json();}).then(function(d){var l=(d.results||[]).map(function(r){return{t:r.title,p:r.platform,u:r.url,score:r.score};});if(l.length){document.getElementById('kJobs').textContent=l.length;renderJobs(l,document.getElementById('robotJobs'));renderJobs(l,document.getElementById('jobsBody'));}}).catch(function(){});}
 function appStatus(t){var a=apps();for(var i=0;i<a.length;i++)if(a[i].title===t)return a[i].status;return null;}
 var JOBLIST=[];
 function renderJobs(list,el){var lim=allowance();JOBLIST=list;var html='';var shown=Math.max(lim,3);
@@ -253,8 +263,15 @@ function loadServ(){var l=services();window.SERVS=l;var b=document.getElementByI
   +'<div style="margin:8px 0"><strong class="muted">Share on all platforms:</strong><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">'+shareLinks(p)+'</div></div>'
   +'<button class="btn btn-s" onclick="copyAdAll('+i+')">Copy ads for all platforms</button>'
   +'</div><div style="text-align:right"><strong>$'+(p.price||0)+'</strong></div></div>';}).join(''):'No services yet — publish your first one above with image/video; the engine will advertise it everywhere.';loadSocial(l);}
+function addServ(){var l=services();var img=document.getElementById('sv_image').files[0];var vid=document.getElementById('sv_video').files[0];var contact=document.getElementById('sv_contact').value;var contactval=document.getElementById('sv_contactval').value||sess.email;
+ function finish(imageUrl,videoUrl){l.unshift({name:document.getElementById('sv_name').value,price:document.getElementById('sv_price').value||0,description:document.getElementById('sv_desc').value,image:imageUrl,video:videoUrl,contact_method:contact,contact_value:contactval});save('rf_services',l);
+  fetch(API+'/api/my/products',{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({email:sess.email,name:document.getElementById('sv_name').value,price:document.getElementById('sv_price').value,description:document.getElementById('sv_desc').value,image_url:imageUrl,video_url:videoUrl,contact_method:contact,contact_value:contactval})}).catch(function(){});
+  document.getElementById('sv_name').value='';document.getElementById('sv_price').value='';document.getElementById('sv_desc').value='';document.getElementById('sv_image').value='';document.getElementById('sv_video').value='';document.getElementById('sv_contactval').value='';loadServ();}
+ if(img||vid){var fd=new FormData();if(img)fd.append('file',img);if(vid)fd.append('file',vid);
+  fetch('https://file.io',{method:'POST',body:fd}).then(function(r){return r.json();}).then(function(d){finish(d.link||'',vid?d.link:'');}).catch(function(){finish('','');});}
+ else finish('','');}
 function loadSocial(l){var box=document.getElementById('socialBody');l=l||services();if(!l.length){box.textContent='Add a service first (My Services), then sell it everywhere here.';return;}
- box.innerHTML=l.map(function(p){var cap='I offer '+p.name+' — '+(p.description||'')+' Get it here: https://silentgoodbyelabs.github.io/revenueforge/';var ce=encodeURIComponent(cap);var u=encodeURIComponent('https://silentgoodbyelabs.github.io/revenueforge/');
+ box.innerHTML=l.map(function(p){var cap='I offer '+p.name+' — '+(p.description||'')+' Get it here: https://silentgoodbyelabs.github.io/revenueforge/marketplace.html';var ce=encodeURIComponent(cap);var u=encodeURIComponent('https://silentgoodbyelabs.github.io/revenueforge/marketplace.html');
   return '<div class="row"><div><strong>'+p.name+'</strong></div><div style="display:flex;gap:6px;flex-wrap:wrap"><a class="btn btn-g" target="_blank" href="https://twitter.com/intent/tweet?text='+ce+'">X</a><a class="btn btn-g" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u='+u+'&quote='+ce+'">FB</a><a class="btn btn-g" target="_blank" href="https://www.linkedin.com/sharing/share-offsite/?url='+u+'">in</a><a class="btn btn-g" target="_blank" href="https://wa.me/?text='+ce+'">WA</a><a class="btn btn-g" target="_blank" href="https://t.me/share/url?url='+u+'&text='+ce+'">TG</a><button class="btn btn-g" onclick="copyCap(\''+cap.replace(/'/g,'')+'\')">Copy IG/TikTok</button></div></div>';}).join('');}
 function copyCap(t){if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){alert('Caption copied — paste it in Instagram or TikTok.');});}}
 var STAGES=['New','Contacted','Replied','Won'];
@@ -278,13 +295,11 @@ function renderBrief(){var l=prospects();var a=apps();var today=new Date().toISO
  document.getElementById('briefBody').innerHTML='Today: <strong>'+localMatches().length+'</strong> matches · <strong>'+a.length+'</strong> proposals · <strong>'+due+'</strong> follow-ups due · plan: <strong>'+PLAN+'</strong> ('+allowance()+' matches). '+(PLAN==='Free'?'<a href="pricing.html" style="color:var(--accent)">Upgrade for more →</a>':'');}
 function renderAll(){showMatches();loadServ();loadPros();renderApps();renderAna();renderBrief();}
 (function(){var pr=profile();document.getElementById('ob_mode').value=pr.mode||'jobs';document.getElementById('ob_skills').value=pr.skills||'';document.getElementById('ob_target').value=pr.target||'';document.getElementById('ob_wa').value=pr.whatsapp||'';document.getElementById('ob_tg').value=pr.telegram||'';})();
-fetch(API+'/api/get-profile?email='+E).then(function(r){return r.json();}).then(function(d){if(d&&d.has){var pr=profile();var upd={mode:d.mode||pr.mode,skills:d.skills||pr.skills,target:d.target||pr.target,whatsapp:d.whatsapp||pr.whatsapp,telegram:d.telegram||pr.telegram};save('rf_profile',upd);
- document.getElementById('ob_mode').value=upd.mode||'jobs';document.getElementById('ob_skills').value=upd.skills||'';document.getElementById('ob_target').value=upd.target||'';document.getElementById('ob_wa').value=upd.whatsapp||'';document.getElementById('ob_tg').value=upd.telegram||'';renderAll();runRobot(true);}}).catch(function(){});
 function saveSet(){var pr={mode:document.getElementById('ob_mode').value,skills:document.getElementById('ob_skills').value,target:document.getElementById('ob_target').value,whatsapp:document.getElementById('ob_wa').value,telegram:document.getElementById('ob_tg').value};
  save('rf_profile',pr);document.getElementById('setMsg').textContent='✓ Saved — searching now…';go('robot');runRobot(true);
  fetch(API+'/api/save-profile',{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({email:sess.email,mode:pr.mode,skills:pr.skills,target:pr.target,whatsapp:pr.whatsapp,telegram:pr.telegram})}).catch(function(){});}
 document.getElementById('planBody').innerHTML='<p>Plan: <strong>'+PLAN+'</strong> — '+allowance()+' matches & submissions.</p><a class="btn btn-p" href="pricing.html">Upgrade</a>';
 fetch(API+'/api/sub/'+E).then(function(r){return r.json();}).then(function(d){if(d.has)PLAN=d.plan;
  document.getElementById('planBody').innerHTML=d.has?'<div class="row"><span>Plan</span><span class="badge b-blue">'+d.plan+'</span></div><div class="row"><span>Status</span><span class="badge b-green">'+d.status+'</span></div><div class="row"><span>Manage</span><a class="btn btn-g" href="pricing.html">Change plan</a></div>':'<p>Plan: <strong>Free</strong> — '+allowance()+' matches & submissions.</p><a class="btn btn-p" href="pricing.html">Upgrade</a>';renderAll();}).catch(function(){renderAll();});
-renderAll();restoreTab();runRobot(true);
+renderAll();restoreTab();loadEngine();
 </script></body></html>
