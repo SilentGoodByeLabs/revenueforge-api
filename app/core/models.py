@@ -251,3 +251,15 @@ class SubscriberProfile(Base):
     telegram = Column(String, nullable=True)
     engine_on = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class SubscriberJob(Base):
+    __tablename__ = "subscriber_jobs"
+    id = Column(Integer, primary_key=True, index=True)
+    owner_email = Column(String, index=True)
+    title = Column(String)
+    url = Column(String)
+    platform = Column(String, nullable=True)
+    score = Column(Integer, default=0)
+    draft = Column(Text, nullable=True)
+    status = Column(String, default="Draft")
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
