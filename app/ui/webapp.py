@@ -1538,3 +1538,34 @@ def _heal_schema():
         print("schema heal skipped:", e)
 
 _heal_schema()
+
+@app.get("/api/owner/products")
+async def owner_products():
+    from app.core.models import Product
+    s = SessionLocal()
+    try:
+        rows = s.query(Product).filter_by(status="active").order_by(Product.id.desc()).all()
+        return {"products": [{"id": r.id, "name": r.name, "price": r.price, "description": r.description or "", 
+                "image": getattr(r,"image_url","") or "", "video": getattr(r,"video_url","") or "",
+                "contact_method": getattr(r,"contact_method","") or "email", 
+                "contact_value": getattr(r,"contact_value","") or ""} for r in rows]}
+    finally:
+        s.close()
+
+@app.post("/api/owner/products")
+async def add_owner_product(request: Request):
+    from app.core.models import Product
+    d = await request.json()
+    name = (d.get("name") or "").strip()
+    if not name: return {"ok": False}
+    s = SessionLocal()
+    try:
+        p = Product(name=name, price=int(d.get("price") or 0), description=d.get("description") or "")
+        if hasattr(p, "image_url"): p.image_url = d.get("image_url", "")
+        if hasattr(p, "video_url"): p.video_url = d.get("video_url", "")
+        if hasattr(p, "contact_method"): p.contact_method = d.get("contact_method", "email")
+        if hasattr(p, "contact_value"): p.contact_value = d.get("contact_value", "")
+        s.add(p); s.commit(); return {"ok": True, "id": p.id}
+    finally:
+        s.close()
+
