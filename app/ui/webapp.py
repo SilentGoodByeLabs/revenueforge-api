@@ -1368,7 +1368,7 @@ async def save_profile(request: Request):
         r = s.query(SubscriberProfile).filter_by(email=email).first()
         if not r:
             r = SubscriberProfile(email=email); s.add(r)
-        for f in ["mode", "skills", "target", "whatsapp", "telegram"]:
+        for f in ["mode", "skills", "target", "whatsapp", "telegram", "engine"]:
             if hasattr(r, f): setattr(r, f, d.get(f, "") or "")
         s.commit(); return {"ok": True}
     finally:
@@ -1383,7 +1383,7 @@ async def get_profile(email: str = ""):
         r = s.query(SubscriberProfile).filter_by(email=email).first()
         if not r: return {"has": False}
         return {"has": True, "mode": r.mode or "", "skills": r.skills or "", "target": r.target or "",
-                "whatsapp": r.whatsapp or "", "telegram": r.telegram or ""}
+                "whatsapp": r.whatsapp or "", "telegram": r.telegram or "", "engine": (r.engine is not False)
     finally:
         s.close()
 
