@@ -1339,7 +1339,19 @@ def deliver_all():
             if not s.query(SubscriberJob).filter_by(owner_email=m.email, url=j.url).first():
                 s.add(SubscriberJob(owner_email=m.email, title=j.title, url=j.url, platform=j.platform,
                                     score=j.opportunity_score or 0, draft=j.proposal_draft))
-    s.commit(); s.close()
+    # OWNER auto-advertise (private engine)
+    owner = os.getenv("OWNER_EMAIL", "admin@gmail.com")
+    oprof = s.query(SubscriberProfile).filter_by(email=owner).first()
+    if oprof and getattr(oprof, "engine_on", False):
+        from app.core.models import Product
+        for pr in s.query(Product).filter_by(status="active").all():
+            if not getattr(pr, "advertised", False):
+                send_telegram("@" + (os.getenv("TG_CHANNEL", "") or "revenueforge_ads"),
+                              "🛒 " + pr.name + " — " + (pr.description or "") + " $" + str(pr.price or 0) +
+                              " | contact: " + (getattr(pr, "contact_value", "") or owner))
+                pr.advertised = True
+        s.commit()
+    s.close()
 
 import asyncio
 async def _robot_loop():
