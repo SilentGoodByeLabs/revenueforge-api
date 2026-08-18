@@ -1395,7 +1395,7 @@ async def get_profile(email: str = ""):
         r = s.query(SubscriberProfile).filter_by(email=email).first()
         if not r: return {"has": False}
         return {"has": True, "mode": r.mode or "", "skills": r.skills or "", "target": r.target or "",
-                "whatsapp": r.whatsapp or "", "telegram": r.telegram or "", "engine": (r.engine is not False)
+                "whatsapp": r.whatsapp or "", "telegram": r.telegram or "", "engine_on": bool(getattr(r, "engine_on", False))}
     finally:
         s.close()
 
