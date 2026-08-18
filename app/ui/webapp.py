@@ -334,6 +334,12 @@ def analytics_page(request: Request):
     return render(request, "analytics.html", stats=stats)
 
 
+@app.get("/studio")
+async def studio():
+    from fastapi.responses import FileResponse
+    import os
+    return FileResponse(os.path.join(os.path.dirname(__file__), "..", "..", "website", "owner-selling.html"))
+
 @app.get("/products")
 def products_page(request: Request):
     s = SessionLocal()
