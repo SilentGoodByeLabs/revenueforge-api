@@ -344,6 +344,24 @@ async def studio():
 async def products_studio():
     from fastapi.responses import FileResponse
     import os
+    
+<script>
+var PRODS=[];var OWNER='admin@gmail.com';
+function copyAllAds(i){var p=PRODS[i];var platforms=['X (Twitter)','Facebook','Instagram','LinkedIn','WhatsApp','Telegram','TikTok','YouTube','Pinterest','Snapchat','Reddit'];
+var ads=platforms.map(pl=>pl+' ad: '+p.name+' — '+(p.description||'')+' Only $'+p.price+'! Contact: '+(p.contact_value||OWNER)).join('\n\n');
+if(navigator.clipboard){navigator.clipboard.writeText(ads).then(()=>alert('All ads copied for 11 platforms!'));}else{prompt('Copy:',ads);}}
+function addProduct(){var img=document.getElementById('p_image').files[0];var vid=document.getElementById('p_video').files[0];
+function fin(iu,vu){fetch('/api/owner/products',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+name:document.getElementById('p_name').value,price:document.getElementById('p_price').value,description:document.getElementById('p_desc').value,
+image_url:iu,video_url:vu,contact_method:document.getElementById('p_contact').value,contact_value:document.getElementById('p_contactval').value||OWNER
+})}).then(()=>{document.getElementById('p_name').value='';document.getElementById('p_price').value='';document.getElementById('p_desc').value='';
+document.getElementById('p_image').value='';document.getElementById('p_video').value='';document.getElementById('p_contactval').value='';
+alert('✓ Published! Engine will advertise it.');location.reload();}).catch(()=>alert('Error publishing.'));}
+if(img||vid){var fd=new FormData();if(img)fd.append('file',img);if(vid)fd.append('file',vid);
+fetch('https://file.io',{method:'POST',body:fd}).then(r=>r.json()).then(d=>fin(d.link||'',vid?d.link:'')).catch(()=>fin('',''));}else{fin('','');}}
+fetch('/api/owner/products').then(r=>r.json()).then(d=>{PRODS=d.products||[];});
+</script>
+
     return FileResponse(os.path.join(os.path.dirname(__file__), "..", "..", "website", "products-studio.html"))
 
 def products_page(request: Request):
