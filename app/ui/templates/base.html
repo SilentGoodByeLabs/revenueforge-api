@@ -71,5 +71,26 @@ document.addEventListener('DOMContentLoaded', function () {
   m.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', closeMenu); });
 });
 </script>
+
+<button id="advFab" onclick="advTogglePanel()" style="position:fixed;bottom:20px;right:20px;z-index:9999;background:#2563EB;color:#fff;border:0;border-radius:99px;padding:14px 20px;font-weight:700;box-shadow:0 8px 24px rgba(37,99,235,.4);cursor:pointer"><i class="fa-solid fa-bullhorn"></i> Advertise</button>
+<div id="advPanel" style="display:none;position:fixed;bottom:80px;right:20px;z-index:9998;width:340px;max-height:70vh;overflow:auto;background:#fff;border:1px solid #E2E8F0;border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.25);padding:16px;font-family:Inter,sans-serif">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><strong>Auto-Advertise Engine</strong>
+    <div id="advSwitch" onclick="advToggleEngine()" style="width:52px;height:28px;background:#ccc;border-radius:99px;position:relative;cursor:pointer"><div id="advKnob" style="position:absolute;top:3px;left:3px;width:22px;height:22px;background:#fff;border-radius:50%;transition:.2s"></div></div></div>
+  <div id="advStatus" style="font-size:.8rem;color:#64748B;margin-bottom:10px">Engine OFF.</div>
+  <button onclick="advNow()" style="width:100%;background:#2563EB;color:#fff;border:0;border-radius:10px;padding:10px;font-weight:700;cursor:pointer;margin-bottom:12px">Advertise Now (all products)</button>
+  <div id="advList" style="font-size:.85rem">Loading…</div>
+</div>
+<script>
+var ADV_ON=false;
+function advTogglePanel(){var p=document.getElementById('advPanel');p.style.display=(p.style.display==='none')?'block':'none';if(p.style.display==='block')advLoad();}
+function advLoad(){fetch('/api/get-profile?email=admin@gmail.com').then(function(r){return r.json();}).then(function(d){ADV_ON=!!(d&&d.engine_on);advPaint();});advProducts();}
+function advPaint(){document.getElementById('advSwitch').style.background=ADV_ON?'#16A34A':'#ccc';document.getElementById('advKnob').style.left=ADV_ON?'27px':'3px';document.getElementById('advStatus').textContent=ADV_ON?'● Engine ON — advertising everywhere; waiting for messages.':'Engine OFF — turn ON to auto-advertise.';}
+function advToggleEngine(){ADV_ON=!ADV_ON;advPaint();fetch('/api/engine-toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:'admin@gmail.com',on:ADV_ON})});}
+function advNow(){fetch('/api/owner/advertise-now',{method:'POST'}).then(function(r){return r.json();}).then(function(d){alert('✓ Advertised '+d.advertised+' product(s) everywhere.');advProducts();});}
+function advShare(p){var cap=p.name+' — '+(p.description||'')+' $'+p.price+'. Contact: '+(p.contact_value||'');var ce=encodeURIComponent(cap);window.open('https://twitter.com/intent/tweet?text='+ce);window.open('https://www.facebook.com/sharer/sharer.php?quote='+ce);window.open('https://wa.me/?text='+ce);window.open('https://t.me/share/url?text='+ce);}
+function advCopy(p){var pls=['X','Facebook','Instagram','LinkedIn','WhatsApp','Telegram','TikTok','YouTube','Pinterest','Snapchat','Reddit'];var ads=pls.map(function(x){return x+' ad: '+p.name+' — '+(p.description||'')+' $'+p.price+'! Contact: '+(p.contact_value||'');}).join('\n\n');if(navigator.clipboard){navigator.clipboard.writeText(ads).then(function(){alert('All ads copied!');});}else{prompt('Copy:',ads);}}
+function advProducts(){fetch('/api/owner/products').then(function(r){return r.json();}).then(function(d){var l=d.products||[];document.getElementById('advList').innerHTML=l.length?l.map(function(p){return '<div style="border-bottom:1px solid #eee;padding:8px 0"><strong>'+p.name+'</strong> $'+p.price+'<br><span style="color:#64748B">'+(p.contact_method||'email')+': '+(p.contact_value||'')+'</span><br><button data-a="s" style="margin:4px 4px 0 0;background:#EFF4FF;color:#2563EB;border:0;border-radius:8px;padding:6px 10px;cursor:pointer">Share all</button><button data-a="c" style="background:#EFF4FF;color:#2563EB;border:0;border-radius:8px;padding:6px 10px;cursor:pointer">Copy ads</button></div>';}).join(''):'No products yet — import/add one first.';
+  var rows=document.querySelectorAll('#advList > div');l.forEach(function(p,i){if(rows[i]){rows[i].querySelector('[data-a="s"]').onclick=function(){advShare(p);};rows[i].querySelector('[data-a="c"]').onclick=function(){advCopy(p);};}});}).catch(function(){document.getElementById('advList').textContent='Start rf first.';});}
+</script>
 </body>
 </html>
