@@ -338,7 +338,7 @@ def analytics_page(request: Request):
 async def studio():
     from fastapi.responses import FileResponse
     import os
-    return FileResponse(os.path.join(os.path.dirname(__file__), "..", "..", "website", "owner-selling.html"))
+    return FileResponse(os.path.join(os.path.dirname(__file__), "..", "..", "website", "products-studio.html"))
 
 @app.get("/products")
 def products_page(request: Request):
