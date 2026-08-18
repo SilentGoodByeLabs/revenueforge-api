@@ -10,7 +10,7 @@ def scan_jobs():
     def add(t, u, p):
         nonlocal added
         if not u or s.query(Job).filter_by(url=u).first(): return
-        s.add(Job(title=t[:200], url=u, platform=p, opportunity_score=70)); added += 1
+        s.add(Job(title=t[:200], url=u, platform=p, opportunity_score=70, description="Job posting found on "+p)); added += 1
     try:
         with urllib.request.urlopen("https://hn.algolia.com/api/v1/search?query=python+developer&tags=story", timeout=12) as r:
             for h in json.loads(r.read())["hits"][:6]:
