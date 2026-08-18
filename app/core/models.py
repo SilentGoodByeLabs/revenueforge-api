@@ -238,3 +238,16 @@ class SubscriberProduct(Base):
     contact_method = Column(String, nullable=True)
     contact_value = Column(String, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+class SubscriberProfile(Base):
+    __tablename__ = "subscriber_profiles"
+    id = Column(Integer, primary_key=True)
+    email = Column(String, unique=True, index=True)
+    mode = Column(String, nullable=True)
+    skills = Column(Text, nullable=True)
+    target = Column(Text, nullable=True)
+    whatsapp = Column(String, nullable=True)
+    telegram = Column(String, nullable=True)
+    engine_on = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
