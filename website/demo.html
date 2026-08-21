@@ -1,0 +1,67 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>RevenueForge — Product Demo</title><link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{background:radial-gradient(1200px 600px at 50% -10%,#1D4E75,#0B2239);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.frame{width:min(960px,96vw);background:#0d1b2a;border-radius:16px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6);border:1px solid #1e3a52}
+.chrome{display:flex;align-items:center;gap:8px;background:#12283c;padding:10px 14px}
+.chrome i{width:11px;height:11px;border-radius:50%}
+.url{flex:1;background:#0B2239;color:#7C93A8;font-size:.75rem;border-radius:8px;padding:6px 12px;margin-left:8px}
+#screen{background:#F4F6FA;height:min(540px,60vh);padding:24px;overflow:hidden;position:relative}
+#cap{width:min(960px,96vw);margin-top:14px;text-align:center;color:#E2E8F0;font-size:1rem;font-weight:500;min-height:24px}
+.h1{font-family:'Sora';font-weight:800;color:#0B2239}
+.btn{display:inline-block;background:#2563EB;color:#fff;border-radius:10px;padding:12px 20px;font-weight:700;margin-top:14px}
+.card{background:#fff;border:1px solid #E2E8F0;border-radius:14px;padding:16px;margin-bottom:12px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #EEF2F7}
+.badge{background:#DBEAFE;color:#1D4ED8;border-radius:99px;padding:3px 10px;font-size:.72rem;font-weight:700}
+.green{background:#DCFCE7;color:#15803D}
+.mut{color:#64748B;font-size:.8rem}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.kpi{background:#fff;border:1px solid #E2E8F0;border-radius:14px;padding:14px;text-align:center}
+.kpi b{font-family:'Sora';font-size:1.6rem;color:#0B2239}
+.sw{width:52px;height:28px;background:#16A34A;border-radius:99px;position:relative}
+.sw i{position:absolute;top:3px;right:3px;width:22px;height:22px;background:#fff;border-radius:50%}
+.plat{display:inline-block;background:#EFF4FF;color:#2563EB;border-radius:8px;padding:6px 10px;font-size:.75rem;font-weight:600;margin:3px;opacity:.25;transition:.4s}
+.plat.on{opacity:1}
+.toast{position:absolute;right:20px;bottom:20px;background:#0B2239;color:#fff;border-radius:12px;padding:14px 18px;box-shadow:0 10px 30px rgba(0,0,0,.3);animation:up .5s}
+@keyframes up{from{transform:translateY(20px);opacity:0}}
+.fade{animation:f .5s}@keyframes f{from{opacity:0;transform:translateY(8px)}}
+.typing::after{content:'|';animation:b 1s infinite}@keyframes b{50%{opacity:0}}
+</style></head><body>
+<div class="frame">
+  <div class="chrome"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="url">🔒 revenueforge.github.io</span></div>
+  <div id="screen"></div>
+</div>
+<div id="cap"></div>
+<script>
+var S=document.getElementById('screen'),C=document.getElementById('cap');
+function show(html,cap){S.innerHTML='<div class="fade">'+html+'</div>';C.textContent=cap;}
+function type(el,txt,cb){var i=0;el.classList.add('typing');var t=setInterval(function(){el.textContent=txt.slice(0,++i);if(i>=txt.length){clearInterval(t);el.classList.remove('typing');cb&&cb();}},35);}
+var P=['X','Facebook','Instagram','LinkedIn','WhatsApp','Telegram','TikTok','YouTube','Pinterest','Snapchat','Reddit'];
+
+function s1(){show('<div style="text-align:center;padding-top:60px"><div class="h1" style="font-size:2rem">Your AI engine finds you<br>paying jobs & sells for you.</div><div class="mut" style="margin-top:10px;font-size:1rem">Across 10+ platforms — 24/7, even while you sleep.</div><div class="btn">Get free audit →</div></div>','RevenueForge — your autonomous revenue engine.');setTimeout(s2,4000);}
+function s2(){show('<div class="card"><b>Free Job Audit</b><div id="q" style="background:#F1F5F9;border-radius:10px;padding:12px;margin-top:10px;min-height:20px"></div></div><div id="m"></div>','Type your skills — see your matches in seconds.');
+ type(document.getElementById('q'),'python · automation · web scraping',function(){setTimeout(function(){
+  var jobs=[['Python invoice automation','Reddit',82],['Web scraping engineer','RemoteOK',78],['AI chatbot developer','Upwork',74]];
+  document.getElementById('m').innerHTML=jobs.map(function(j){return '<div class="card row"><div><b>'+j[0]+'</b><br><span class="mut">'+j[1]+'</span></div><span class="badge">'+j[2]+'%</span></div>';}).join('');
+ },400);});setTimeout(s3,5000);}
+function s3(){show('<div style="max-width:380px;margin:60px auto" class="card"><div class="h1">Revenue<b style="color:#2563EB">Forge</b></div><div class="mut" style="margin:6px 0 14px">Sign in to your dashboard</div><div id="e" style="border:1.5px solid #E2E8F0;border-radius:10px;padding:11px;min-height:20px"></div><div class="btn" style="width:100%;text-align:center">Log in</div></div>','One tap to your command center.');
+ type(document.getElementById('e'),'you@gmail.com');setTimeout(s4,3500);}
+function s4(){show('<div class="kpis"><div class="kpi"><b id="a">0</b><div class="mut">Matches</div></div><div class="kpi"><b id="b">0</b><div class="mut">Proposals</div></div><div class="kpi"><b id="c">0</b><div class="mut">Prospects</div></div></div><div class="card row"><div><b>My Engine</b><br><span class="mut">autonomous</span></div><div class="sw"><i></i></div></div>','Your dashboard — everything in one place.');
+ count('a',3);count('b',1);count('c',2);setTimeout(s5,3500);}
+function count(id,to){var e=document.getElementById(id),n=0;var t=setInterval(function(){e.textContent=++n;if(n>=to)clearInterval(t);},300);}
+function s5(){show('<div class="card row"><div><b>My Engine</b><br><span class="mut" style="color:#15803D">● ON — advertising on 11 platforms</span></div><div class="sw"><i></i></div></div><div class="card"><b>Live now</b><div id="p" style="margin-top:8px"></div></div>','Switch it ON — it works 24/7, even if you close the page.');
+ document.getElementById('p').innerHTML=P.map(function(x){return '<span class="plat">'+x+'</span>';}).join('');
+ var i=0;var t=setInterval(function(){var el=document.querySelectorAll('.plat')[i];if(el)el.classList.add('on');if(++i>=P.length)clearInterval(t);},150);
+ setTimeout(s6,4500);}
+function s6(){show('<div class="card"><b>Web scraping engineer</b> <span class="badge">78%</span><div class="mut" style="margin:6px 0">RemoteOK · proposal ready</div><div class="btn" id="ap" style="margin:0">Approve & Submit</div></div>','Every match gets a written proposal — approve & submit.');
+ setTimeout(function(){var b=document.getElementById('ap');if(b){b.outerHTML='<span class="badge green">✓ Submitted</span>';};},1800);setTimeout(s7,4000);}
+function s7(){show('<div class="card"><b>🛒 OCR Automation Service</b> <span class="badge green">live</span><div class="mut" style="margin:6px 0">contact: WhatsApp +234…</div><div class="btn" style="margin:0">📢 Advertise Now</div></div><div class="card"><div id="p"></div></div>','Publish once — advertised everywhere. Buyers message you directly.');
+ document.getElementById('p').innerHTML=P.map(function(x){return '<span class="plat">'+x+'</span>';}).join('');
+ var i=0;var t=setInterval(function(){var el=document.querySelectorAll('.plat')[i];if(el)el.classList.add('on');if(++i>=P.length)clearInterval(t);},120);
+ setTimeout(s8,4500);}
+function s8(){show('<div class="card row"><div><b>OCR Automation Service</b></div><span class="badge green">WON 🎉</span></div>','Track every buyer to WON.');
+ setTimeout(function(){S.insertAdjacentHTML('beforeend','<div class="toast">💬 WhatsApp: "Hi, I want your OCR service!"</div>');},800);
+ setTimeout(s9,4000);}
+function s9(){show('<div style="text-align:center;padding-top:70px"><div class="h1" style="font-size:1.8rem">Your turn.</div><div class="mut" style="margin:10px;font-size:1rem">Free audit — see your matches in 10 seconds.</div><div class="btn">revenueforge.github.io →</div></div>','Get your free audit → revenueforge.github.io');setTimeout(s1,4500);}
+s1();
+</script></body></html>

@@ -12,14 +12,15 @@ def scan_jobs():
         if not u or s.query(Job).filter_by(url=u).first(): return
         s.add(Job(title=t[:200], url=u, platform=p, opportunity_score=70, description="Job posting found on "+p)); added += 1
     try:
-        with urllib.request.urlopen("https://hn.algolia.com/api/v1/search?query=python+developer&tags=story", timeout=12) as r:
+        with urllib.request.urlopen("https://hn.algolia.com/api/v1/search?query=hiring+python+developer&tags=story", timeout=12) as r:
             for h in json.loads(r.read())["hits"][:6]:
                 if h.get("url"): add(h.get("title"), h["url"], "HackerNews")
     except Exception: pass
     try:
-        with urllib.request.urlopen("https://www.reddit.com/r/PythonJobs.json", timeout=12) as r:
+        with urllib.request.urlopen("https://www.reddit.com/r/forhire.json", timeout=12) as r:
             for c in json.loads(r.read())["data"]["children"][:6]:
-                d = c["data"]; add(d.get("title"), "https://reddit.com" + d.get("permalink"), "Reddit")
+                d = c["data"]; h=d.get("title") or ""
+                if __import__('re').search(r'hiring|looking for|need', h, __import__('re').I): add(h, "https://reddit.com" + d.get("permalink"), "Reddit")
     except Exception: pass
     s.commit(); s.close(); return added
 

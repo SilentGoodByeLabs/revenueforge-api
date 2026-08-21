@@ -65,7 +65,7 @@ details summary{cursor:pointer;color:var(--accent);font-size:.8rem;font-weight:7
   <button class="nav-i" data-p="plan"><i class="fa-solid fa-crown"></i> Plan & Billing</button>
   <button class="nav-i" data-p="set"><i class="fa-solid fa-sliders"></i> Settings & Alerts</button>
   <button class="nav-i" data-p="help"><i class="fa-solid fa-life-ring"></i> Help & Guide</button>
-</aside>
+  </aside>
 <main>
   <section id="p-ov" class="panel active">
     <div class="crumb">Dashboard / Overview</div><div class="ptitle">Welcome back 👋</div>
@@ -191,19 +191,19 @@ var OPPS=[
  {t:"TikTok shop product listings",p:"TikTok",u:"https://www.tiktok.com/",k:"tiktok ecommerce products"}
 ];
 function ls(k,d){try{return JSON.parse(localStorage.getItem(k)||d)||JSON.parse(d);}catch(e){return JSON.parse(d);}}
-function profile(){return ls('rf_profile',JSON.stringify({mode:'jobs',skills:'',target:'',whatsapp:'',telegram:''}));}
-function services(){return ls('rf_services','[]');}
-function prospects(){return ls('rf_prospects','[]');}
-function apps(){return ls('rf_apps','[]');}
+function profile(){return ls('rf_profile'+UID,JSON.stringify({mode:'jobs',skills:'',target:'',whatsapp:'',telegram:''}));}
+function services(){return ls('rf_services'+UID,'[]');}
+function prospects(){return ls('rf_prospects'+UID,'[]');}
+function apps(){return ls('rf_apps'+UID,'[]');}
 function save(k,v){localStorage.setItem(k,JSON.stringify(v));}
 function localMatches(){var pr=profile();var words=(pr.skills+' '+pr.target).toLowerCase().split(/\W+/).filter(function(w){return w.length>2;});
  if(!words.length)return [];var s=OPPS.map(function(o){var hay=(o.t+' '+o.k+' '+o.p).toLowerCase();var h=0;words.forEach(function(w){if(hay.indexOf(w)>-1)h++;});return{t:o.t,p:o.p,u:o.u,score:Math.min(99,55+h*9)};});
  s.sort(function(a,b){return b.score-a.score;});return s;}
 function liveJobs(words,cb){var out=[];var d=0;function f(){d++;if(d>=2)cb(out);}
- var q=encodeURIComponent((words||'python developer').slice(0,60));
- fetch('https://hn.algolia.com/api/v1/search?query='+q+'&tags=story').then(function(r){return r.json();}).then(function(x){(x.hits||[]).slice(0,6).forEach(function(h){if(h.title&&h.url)out.push({t:h.title,p:'HackerNews',u:h.url,score:70});});f();}).catch(f);
- fetch('https://www.reddit.com/r/PythonJobs/new.json').then(function(r){return r.json();}).then(function(x){((((x||{}).data||{}).children)||[]).slice(0,6).forEach(function(c){var v=c.data||{};if(v.title)out.push({t:v.title,p:'Reddit',u:'https://reddit.com'+v.permalink,score:72});});f();}).catch(f);}
-function genDraft(j){var pr=profile();return 'Hi,\n\nI saw your posting for "'+j.t+'" on '+j.p+'. I specialize in '+(pr.skills||'automation & development')+' and can deliver this quickly.\n\nMy approach:\n1. Understand your exact needs.\n2. Build & test a working solution.\n3. Deliver with documentation and support.\n\nTimeline: 2-5 days. Available to start immediately.\n\nBest,\n'+sess.email;}
+ fetch('https://hn.algolia.com/api/v1/search?query='+encodeURIComponent((words||'python')+' hiring')+'&tags=story').then(function(r){return r.json();}).then(function(x){(x.hits||[]).slice(0,6).forEach(function(h){if(h.title&&h.url)out.push({t:h.title,p:'HackerNews',u:h.url,score:70});});f();}).catch(f);
+ fetch('https://www.reddit.com/r/forhire/new.json').then(function(r){return r.json();}).then(function(x){((((x||{}).data||{}).children)||[]).slice(0,10).forEach(function(c){var v=c.data||{};if(v.title&&/hiring|looking for|need/i.test(v.title))out.push({t:v.title,p:'Reddit',u:'https://reddit.com'+v.permalink,score:72});});f();}).catch(f);}
+function genDraft(j){var pr=profile();
+ return 'Hi there,\n\nI came across your post "'+j.t+'" on '+j.p+' and I can help you with this right away.\n\nWhat I understand you need:\n• A reliable specialist — I\'ll confirm the exact details with you first.\n\nHow I\'ll deliver:\n1. Quick chat to lock requirements.\n2. Build & test a working solution.\n3. Deliver with documentation + free support.\n\nWhy me:\n• Relevant experience in '+(pr.skills||'automation & development')+'.\n• Fast turnaround (2-5 days), clear communication.\n• You only pay when you\'re happy.\n\nI\'m available to start immediately. Reply here or contact me at '+sess.email+'.\n\nBest regards,\n'+sess.email;}
 function toggleSide(){document.getElementById('side').classList.toggle('open');document.getElementById('backdrop').classList.toggle('show');}
 function go(p){var n=document.querySelectorAll('.nav-i');for(var i=0;i<n.length;i++)n[i].classList.remove('active');var ps=document.querySelectorAll('.panel');for(var i=0;i<ps.length;i++)ps[i].classList.remove('active');var b=document.querySelector('[data-p="'+p+'"]');if(b)b.classList.add('active');var el=document.getElementById('p-'+p);if(el)el.classList.add('active');try{localStorage.setItem('rf_tab',p);history.replaceState(null,'','#'+p);}catch(e){}
  if(window.innerWidth<=900){document.getElementById('side').classList.remove('open');document.getElementById('backdrop').classList.remove('show');}}
@@ -229,10 +229,10 @@ function submitApp(i){var j=JOBLIST[i];if(!j)return;var a=apps();var lim=allowan
  if(sent>=lim){alert('Free limit reached ('+lim+' submissions). Upgrade to send more.');location.href='pricing.html';return;}
  var draft=document.getElementById('d_'+i).value;var ex=null;for(var y=0;y<a.length;y++)if(a[y].title===j.t)ex=a[y];
  if(ex){ex.status='Submitted';ex.draft=draft;}else{var fd=new Date();fd.setDate(fd.getDate()+3);a.unshift({title:j.t,platform:j.p,url:j.u,draft:draft,status:'Submitted',ts:Date.now(),due:fd.toISOString().slice(0,10)});}
- save('rf_apps',a);renderAll();alert('✓ Proposal submitted & tracked.');}
+ save('rf_apps'+UID,a);renderAll();var dr=document.getElementById('d_'+i);if(dr&&navigator.clipboard)navigator.clipboard.writeText(dr.value);window.open(j.u,'_blank');alert('✓ Proposal saved & copied. The hirer\'s page opened — paste & send. Your email is included as their contact.');}
 function setAppIdx(i,s){var a=apps();var x=a[i];if(!x)return;x.status=s;
- if(s==='Won'){var l=prospects();l.unshift({id:String(Date.now()),name:'WON: '+x.title,note:'client won',stage:'Won',due:new Date().toISOString().slice(0,10)});save('rf_prospects',l);}
- save('rf_apps',a);renderAll();}
+ if(s==='Won'){var l=prospects();l.unshift({id:String(Date.now()),name:'WON: '+x.title,note:'client won',stage:'Won',due:new Date().toISOString().slice(0,10)});save('rf_prospects'+UID,l);}
+ save('rf_apps'+UID,a);renderAll();}
 function showMatches(){var m=localMatches();document.getElementById('kJobs').textContent=m.length;renderJobs(m,document.getElementById('jobsBody'));renderJobs(m,document.getElementById('robotJobs'));}
 function runRobot(silent){var st=document.getElementById('robotStatus');var pr=profile();
  var words=(pr.skills+' '+pr.target).toLowerCase().split(/\W+/).filter(function(w){return w.length>2;});
@@ -264,7 +264,7 @@ function loadServ(){var l=services();window.SERVS=l;var b=document.getElementByI
   +'<button class="btn btn-s" onclick="copyAdAll('+i+')">Copy ads for all platforms</button>'
   +'</div><div style="text-align:right"><strong>$'+(p.price||0)+'</strong></div></div>';}).join(''):'No services yet — publish your first one above with image/video; the engine will advertise it everywhere.';loadSocial(l);}
 function addServ(){var l=services();var img=document.getElementById('sv_image').files[0];var vid=document.getElementById('sv_video').files[0];var contact=document.getElementById('sv_contact').value;var contactval=document.getElementById('sv_contactval').value||sess.email;
- function finish(imageUrl,videoUrl){l.unshift({name:document.getElementById('sv_name').value,price:document.getElementById('sv_price').value||0,description:document.getElementById('sv_desc').value,image:imageUrl,video:videoUrl,contact_method:contact,contact_value:contactval});save('rf_services',l);
+ function finish(imageUrl,videoUrl){l.unshift({name:document.getElementById('sv_name').value,price:document.getElementById('sv_price').value||0,description:document.getElementById('sv_desc').value,image:imageUrl,video:videoUrl,contact_method:contact,contact_value:contactval});save('rf_services'+UID,l);
   fetch(API+'/api/my/products',{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({email:sess.email,name:document.getElementById('sv_name').value,price:document.getElementById('sv_price').value,description:document.getElementById('sv_desc').value,image_url:imageUrl,video_url:videoUrl,contact_method:contact,contact_value:contactval})}).catch(function(){});
   document.getElementById('sv_name').value='';document.getElementById('sv_price').value='';document.getElementById('sv_desc').value='';document.getElementById('sv_image').value='';document.getElementById('sv_video').value='';document.getElementById('sv_contactval').value='';loadServ();}
  if(img||vid){var fd=new FormData();if(img)fd.append('file',img);if(vid)fd.append('file',vid);
@@ -279,9 +279,9 @@ function loadPros(){var l=prospects();document.getElementById('kPros').textConte
  var due=l.filter(function(p){return p.stage!=='Won'&&(!p.due||p.due<=today);});
  document.getElementById('dueBody').innerHTML=due.length?due.map(function(p,i){return '<div class="row"><div><strong>'+p.name+'</strong><br><span class="muted">'+(p.note||'')+'</span></div><button class="btn btn-s" onclick="advPros(\''+p.id+'\')">Mark contacted →</button></div>';}).join(''):'Nothing due.';
  document.getElementById('pipeBody').innerHTML=l.length?STAGES.map(function(s){var g=l.filter(function(p){return p.stage===s;});return '<div style="margin-bottom:10px"><span class="badge '+(s==='Won'?'b-green':'b-blue')+'">'+s+' · '+g.length+'</span>'+g.map(function(p){return '<div class="row"><div><strong>'+p.name+'</strong></div><div style="display:flex;gap:6px">'+(p.stage!=='Won'?'<button class="btn btn-s" onclick="advPros(\''+p.id+'\')">Advance →</button>':'')+'<button class="btn btn-g" onclick="delPros(\''+p.id+'\')">×</button></div></div>';}).join('')+'</div>';}).join(''):'No prospects yet.';}
-function addPros(){var l=prospects();var d=new Date();d.setDate(d.getDate()+2);l.unshift({id:String(Date.now()),name:document.getElementById('pr_name').value,note:document.getElementById('pr_note').value,stage:'New',due:d.toISOString().slice(0,10)});save('rf_prospects',l);document.getElementById('pr_name').value='';document.getElementById('pr_note').value='';loadPros();}
-function advPros(id){var l=prospects();for(var i=0;i<l.length;i++)if(l[i].id===id){var ix=STAGES.indexOf(l[i].stage);l[i].stage=STAGES[Math.min(ix+1,3)];var nd=new Date();nd.setDate(nd.getDate()+3);l[i].due=nd.toISOString().slice(0,10);}save('rf_prospects',l);loadPros();}
-function delPros(id){save('rf_prospects',prospects().filter(function(x){return x.id!==id;}));loadPros();}
+function addPros(){var l=prospects();var d=new Date();d.setDate(d.getDate()+2);l.unshift({id:String(Date.now()),name:document.getElementById('pr_name').value,note:document.getElementById('pr_note').value,stage:'New',due:d.toISOString().slice(0,10)});save('rf_prospects'+UID,l);document.getElementById('pr_name').value='';document.getElementById('pr_note').value='';loadPros();}
+function advPros(id){var l=prospects();for(var i=0;i<l.length;i++)if(l[i].id===id){var ix=STAGES.indexOf(l[i].stage);l[i].stage=STAGES[Math.min(ix+1,3)];var nd=new Date();nd.setDate(nd.getDate()+3);l[i].due=nd.toISOString().slice(0,10);}save('rf_prospects'+UID,l);loadPros();}
+function delPros(id){save('rf_prospects'+UID,prospects().filter(function(x){return x.id!==id;}));loadPros();}
 function renderApps(){var a=apps();var today=new Date().toISOString().slice(0,10);
  document.getElementById('kApps').textContent=a.filter(function(x){return x.status!=='Draft';}).length;
  document.getElementById('appsBody').innerHTML=a.length?a.map(function(x,i){var fu=(x.status==='Submitted'&&x.due&&x.due<=today)?' <span class="badge b-amber">follow up now</span>':'';var btns='';
@@ -296,10 +296,11 @@ function renderBrief(){var l=prospects();var a=apps();var today=new Date().toISO
 function renderAll(){showMatches();loadServ();loadPros();renderApps();renderAna();renderBrief();}
 (function(){var pr=profile();document.getElementById('ob_mode').value=pr.mode||'jobs';document.getElementById('ob_skills').value=pr.skills||'';document.getElementById('ob_target').value=pr.target||'';document.getElementById('ob_wa').value=pr.whatsapp||'';document.getElementById('ob_tg').value=pr.telegram||'';})();
 function saveSet(){var pr={mode:document.getElementById('ob_mode').value,skills:document.getElementById('ob_skills').value,target:document.getElementById('ob_target').value,whatsapp:document.getElementById('ob_wa').value,telegram:document.getElementById('ob_tg').value};
- save('rf_profile',pr);document.getElementById('setMsg').textContent='✓ Saved — searching now…';go('robot');runRobot(true);
+ save('rf_profile'+UID,pr);document.getElementById('setMsg').textContent='✓ Saved — searching now…';go('robot');runRobot(true);
  fetch(API+'/api/save-profile',{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({email:sess.email,mode:pr.mode,skills:pr.skills,target:pr.target,whatsapp:pr.whatsapp,telegram:pr.telegram})}).catch(function(){});}
 document.getElementById('planBody').innerHTML='<p>Plan: <strong>'+PLAN+'</strong> — '+allowance()+' matches & submissions.</p><a class="btn btn-p" href="pricing.html">Upgrade</a>';
 fetch(API+'/api/sub/'+E).then(function(r){return r.json();}).then(function(d){if(d.has)PLAN=d.plan;
  document.getElementById('planBody').innerHTML=d.has?'<div class="row"><span>Plan</span><span class="badge b-blue">'+d.plan+'</span></div><div class="row"><span>Status</span><span class="badge b-green">'+d.status+'</span></div><div class="row"><span>Manage</span><a class="btn btn-g" href="pricing.html">Change plan</a></div>':'<p>Plan: <strong>Free</strong> — '+allowance()+' matches & submissions.</p><a class="btn btn-p" href="pricing.html">Upgrade</a>';renderAll();}).catch(function(){renderAll();});
 renderAll();restoreTab();loadEngine();
-</script></body></html>
+</script>
+</body></html>

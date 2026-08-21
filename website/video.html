@@ -1,0 +1,145 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>RevenueForge</title><link rel="icon" type="image/png" href="assets/logo.png"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><link rel="stylesheet" href="css/style.css">
+<style>
+html,body{height:100%;overflow:hidden}body{background:#F4F6FA}
+.dash{display:grid;grid-template-columns:240px 1fr;gap:18px;max-width:1150px;margin:0 auto;padding:18px 16px}
+.side{background:#0B2239;border-radius:16px;padding:14px 10px;color:#fff}
+.side .brand{display:flex;gap:10px;align-items:center;font-family:'Sora';font-weight:800;margin:0 6px 12px}
+.nav-i{display:flex;gap:10px;align-items:center;width:100%;background:none;border:0;color:#A9BBD0;padding:9px;border-radius:10px;font-weight:600;font-size:.85rem;cursor:pointer;position:relative}
+.nav-i.active{background:#1D4E75;color:#fff}
+.panel{display:none}.panel.active{display:block}
+.ptitle{font-family:'Sora';font-size:1.15rem;margin-bottom:12px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px}
+.kpi .n{font-family:'Sora';font-size:1.4rem;font-weight:800}.kpi .l{color:var(--muted);font-size:.75rem}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.card h3{font-family:'Sora';font-size:.95rem;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);flex-wrap:wrap;font-size:.85rem}
+.row:last-child{border:0}
+.badge{font-size:.7rem;font-weight:700;border-radius:99px;padding:3px 10px}
+.b-green{background:#DCFCE7;color:#15803D}.b-blue{background:#DBEAFE;color:#1D4ED8}.b-amber{background:#FEF3C7;color:#B45309}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#16A34A;margin-right:6px}
+input,select{width:100%;margin:5px 0 10px;padding:10px;border:1.5px solid var(--line);border-radius:10px;font-size:14px}
+.btn{border:0;border-radius:10px;padding:9px 13px;font-weight:700;cursor:pointer;font-size:.83rem;position:relative}
+.btn-p{background:var(--accent);color:#fff}.btn-g{background:#fff;border:1.5px solid var(--line);color:var(--ink)}
+.muted{color:var(--muted);font-size:.83rem}
+.bar{height:8px;background:#EEF2F7;border-radius:99px;overflow:hidden;margin:4px 0 8px}.bar>div{height:100%;background:var(--accent);width:0;transition:width 1s}
+#login{position:fixed;inset:0;background:linear-gradient(160deg,#0B2239,#1D4E75);display:flex;align-items:center;justify-content:center;z-index:40}
+#login .box{background:#fff;border-radius:16px;padding:28px;width:320px}
+.ptr{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9;pointer-events:none}
+.pressed{transform:scale(.96);box-shadow:0 0 0 4px rgba(37,99,235,.35)}
+.rip{position:absolute;inset:0;border:3px solid var(--accent);border-radius:inherit;animation:rip2 .5s forwards;pointer-events:none}
+@keyframes rip2{to{opacity:0;transform:scale(1.2)}}
+#loader{position:fixed;inset:0;background:rgba(255,255,255,.6);display:none;align-items:center;justify-content:center;z-index:80;font-weight:700;color:var(--accent);pointer-events:none}
+#cap{position:fixed;left:0;right:0;bottom:0;background:#0B2239;color:#fff;padding:12px 18px;font-size:.9rem;font-weight:600;z-index:60}
+#cap b{color:#4D8DFF}
+</style></head><body><div id="header"></div>
+<div id="login"><div class="box">
+ <div style="font-family:'Sora';font-weight:800;font-size:1.2rem">Revenue<b style="color:var(--accent)">Forge</b></div>
+ <div class="muted" style="margin:4px 0 12px">Sign in to your dashboard</div>
+ <input id="li_email" placeholder="Email"><input id="li_pass" type="password" placeholder="Password">
+ <button class="btn btn-p" data-act="login" style="width:100%">Log in</button>
+</div></div>
+<div class="dash" id="app" style="display:none">
+<aside class="side"><div class="brand"><img src="assets/logo.png" style="width:26px;border-radius:8px">Revenue<b style="color:var(--accent)">Forge</b></div>
+ <button class="nav-i active" id="n-ov"><i class="fa-solid fa-chart-line"></i>Overview</button>
+ <button class="nav-i" id="n-robot"><i class="fa-solid fa-robot"></i>My Engine</button>
+ <button class="nav-i" id="n-jobs"><i class="fa-solid fa-briefcase"></i>Jobs & Progress</button>
+ <button class="nav-i" id="n-serv"><i class="fa-solid fa-boxes-stacked"></i>My Services</button>
+ <button class="nav-i" id="n-soc"><i class="fa-solid fa-share-nodes"></i>Social Selling</button>
+ <button class="nav-i" id="n-pros"><i class="fa-solid fa-users"></i>Prospects</button>
+ <button class="nav-i" id="n-ana"><i class="fa-solid fa-chart-pie"></i>Analytics</button>
+ <button class="nav-i" id="n-plan"><i class="fa-solid fa-crown"></i>Plan</button>
+</aside>
+<main style="overflow:hidden">
+ <section id="p-ov" class="panel active"><div class="ptitle">Welcome back 👋</div>
+  <div class="kpis"><div class="kpi"><div class="n" id="kJobs">0</div><div class="l">Matches</div></div>
+  <div class="kpi"><div class="n" id="kApps">0</div><div class="l">Applications</div></div>
+  <div class="kpi"><div class="n" id="kPros">0</div><div class="l">Prospects</div></div>
+  <div class="kpi"><div class="n" style="font-size:.95rem"><span class="dot"></span><span id="kEng">Off</span></div><div class="l">Engine</div></div></div>
+  <div class="card"><h3>☀️ Daily Briefing</h3><div id="brief" class="muted"></div></div></section>
+ <section id="p-robot" class="panel"><div class="ptitle">My Autonomous Engine</div>
+  <div class="card"><div class="row"><span>Engine</span><div id="engSwitch" data-act="toggle" style="width:50px;height:26px;background:#ccc;border-radius:99px;position:relative;cursor:pointer"><div id="engKnob" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s"></div></div></div>
+  <button class="btn btn-p" data-act="search">Search now</button><div id="robotStatus" class="muted" style="margin-top:8px"></div></div>
+  <div class="card"><h3>Latest matches</h3><div id="robotJobs" class="muted"></div></div></section>
+ <section id="p-jobs" class="panel"><div class="ptitle">Jobs & Progress</div>
+  <div class="card"><div id="jobsBody"></div></div>
+  <div class="card"><h3>Your applications</h3><div id="appsBody" class="muted">No applications yet.</div></div></section>
+ <section id="p-serv" class="panel"><div class="ptitle">My Services</div>
+  <div class="card"><input id="sv_name" placeholder="Service name"><input id="sv_price" placeholder="Price (USD)">
+  <select id="sv_contact"><option>whatsapp</option><option>telegram</option><option>email</option></select>
+  <button class="btn btn-p" data-act="publish">Publish</button> <button class="btn btn-g" data-act="advertise">Advertise Now</button></div>
+  <div class="card"><h3>Published</h3><div id="servBody" class="muted">No services yet.</div></div></section>
+ <section id="p-soc" class="panel"><div class="ptitle">Social Selling</div><div class="card"><div id="socialBody" class="muted">Add a service first.</div></div></section>
+ <section id="p-pros" class="panel"><div class="ptitle">Prospects</div>
+  <div class="card"><input id="pr_name" placeholder="Company"><button class="btn btn-p" data-act="addpros">Add prospect</button></div>
+  <div class="card"><h3>Pipeline</h3><div id="pipeBody" class="muted">No prospects yet.</div></div></section>
+ <section id="p-ana" class="panel"><div class="ptitle">Analytics</div><div class="card"><div id="anaBody"></div></div></section>
+ <section id="p-plan" class="panel"><div class="ptitle">Plan & Billing</div><div class="card">
+  <div class="row"><span>Plan</span><span class="badge b-blue">Free</span></div>
+  <div class="row"><span>More matches + alerts</span><button class="btn btn-p" data-act="upgrade">Upgrade</button></div></div></section>
+</main></div>
+<div id="loader">Loading…</div>
+<div id="cap">🎬 Signing in…</div>
+<div id="footer"></div>
+<script src="js/config.js"></script><script src="js/layout.js"></script>
+<script>
+var OPPS=[["Python invoice automation","Reddit",82],["PDF to Excel pipeline","Upwork",78],["Web scraping engineer","RemoteOK",74]];
+var SV=[],PR=[];
+function cap(t){document.getElementById('cap').innerHTML='🎬 '+t;}
+function load(ms){var l=document.getElementById('loader');l.style.display='flex';setTimeout(()=>l.style.display='none',ms||400);}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function go(id){document.querySelectorAll('.nav-i').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById('n-'+id).classList.add('active');document.getElementById('p-'+id).classList.add('active');load(350);}
+// pointer appears INSIDE the button -> can never be misaligned
+async function press(sel){var el=document.querySelector(sel);if(!el)return;
+ var pt=document.createElement('span');pt.className='ptr';pt.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24"><path d="M4 2l16 8-7 2-3 8z" fill="#000" stroke="#fff" stroke-width="1.5"/></svg>';el.appendChild(pt);
+ el.classList.add('pressed');await sleep(420);
+ var rp=document.createElement('span');rp.className='rip';el.appendChild(rp);
+ el.click();await sleep(380);pt.remove();rp.remove();el.classList.remove('pressed');}
+async function type(sel,txt){var el=document.querySelector(sel);el.style.boxShadow='0 0 0 3px rgba(37,99,235,.3)';for(var i=0;i<=txt.length;i++){el.value=txt.slice(0,i);await sleep(30);}el.style.boxShadow='';}
+function renderJobs(){document.getElementById('jobsBody').innerHTML=OPPS.map((j,i)=>'<div class="row"><div><strong>'+j[0]+'</strong><br><span class="muted">'+j[1]+' · '+j[2]+'%</span></div>'+(i===0?'<button class="btn btn-p" data-act="submit">Approve & Submit</button>':'<span class="badge b-amber">Draft</span>')+'</div>').join('');document.getElementById('robotJobs').innerHTML=document.getElementById('jobsBody').innerHTML;document.getElementById('kJobs').textContent=OPPS.length;}
+function renderServ(){document.getElementById('servBody').innerHTML=SV.length?SV.map(s=>'<div class="row"><div><strong>'+s.n+'</strong> · $'+s.p+'<br><span class="muted">'+s.c+'</span></div><span class="badge b-green">live + advertised</span></div>').join(''):'No services yet.';
+ document.getElementById('socialBody').innerHTML=SV.length?'<div class="row"><span>Share "'+SV[0].n+'":</span></div><div class="row"><button class="btn btn-g" data-act="shW">WA</button><button class="btn btn-g" data-act="shX">X</button><button class="btn btn-g" data-act="shF">FB</button><button class="btn btn-g" data-act="shT">TG</button><button class="btn btn-g" data-act="copyads">Copy all ads</button></div>':'Add a service first.';}
+function renderPros(){document.getElementById('pipeBody').innerHTML=PR.length?PR.map(p=>'<div class="row"><span>'+p.n+'</span><span class="badge '+(p.s==='Won'?'b-green':'b-blue')+'">'+p.s+'</span>'+(p.s!=='Won'?'<button class="btn btn-g" data-act="advance">Advance →</button>':'')+'</div>').join(''):'No prospects yet.';document.getElementById('kPros').textContent=PR.length;}
+document.addEventListener('click',function(e){var a=e.target.closest('[data-act]');if(!a)return;var act=a.dataset.act;
+ if(act==='login'){load(700);setTimeout(()=>{document.getElementById('login').style.display='none';document.getElementById('app').style.display='grid';document.getElementById('brief').textContent='Today: '+OPPS.length+' matches · 0 proposals · plan Free.';},720);}
+ if(act==='toggle'){var on=a.style.background!=='rgb(22, 163, 74)';a.style.background=on?'#16A34A':'#ccc';document.getElementById('engKnob').style.left=on?'27px':'3px';document.getElementById('kEng').textContent=on?'On':'Off';}
+ if(act==='search'){load(900);setTimeout(()=>{renderJobs();document.getElementById('robotStatus').textContent='✓ '+OPPS.length+' matches — proposals ready.';},920);}
+ if(act==='submit'){document.getElementById('kApps').textContent=1;document.getElementById('appsBody').innerHTML='<div class="row"><span>'+OPPS[0][0]+'</span><span class="badge b-blue">Submitted ✓</span></div>';a.outerHTML='<span class="badge b-green">Submitted ✓</span>';}
+ if(act==='publish'){SV.push({n:document.getElementById('sv_name').value||'Logo Design',p:document.getElementById('sv_price').value||50,c:document.getElementById('sv_contact').value});renderServ();}
+ if(act==='advertise'){load(800);}
+ if(act==='copyads'){cap('Copies ready-made ads for all 11 platforms.');}
+ if(act==='addpros'){PR.push({n:document.getElementById('pr_name').value||'Acme Ltd',s:'New'});renderPros();}
+ if(act==='advance'){var x=PR.find(p=>p.s!=='Won');if(x){x.s=(x.s==='New'?'Contacted':(x.s==='Contacted'?'Replied':'Won'));renderPros();}}
+ if(act==='upgrade'){cap('Paid plans unlock more matches + WhatsApp/Telegram alerts.');}
+});
+async function run(){
+ await sleep(1200);
+ await type('#li_email','demo@revenueforge.ai');await type('#li_pass','password123');
+ await press('[data-act="login"]');cap('Logged in — the private dashboard.');await sleep(2600);
+ await press('#n-robot');cap('My Engine — switch it ON.');await sleep(2000);
+ await press('#engSwitch');await sleep(1400);
+ await press('[data-act="search"]');cap('It searches 10+ platforms and finds matches.');await sleep(3000);
+ await press('#n-jobs');cap('Every match gets a proposal — approve & submit.');await sleep(2200);
+ await press('[data-act="submit"]');await sleep(2400);
+ await press('#n-serv');cap('Publish a service with your contact.');await sleep(2000);
+ await type('#sv_name','Logo Design');await type('#sv_price','50');
+ await press('[data-act="publish"]');await sleep(2200);
+ await press('[data-act="advertise"]');cap('Advertise Now — posted everywhere.');await sleep(2600);
+ await press('#n-soc');cap('One-tap social selling.');await sleep(2000);
+ await press('[data-act="shW"]');await sleep(1200);
+ await press('[data-act="copyads"]');await sleep(2000);
+ await press('#n-pros');cap('Track buyers to WON.');await sleep(2000);
+ await type('#pr_name','Acme Ltd');
+ await press('[data-act="addpros"]');await sleep(1500);
+ await press('[data-act="advance"]');await sleep(900);
+ await press('[data-act="advance"]');await sleep(900);
+ await press('[data-act="advance"]');await sleep(1600);
+ await press('#n-ana');cap('Analytics show your growth.');await sleep(500);
+ document.getElementById('anaBody').innerHTML='<div class="muted">Matches</div><div class="bar"><div id="b1"></div></div><div class="muted">Proposals</div><div class="bar"><div id="b2"></div></div><div class="muted">Won</div><div class="bar"><div id="b3"></div></div>';
+ await sleep(400);document.getElementById('b1').style.width='80%';document.getElementById('b2').style.width='45%';document.getElementById('b3').style.width='30%';await sleep(2400);
+ await press('#n-plan');cap('Start free — upgrade for alerts.');await sleep(2200);
+ await press('[data-act="upgrade"]');await sleep(1800);
+ await press('#n-ov');cap('Your autonomous revenue engine — FREE audit at revenueforge.github.io');await sleep(4000);
+}
+run();
+</script></body></html>
