@@ -199,18 +199,25 @@ function save(k,v){localStorage.setItem(k,JSON.stringify(v));}
 function localMatches(){var pr=profile();var words=(pr.skills+' '+pr.target).toLowerCase().split(/\W+/).filter(function(w){return w.length>2;});
  if(!words.length)return [];var s=OPPS.map(function(o){var hay=(o.t+' '+o.k+' '+o.p).toLowerCase();var h=0;words.forEach(function(w){if(hay.indexOf(w)>-1)h++;});return{t:o.t,p:o.p,u:o.u,score:Math.min(99,55+h*9)};});
  s.sort(function(a,b){return b.score-a.score;});return s;}
-function liveJobs(words,cb){var out=[];var d=0;function f(){d++;if(d>=2)cb(out);}
- var q=encodeURIComponent((words||'').trim()||'hiring');
- var ts=Math.floor(Date.now()/1000)-30*86400;
- fetch('https://hn.algolia.com/api/v1/search_by_date?query='+q+'+hiring&tags=story&numericFilters=created_at_i%3E'+ts)
-  .then(function(r){return r.json();}).then(function(x){(x.hits||[]).slice(0,6).forEach(function(h){if(h.title&&h.url)out.push({t:h.title,p:'HackerNews',u:h.url,score:72});});f();}).catch(f);
- fetch('https://www.reddit.com/r/forhire+Jobs+WorkOnline+SlaveLabour+freelance/new.json?limit=25')
-  .then(function(r){return r.json();}).then(function(x){((((x||{}).data||{}).children)||[]).forEach(function(c){var v=c.data||{};var t2=v.title||'';
+function liveJobs(words,cb){
+  var q = encodeURIComponent((words || '').trim());
+  fetch(API+'/api/search-hiring?q=' + q + '&limit=25')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var out = (d.results || []).map(function(x){
+        return {t:x.title, p:x.platform, u:x.url, score:x.score||70};
+      });
+      cb(out);
+    })
+    .catch(function(){
+      cb([]);
+    });
+}).then(function(x){((((x||{}).data||{}).children)||[]).forEach(function(c){var v=c.data||{};var t2=v.title||'';
    if(/\[hiring\]|hiring|looking for|need|seeking|wanted/i.test(t2))out.push({t:t2,p:'Reddit',u:'https://reddit.com'+v.permalink,score:74});});f();}).catch(f);}
 function genDraft(j){var pr=profile();
  return 'Hi there,\n\nI came across your post "'+j.t+'" on '+j.p+' and I can help you with this right away.\n\nWhat I understand you need:\n• A reliable specialist — I\'ll confirm the exact details with you first.\n\nHow I\'ll deliver:\n1. Quick chat to lock requirements.\n2. Build & test a working solution.\n3. Deliver with documentation + free support.\n\nWhy me:\n• Relevant experience in '+(pr.skills||'automation & development')+'.\n• Fast turnaround (2-5 days), clear communication.\n• You only pay when you\'re happy.\n\nI\'m available to start immediately. Reply here or contact me at '+sess.email+'.\n\nBest regards,\n'+sess.email;}
 function toggleSide(){document.getElementById('side').classList.toggle('open');document.getElementById('backdrop').classList.toggle('show');}
-function go(p){var n=document.querySelectorAll('.nav-i');for(var i=0;i<n.length;i++)n[i].classList.remove('active');var ps=document.querySelectorAll('.panel');for(var i=0;i<ps.length;i++)ps[i].classList.remove('active');var b=document.querySelector('[data-p="'+p+'"]');if(b)b.classList.add('active');var el=document.getElementById('p-'+p);if(el)el.classList.add('active');try{localStorage.setItem('rf_tab',p);history.replaceState(null,'','#'+p);}catch(e){}
+function go(p){if(arguments[0]==='plan'&&typeof loadBilling==='function')loadBilling();var n=document.querySelectorAll('.nav-i');for(var i=0;i<n.length;i++)n[i].classList.remove('active');var ps=document.querySelectorAll('.panel');for(var i=0;i<ps.length;i++)ps[i].classList.remove('active');var b=document.querySelector('[data-p="'+p+'"]');if(b)b.classList.add('active');var el=document.getElementById('p-'+p);if(el)el.classList.add('active');try{localStorage.setItem('rf_tab',p);history.replaceState(null,'','#'+p);}catch(e){}
  if(window.innerWidth<=900){document.getElementById('side').classList.remove('open');document.getElementById('backdrop').classList.remove('show');}}
 var navs=document.querySelectorAll('.nav-i');for(var i=0;i<navs.length;i++){navs[i].addEventListener('click',function(){go(this.dataset.p);});}
 function restoreTab(){var h=(location.hash||'').replace('#','');var tb=h||localStorage.getItem('rf_tab')||'ov';if(document.getElementById('p-'+tb))go(tb);}
@@ -307,5 +314,34 @@ document.getElementById('planBody').innerHTML='<p>Plan: <strong>'+PLAN+'</strong
 fetch(API+'/api/sub/'+E).then(function(r){return r.json();}).then(function(d){if(d.has)PLAN=d.plan;
  document.getElementById('planBody').innerHTML=d.has?'<div class="row"><span>Plan</span><span class="badge b-blue">'+d.plan+'</span></div><div class="row"><span>Status</span><span class="badge b-green">'+d.status+'</span></div><div class="row"><span>Manage</span><a class="btn btn-g" href="pricing.html">Change plan</a></div>':'<p>Plan: <strong>Free</strong> — '+allowance()+' matches & submissions.</p><a class="btn btn-p" href="pricing.html">Upgrade</a>';renderAll();}).catch(function(){renderAll();});
 renderAll();restoreTab();loadEngine();
+
+function copyAllAds() {
+  var platforms = ['X (Twitter)', 'Facebook', 'Instagram', 'LinkedIn', 'WhatsApp', 'Telegram', 'TikTok', 'YouTube', 'Pinterest', 'Snapchat', 'Reddit'];
+  var ads = platforms.map(pl => pl + ' ad for ' + (profile().skills || 'services') + ' - Contact: ' + sess.email).join('\n\n');
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(ads).then(() => alert('✓ All ads copied for 11 platforms!'));
+  } else {
+    prompt('Copy:', ads);
+  }
+}
+
+function loadBilling() {
+  fetch(API+'/api/sub/' + sess.email)
+    .then(r => r.json())
+    .then(d => {
+      var el = document.getElementById('currentPlan');
+      if (el) {
+        if (d && d.plan) {
+          el.innerHTML = '<h3 style="margin:0">' + d.plan + '</h3><p style="color:#64748B;margin:8px 0 0 0">Status: ' + (d.status || 'active') + '</p>';
+        } else {
+          el.innerHTML = '<p style="color:#64748B">No active plan. Upgrade to unlock more features.</p>';
+        }
+      }
+    })
+    .catch(() => {
+      var el = document.getElementById('currentPlan');
+      if (el) el.innerHTML = '<p style="color:#64748B">Free tier - 3 matches per day</p>';
+    });
+}
 </script>
 </body></html>

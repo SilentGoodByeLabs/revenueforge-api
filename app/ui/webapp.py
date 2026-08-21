@@ -42,6 +42,9 @@ from app.core.models import Base
 Base.metadata.create_all(bind=engine)
 print("✅ Database tables created at import time")
 
+
+
+
 @app.get("/")
 def home(request: Request):
     s = SessionLocal()
@@ -1365,6 +1368,43 @@ def deliver_all():
     s.close()
 
 import asyncio
+
+
+@app.get("/portal.html")
+async def portal_html():
+    from fastapi.responses import FileResponse
+    import os
+    path = os.path.join(os.path.dirname(__file__), "..", "..", "website", "portal.html")
+    if os.path.exists(path):
+        return FileResponse(path)
+    return {"error": "portal.html not found"}
+
+@app.get("/api/marketplace")
+async def api_marketplace():
+    from app.core.models import SubscriberProduct
+    s = SessionLocal()
+    try:
+        rows = s.query(SubscriberProduct).filter_by(status="active").order_by(SubscriberProduct.id.desc()).limit(60).all()
+        return {
+            "ok": True,
+            "products": [
+                {
+                    "name": r.name,
+                    "price": r.price,
+                    "description": r.description or "",
+                    "seller": r.owner_email,
+                    "image": getattr(r, "image_url", "") or "",
+                    "video": getattr(r, "video_url", "") or "",
+                    "contact_method": getattr(r, "contact_method", "") or "email",
+                    "contact_value": getattr(r, "contact_value", "") or r.owner_email
+                }
+                for r in rows
+            ]
+        }
+    finally:
+        s.close()
+
+
 async def _robot_loop():
     await asyncio.sleep(15)
     while True:
@@ -1631,4 +1671,3 @@ async def api_search_hiring(q: str = "", limit: int = 25):
     from app.core.hiring_search import search_hiring
     results = search_hiring(q, limit)
     return {"ok": True, "query": q, "count": len(results), "results": results}
-
