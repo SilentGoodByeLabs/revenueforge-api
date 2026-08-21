@@ -1624,3 +1624,11 @@ async def owner_advertise_now():
     finally:
         s.close()
 
+
+
+@app.get("/api/search-hiring")
+async def api_search_hiring(q: str = "", limit: int = 25):
+    from app.core.hiring_search import search_hiring
+    results = search_hiring(q, limit)
+    return {"ok": True, "query": q, "count": len(results), "results": results}
+

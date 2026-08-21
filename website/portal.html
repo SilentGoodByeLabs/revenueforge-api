@@ -200,8 +200,13 @@ function localMatches(){var pr=profile();var words=(pr.skills+' '+pr.target).toL
  if(!words.length)return [];var s=OPPS.map(function(o){var hay=(o.t+' '+o.k+' '+o.p).toLowerCase();var h=0;words.forEach(function(w){if(hay.indexOf(w)>-1)h++;});return{t:o.t,p:o.p,u:o.u,score:Math.min(99,55+h*9)};});
  s.sort(function(a,b){return b.score-a.score;});return s;}
 function liveJobs(words,cb){var out=[];var d=0;function f(){d++;if(d>=2)cb(out);}
- fetch('https://hn.algolia.com/api/v1/search?query='+encodeURIComponent((words||'python')+' hiring')+'&tags=story').then(function(r){return r.json();}).then(function(x){(x.hits||[]).slice(0,6).forEach(function(h){if(h.title&&h.url)out.push({t:h.title,p:'HackerNews',u:h.url,score:70});});f();}).catch(f);
- fetch('https://www.reddit.com/r/forhire/new.json').then(function(r){return r.json();}).then(function(x){((((x||{}).data||{}).children)||[]).slice(0,10).forEach(function(c){var v=c.data||{};if(v.title&&/hiring|looking for|need/i.test(v.title))out.push({t:v.title,p:'Reddit',u:'https://reddit.com'+v.permalink,score:72});});f();}).catch(f);}
+ var q=encodeURIComponent((words||'').trim()||'hiring');
+ var ts=Math.floor(Date.now()/1000)-30*86400;
+ fetch('https://hn.algolia.com/api/v1/search_by_date?query='+q+'+hiring&tags=story&numericFilters=created_at_i%3E'+ts)
+  .then(function(r){return r.json();}).then(function(x){(x.hits||[]).slice(0,6).forEach(function(h){if(h.title&&h.url)out.push({t:h.title,p:'HackerNews',u:h.url,score:72});});f();}).catch(f);
+ fetch('https://www.reddit.com/r/forhire+Jobs+WorkOnline+SlaveLabour+freelance/new.json?limit=25')
+  .then(function(r){return r.json();}).then(function(x){((((x||{}).data||{}).children)||[]).forEach(function(c){var v=c.data||{};var t2=v.title||'';
+   if(/\[hiring\]|hiring|looking for|need|seeking|wanted/i.test(t2))out.push({t:t2,p:'Reddit',u:'https://reddit.com'+v.permalink,score:74});});f();}).catch(f);}
 function genDraft(j){var pr=profile();
  return 'Hi there,\n\nI came across your post "'+j.t+'" on '+j.p+' and I can help you with this right away.\n\nWhat I understand you need:\n• A reliable specialist — I\'ll confirm the exact details with you first.\n\nHow I\'ll deliver:\n1. Quick chat to lock requirements.\n2. Build & test a working solution.\n3. Deliver with documentation + free support.\n\nWhy me:\n• Relevant experience in '+(pr.skills||'automation & development')+'.\n• Fast turnaround (2-5 days), clear communication.\n• You only pay when you\'re happy.\n\nI\'m available to start immediately. Reply here or contact me at '+sess.email+'.\n\nBest regards,\n'+sess.email;}
 function toggleSide(){document.getElementById('side').classList.toggle('open');document.getElementById('backdrop').classList.toggle('show');}
