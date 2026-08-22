@@ -238,6 +238,17 @@ function addProduct(){
 
 loadEngine();
 loadProducts();
+
+function deleteOwner(id){
+  if(!confirm('Delete this product?')) return;
+  fetch(API+'/api/owner/products/'+id+'/delete', {method:'POST'})
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.ok){ alert('✓ Deleted'); loadProducts(); }
+      else alert('Error: '+d.error);
+    })
+    .catch(()=>alert('Error deleting'));
+}
 </script>
 </body>
 </html>

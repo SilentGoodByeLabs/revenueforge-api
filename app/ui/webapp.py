@@ -1671,3 +1671,32 @@ async def api_search_hiring(q: str = "", limit: int = 25):
     from app.core.hiring_search import search_hiring
     results = search_hiring(q, limit)
     return {"ok": True, "query": q, "count": len(results), "results": results}
+
+@app.post("/api/owner/products/{pid}/delete")
+async def owner_delete_product(pid: int):
+    from app.core.models import Product
+    s = SessionLocal()
+    try:
+        p = s.query(Product).filter_by(id=pid).first()
+        if not p:
+            return {"ok": False, "error": "Product not found"}
+        s.delete(p)
+        s.commit()
+        return {"ok": True, "id": pid}
+    finally:
+        s.close()
+
+
+@app.post("/api/my/products/{pid}/delete")
+async def my_delete_product(pid: int, email: str = ""):
+    from app.core.models import SubscriberProduct
+    s = SessionLocal()
+    try:
+        p = s.query(SubscriberProduct).filter_by(id=pid, owner_email=email).first()
+        if not p:
+            return {"ok": False, "error": "Product not found or not yours"}
+        s.delete(p)
+        s.commit()
+        return {"ok": True, "id": pid}
+    finally:
+        s.close()
