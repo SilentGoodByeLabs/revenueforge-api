@@ -1,288 +1,118 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><title>Dashboard | RevenueForge</title><link rel="icon" type="image/png" href="assets/logo.png"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><link rel="stylesheet" href="css/style.css">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RevenueForge Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
-body{background:#F4F6FA}
-.topbar{display:none;align-items:center;gap:12px;background:#0B2239;color:#fff;padding:12px 16px;position:sticky;top:0;z-index:40}
-.topbar button{background:var(--accent);border:0;color:#fff;width:40px;height:40px;border-radius:10px;font-size:1.1rem;cursor:pointer}
-.topbar .tt{font-family:'Sora';font-weight:700}
-.dash{display:grid;grid-template-columns:250px 1fr;gap:22px;max-width:1180px;margin:0 auto;padding:24px 16px}
-.side{background:#0B2239;border-radius:16px;padding:18px 12px;color:#fff;height:fit-content;position:sticky;top:80px}
-.side .brand{display:flex;gap:10px;align-items:center;font-family:'Sora';font-weight:800;margin:0 6px 16px}
-.side .brand img{width:28px;border-radius:8px}
-.nav-i{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:none;border:0;color:#A9BBD0;padding:11px;border-radius:10px;font-weight:600;font-size:.88rem;cursor:pointer}
-.nav-i i{width:18px;text-align:center}
-.nav-i.active,.nav-i:hover{background:#1D4E75;color:#fff}
-.backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:55}
-.backdrop.show{display:block}
-.panel{display:none}.panel.active{display:block}
-.crumb{font-size:.78rem;color:var(--muted);margin-bottom:4px}
-.ptitle{font-family:'Sora';font-size:1.25rem;margin-bottom:16px}
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
-.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
-.kpi .n{font-family:'Sora';font-size:1.5rem;font-weight:800}
-.kpi .l{color:var(--muted);font-size:.78rem;margin-top:2px}
-.kpi .ic{float:right;color:var(--accent)}
-.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
-.card h3{font-family:'Sora';font-size:1rem;margin-bottom:12px}
-.row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.row:last-child{border-bottom:0}
-.badge{font-size:.7rem;font-weight:700;border-radius:99px;padding:3px 10px}
-.b-green{background:#DCFCE7;color:#15803D}.b-blue{background:#DBEAFE;color:#1D4ED8}.b-amber{background:#FEF3C7;color:#B45309}
-.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#16A34A;margin-right:6px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-input,select,textarea{width:100%;margin:6px 0 12px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:14px}
-.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
-.btn-p{background:var(--accent);color:#fff}.btn-g{background:#fff;border:1.5px solid var(--line);color:var(--ink)}
-.btn-s{background:#EFF4FF;color:var(--accent);font-size:.75rem;padding:6px 10px}
-.muted{color:var(--muted);font-size:.85rem}
-.bar{height:8px;background:#EEF2F7;border-radius:99px;overflow:hidden;margin:4px 0 10px}.bar>div{height:100%;background:var(--accent)}
-details summary{cursor:pointer;color:var(--accent);font-size:.8rem;font-weight:700}
-.lock{opacity:.55;filter:grayscale(1)}
-.switch{position:relative;width:56px;height:30px;background:#ccc;border-radius:99px;cursor:pointer;transition:.2s}
-.switch.on{background:#16A34A}
-.switch .knob{position:absolute;top:3px;left:3px;width:24px;height:24px;background:#fff;border-radius:50%;transition:.2s}
-.switch.on .knob{left:29px}
-@media (max-width:900px){
- .topbar{display:flex}
- .dash{grid-template-columns:1fr;padding-top:12px}
- .kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}
- .side{position:fixed;left:0;top:0;bottom:0;width:270px;z-index:60;transform:translateX(-105%);transition:transform .25s;border-radius:0;overflow-y:auto}
- .side.open{transform:none}
-}
-</style></head><body><div id="header"></div>
-<div class="topbar"><button onclick="toggleSide()"><i class="fa-solid fa-bars"></i></button><span class="tt">RevenueForge Dashboard</span></div>
-<div class="backdrop" id="backdrop" onclick="toggleSide()"></div>
-<script>(function(){var q=new URLSearchParams(location.search);var a=q.get('authed');if(a){localStorage.setItem('rf_session',JSON.stringify({email:a}));history.replaceState(null,'',location.pathname);}})();</script>
-<div class="dash">
-<aside class="side" id="side">
-  <div class="brand"><img src="assets/logo.png" alt="">Revenue<b style="color:var(--accent)">Forge</b></div>
-  <button class="nav-i active" data-p="ov"><i class="fa-solid fa-chart-line"></i> Overview</button>
-  <button class="nav-i" data-p="robot"><i class="fa-solid fa-robot"></i> My Engine</button>
-  <button class="nav-i" data-p="jobs"><i class="fa-solid fa-briefcase"></i> Jobs & Progress</button>
-  <button class="nav-i" data-p="serv"><i class="fa-solid fa-boxes-stacked"></i> My Services</button>
-  <button class="nav-i" data-p="social"><i class="fa-solid fa-share-nodes"></i> Social Selling</button>
-  <button class="nav-i" data-p="pros"><i class="fa-solid fa-users"></i> Prospects & Follow-ups</button>
-  <button class="nav-i" data-p="ana"><i class="fa-solid fa-chart-pie"></i> Analytics</button>
-  <button class="nav-i" data-p="plan"><i class="fa-solid fa-crown"></i> Plan & Billing</button>
-  <button class="nav-i" data-p="set"><i class="fa-solid fa-sliders"></i> Settings & Alerts</button>
-  <button class="nav-i" data-p="help"><i class="fa-solid fa-life-ring"></i> Help & Guide</button>
-  </aside>
-<script>
-document.querySelectorAll('.nav-i').forEach(function(btn){
-  btn.addEventListener('click', function(){
-    var p = this.getAttribute('data-p');
-    if(p && typeof go === 'function'){
-      go(p);
-      document.querySelectorAll('.nav-i').forEach(function(b){ b.classList.remove('active'); });
-      this.classList.add('active');
-    }
-  });
-});
-</script>
-
+:root{--accent:#2563EB;--ink:#0B2239;--muted:#64748B;--line:#E2E8F0;--bg:#F4F6FA;--side:#0B2239}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex}
+aside{background:var(--side);width:260px;padding:24px 16px;display:flex;flex-direction:column;gap:6px;position:fixed;height:100vh;z-index:100}
+.brand{color:#fff;font-family:'Sora';font-weight:800;font-size:1.2rem;padding:8px 12px 24px;border-bottom:1px solid #1D4E75;margin-bottom:16px}.brand b{color:var(--accent)}
+.nav-i{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:none;border:0;color:#A9BBD0;padding:14px 16px;border-radius:10px;font-weight:600;font-size:.9rem;cursor:pointer;transition:.15s}
+.nav-i:hover,.nav-i.active{background:#1D4E75;color:#fff}.nav-i i{width:20px;text-align:center}
+main{flex:1;margin-left:260px;padding:32px 40px;overflow-y:auto}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px;margin-bottom:24px}
+.card h2{font-family:'Sora';font-size:1.5rem;margin-bottom:8px}.card h3{font-family:'Sora';font-size:1.1rem;margin-bottom:16px}
+.muted{color:var(--muted);font-size:.88rem}
+input,select,textarea{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;margin-top:8px;font-family:inherit}
+label{display:block;margin-top:16px;font-weight:600;font-size:.9rem}
+.btn{border:0;border-radius:10px;padding:12px 24px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-size:.9rem}
+.btn-p{background:var(--accent);color:#fff}.btn-s{background:#EFF4FF;color:var(--accent);padding:8px 16px;font-size:.85rem}.btn-d{background:#FEE;color:#DC2626;padding:8px 16px;font-size:.85rem;border:1px solid #FCA5A5}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-bottom:24px}
+.stat-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px}
+.stat-card .icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:16px}
+.stat-card h4{font-size:.85rem;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:8px}.stat-card .val{font-family:'Sora';font-size:1.8rem;font-weight:800}
+.job-card{border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:12px;background:#FAFAFA}.job-card h4{margin-bottom:6px}.job-card .meta{font-size:.8rem;color:var(--accent);font-weight:600;margin-bottom:12px}
+.service-card{display:flex;justify-content:space-between;align-items:center;padding:16px;border:1px solid var(--line);border-radius:12px;margin-bottom:12px}
+.burger{display:none;position:fixed;top:20px;left:20px;z-index:200;background:var(--accent);color:#fff;border:0;border-radius:10px;width:44px;height:44px;font-size:1.2rem;cursor:pointer}
+@media(max-width:900px){aside{transform:translateX(-100%);transition:.3s}aside.open{transform:translateX(0)}main{margin-left:0;padding:80px 20px 20px}.burger{display:flex;align-items:center;justify-content:center}}
+</style></head>
+<body>
+<button class="burger" id="burger"><i class="fa-solid fa-bars"></i></button>
+<aside id="side">
+  <div class="brand">Revenue<b>Forge</b></div>
+  <button class="nav-i active" data-view="dashboard"><i class="fa-solid fa-chart-line"></i> Overview</button>
+  <button class="nav-i" data-view="engine"><i class="fa-solid fa-robot"></i> My Engine</button>
+  <button class="nav-i" data-view="jobs"><i class="fa-solid fa-briefcase"></i> Jobs & Proposals</button>
+  <button class="nav-i" data-view="services"><i class="fa-solid fa-boxes-stacked"></i> My Services</button>
+  <button class="nav-i" data-view="social"><i class="fa-solid fa-share-nodes"></i> Social Selling</button>
+  <button class="nav-i" data-view="billing"><i class="fa-solid fa-crown"></i> Plan & Billing</button>
+  <button class="nav-i" data-view="settings"><i class="fa-solid fa-sliders"></i> Settings</button>
+</aside>
 <main>
-  <section id="p-ov" class="panel active">
-    <div class="crumb">Dashboard / Overview</div><div class="ptitle">Welcome back 👋</div>
-    <div class="kpis">
-      <div class="kpi"><i class="ic fa-solid fa-briefcase"></i><div class="n" id="kJobs">0</div><div class="l">Matches found</div></div>
-      <div class="kpi"><i class="ic fa-solid fa-paper-plane"></i><div class="n" id="kApps">0</div><div class="l">Applications sent</div></div>
-      <div class="kpi"><i class="ic fa-solid fa-users"></i><div class="n" id="kPros">0</div><div class="l">Prospects</div></div>
-      <div class="kpi"><i class="ic fa-solid fa-robot"></i><div class="n" style="font-size:1.05rem"><span class="dot"></span>Active</div><div class="l">Engine status</div></div>
+  <div id="view-dashboard">
+    <h1 style="font-family:'Sora';font-size:2rem;margin-bottom:8px">Welcome back, <span id="userName">User</span></h1>
+    <p class="muted" style="margin-bottom:32px">Your autonomous revenue dashboard.</p>
+    <div class="grid">
+      <div class="stat-card"><div class="icon" style="background:#EFF4FF;color:var(--accent)"><i class="fa-solid fa-robot"></i></div><h4>Engine</h4><div class="val">Ready</div></div>
+      <div class="stat-card"><div class="icon" style="background:#DCFCE7;color:#15803D"><i class="fa-solid fa-briefcase"></i></div><h4>Jobs Found</h4><div class="val" id="jobCount">0</div></div>
+      <div class="stat-card"><div class="icon" style="background:#FEF3C7;color:#D97706"><i class="fa-solid fa-boxes-stacked"></i></div><h4>Services</h4><div class="val" id="servCount">0</div></div>
     </div>
-    <div class="card"><h3><i class="fa-solid fa-sun"></i> Daily Briefing</h3><div id="briefBody" class="muted"></div></div>
-    <div class="grid2">
-      <div class="card"><h3><i class="fa-solid fa-rocket"></i> Quick start</h3>
-        <div class="row"><span>1 · Configure engine</span><button class="btn btn-g" onclick="go('set')">Open</button></div>
-        <div class="row"><span>2 · Review & submit proposals</span><button class="btn btn-g" onclick="go('jobs')">Open</button></div>
-        <div class="row"><span>3 · Sell everywhere</span><button class="btn btn-g" onclick="go('social')">Open</button></div>
-        <div class="row"><span>4 · Upgrade for more</span><button class="btn btn-p" onclick="go('plan')">Upgrade</button></div>
-      </div>
-      <div class="card"><h3><i class="fa-solid fa-robot"></i> Your engine</h3>
-        <p class="muted"><span class="dot"></span>It finds jobs, writes proposals & sells for you across 10+ platforms.</p>
-        <button class="btn btn-p" onclick="go('robot')">Open my engine</button>
-      </div>
+    <div class="card"><h3>Quick Actions</h3><button class="btn btn-p" onclick="showView('engine')"><i class="fa-solid fa-play"></i> Run My Engine</button> <button class="btn btn-s" onclick="showView('services')" style="margin-left:8px">Publish Service</button></div>
+  </div>
+  <div id="view-engine" style="display:none">
+    <div class="card"><h2><i class="fa-solid fa-robot" style="color:var(--accent)"></i> Configure Your Engine</h2>
+      <p class="muted">Set what work you do. The engine finds people actively HIRING for these skills.</p>
+      <label>Your Skills / Work Type</label><textarea id="skills" rows="3" placeholder="e.g., cleaning, design, writing, virtual assistant, python..."></textarea>
+      <label>Target Clients</label><input id="target" placeholder="e.g., small businesses, startups">
+      <div style="margin-top:24px;display:flex;gap:12px"><button class="btn btn-p" onclick="saveConfig()"><i class="fa-solid fa-save"></i> Save</button><button class="btn btn-s" onclick="runEngine()"><i class="fa-solid fa-magnifying-glass"></i> Find Hiring Posts</button></div>
     </div>
-  </section>
-  <section id="p-robot" class="panel">
-    <div class="crumb">Dashboard / My Engine</div><div class="ptitle">My Autonomous Engine</div>
-    <div class="card"><h3><span class="dot"></span> Your autonomous engine</h3>
-      <div class="row" style="border:0;padding:6px 0"><span style="font-weight:700">Engine</span><div class="switch" id="engSwitch" onclick="toggleEngine()"><div class="knob"></div></div></div>
-      <div id="engStatus" class="muted" style="margin-bottom:10px">Engine OFF — turn it ON to auto-advertise & get jobs.</div>
-      <p class="muted">It never stops when ON. It searches jobs & sells for you across Reddit, X, Facebook, Instagram, LinkedIn, Telegram, WhatsApp, TikTok, Upwork, RemoteOK & more — and writes a proposal for each.</p>
-      <button class="btn btn-p" onclick="runRobot(false)"><i class="fa-solid fa-bolt"></i> Search now (instant)</button>
-      <div id="robotStatus" class="muted" style="margin-top:10px"></div>
+  </div>
+  <div id="view-jobs" style="display:none">
+    <div class="card"><h2><i class="fa-solid fa-briefcase" style="color:var(--accent)"></i> Jobs & Proposals</h2>
+      <p class="muted">Real people looking to hire. "Apply" copies your proposal and opens their page.</p>
+      <button class="btn btn-p" onclick="runEngine()" style="margin-bottom:16px"><i class="fa-solid fa-rotate"></i> Refresh</button>
+      <div id="jobsBody"><p class="muted">Run your engine to see matches.</p></div>
     </div>
-    <div class="card"><h3><i class="fa-solid fa-briefcase"></i> Latest matches</h3><div id="robotJobs" class="muted">Configure your engine to see matches.</div></div>
-  </section>
-  <section id="p-jobs" class="panel">
-    <div class="crumb">Dashboard / Jobs</div><div class="ptitle">Jobs & Progress — review, approve, submit</div>
-    <div class="card"><div id="jobsBody" class="muted">Loading…</div></div>
-    <div class="card"><h3><i class="fa-solid fa-paper-plane"></i> Your applications — what to do next</h3><div id="appsBody" class="muted">No applications yet.</div></div>
-  </section>
-  <section id="p-serv" class="panel">
-    <div class="crumb">Dashboard / Services</div><div class="ptitle">My Services</div>
-    <div class="card"><h3><i class="fa-solid fa-plus"></i> Add a service</h3>
-      <div class="grid2"><div><input id="sv_name" placeholder="Service name"></div><div><input id="sv_price" type="number" placeholder="Price (USD)"></div></div>
-      <textarea id="sv_desc" rows="2" placeholder="Short description"></textarea>
-      <label class="muted">IMAGE (optional)</label><input id="sv_image" type="file" accept="image/*">
-      <label class="muted">VIDEO (optional)</label><input id="sv_video" type="file" accept="video/*">
-      <label class="muted">CONTACT METHOD</label><select id="sv_contact"><option value="whatsapp">WhatsApp</option><option value="telegram">Telegram</option><option value="email">Email</option><option value="phone">Phone</option></select>
-      <label class="muted">CONTACT VALUE (number/username/email)</label><input id="sv_contactval" placeholder="+234... or @username or email">
-      <button class="btn btn-p" onclick="addServ()"><i class="fa-solid fa-floppy-disk"></i> Publish service</button>
+  </div>
+  <div id="view-services" style="display:none">
+    <div class="card"><h2><i class="fa-solid fa-boxes-stacked" style="color:var(--accent)"></i> Publish a Service</h2>
+      <label>Service Name</label><input id="sv_name" placeholder="e.g., House Cleaning">
+      <label>Price (USD)</label><input id="sv_price" type="number" placeholder="50">
+      <label>Description</label><textarea id="sv_desc" rows="3"></textarea>
+      <label>Image (optional)</label><input id="sv_image" type="file" accept="image/*">
+      <label>Contact Method</label><select id="sv_contact"><option value="whatsapp">WhatsApp</option><option value="telegram">Telegram</option><option value="email">Email</option><option value="phone">Phone</option></select>
+      <label>Contact Value</label><input id="sv_contactval" placeholder="Phone or email">
+      <button class="btn btn-p" onclick="publishService()" style="margin-top:24px"><i class="fa-solid fa-rocket"></i> Publish</button>
     </div>
-    <div class="card"><h3><i class="fa-solid fa-list"></i> Published services</h3><div id="servBody" class="muted">No services yet.</div></div>
-  </section>
-  <section id="p-social" class="panel">
-    <div class="crumb">Dashboard / Social Selling</div><div class="ptitle">Sell on every platform</div>
-    <div class="card"><h3><i class="fa-solid fa-share-nodes"></i> One-tap selling posts</h3>
-      <p class="muted">The caption is written for you. Post anywhere, or copy for Instagram/TikTok.</p>
-      <div id="socialBody" class="muted">Add a service first.</div>
+    <div class="card"><h3>Your Published Services</h3><div id="servBody"><p class="muted">Loading...</p></div></div>
+  </div>
+  <div id="view-social" style="display:none">
+    <div class="card"><h2><i class="fa-solid fa-share-nodes" style="color:var(--accent)"></i> Social Selling</h2>
+      <p class="muted">Promote on 11 platforms instantly.</p>
+      <button class="btn btn-p" onclick="copyAllAds()"><i class="fa-solid fa-copy"></i> Copy Ads for 11 Platforms</button>
     </div>
-  </section>
-  <section id="p-pros" class="panel">
-    <div class="crumb">Dashboard / Prospects</div><div class="ptitle">Prospects & Follow-ups</div>
-    <div class="card"><h3><i class="fa-solid fa-user-plus"></i> Add a prospect</h3>
-      <div class="grid2"><div><input id="pr_name" placeholder="Company / person"></div><div><input id="pr_note" placeholder="Note"></div></div>
-      <button class="btn btn-p" onclick="addPros()"><i class="fa-solid fa-plus"></i> Add prospect</button>
+  </div>
+  <div id="view-billing" style="display:none">
+    <div class="card"><h2><i class="fa-solid fa-crown" style="color:var(--accent)"></i> Plan & Billing</h2><div id="planBody"><p class="muted">Loading...</p></div></div>
+  </div>
+  <div id="view-settings" style="display:none">
+    <div class="card"><h2><i class="fa-solid fa-sliders" style="color:var(--accent)"></i> Settings</h2>
+      <p class="muted">Logged in as: <strong id="userEmail"></strong></p>
+      <button class="btn btn-d" onclick="logout()" style="margin-top:24px"><i class="fa-solid fa-sign-out"></i> Logout</button>
     </div>
-    <div class="card"><h3><i class="fa-solid fa-bell"></i> Due for follow-up</h3><div id="dueBody" class="muted">Nothing due.</div></div>
-    <div class="card"><h3><i class="fa-solid fa-diagram-project"></i> Pipeline</h3><div id="pipeBody" class="muted">No prospects yet.</div></div>
-  </section>
-  <section id="p-ana" class="panel">
-    <div class="crumb">Dashboard / Analytics</div><div class="ptitle">Analytics</div>
-    <div class="card"><h3><i class="fa-solid fa-chart-pie"></i> Your activity</h3><div id="anaBody" class="muted"></div></div>
-  </section>
-  <section id="p-plan" class="panel">
-    <div class="crumb">Dashboard / Plan</div><div class="ptitle">Plan & Billing</div>
-    <div class="card"><div id="planBody" class="muted"></div></div>
-  </section>
-  <section id="p-set" class="panel">
-    <div class="crumb">Dashboard / Settings</div><div class="ptitle">Settings & Alerts</div>
-    <div class="card"><h3><i class="fa-solid fa-robot"></i> Engine configuration</h3>
-      <label class="muted">MODE</label><select id="ob_mode"><option value="jobs">Find me jobs</option><option value="outreach">Find me clients</option><option value="both">Both</option></select>
-      <label class="muted">SKILLS</label><textarea id="ob_skills" rows="2"></textarea>
-      <label class="muted">TARGET</label><textarea id="ob_target" rows="2"></textarea>
-      <label class="muted">WHATSAPP (Growth+)</label><input id="ob_wa" type="tel">
-      <label class="muted">TELEGRAM (Growth+)</label><input id="ob_tg">
-      <p id="setMsg" style="color:#16A34A;min-height:18px"></p>
-      <button class="btn btn-p" onclick="saveSet()">Save settings</button>
-    </div>
-  </section>
-  <section id="p-help" class="panel">
-    <div class="crumb">Dashboard / Help</div><div class="ptitle">Help & Guide</div>
-    <div class="card"><h3><i class="fa-solid fa-book"></i> How to win jobs</h3>
-      <div class="row"><span>1 · Configure engine (skills/target)</span></div>
-      <div class="row"><span>2 · Engine finds jobs & writes proposals</span></div>
-      <div class="row"><span>3 · Review → edit → Approve & Submit → Copy</span></div>
-      <div class="row"><span>4 · Paste on the job site; track Replied → Won</span></div>
-      <div class="row"><span>5 · Free = 3 matches/submissions; upgrade for more</span></div>
-    </div>
-  </section>
+  </div>
 </main>
-</div>
-<div id="footer"></div>
-<script src="js/config.js?v=4"></script><script src="js/layout.js?v=11"></script>
 <script>
-var sess=null;try{sess=JSON.parse(localStorage.getItem('rf_session')||'null');}catch(e){}
-if(!sess||!sess.email){location.href='signin.html';}
-var API=window.RF_API||'';var E=encodeURIComponent(sess.email);
-var PLAN='Free';var ALLOW={Free:3,Starter:10,Growth:25,Agency:60};
-function allowance(){return ALLOW[PLAN]||3;}
-var OPPS=[
- {t:"Python invoice automation for accounting firm",p:"Reddit",u:"https://reddit.com/r/PythonJobs/",k:"python automation ocr invoice"},
- {t:"PDF to Excel data pipeline",p:"Upwork",u:"https://www.upwork.com/",k:"python ocr excel pdf data"},
- {t:"Web scraping & data extraction engineer",p:"RemoteOK",u:"https://remoteok.com/",k:"python scraping data web"},
- {t:"Remote full-stack developer",p:"HackerNews",u:"https://news.ycombinator.com/",k:"web developer full-stack javascript"},
- {t:"Workflow automation consultant (Zapier/Make)",p:"WeWorkRemotely",u:"https://weworkremotely.com/",k:"automation zapier workflow"},
- {t:"AI chatbot developer for support team",p:"HackerNews",u:"https://news.ycombinator.com/",k:"ai chatbot python"},
- {t:"Dashboards & reporting analyst",p:"LinkedIn",u:"https://www.linkedin.com/jobs/",k:"data dashboard reporting"},
- {t:"E-commerce data cleanup project",p:"Upwork",u:"https://www.upwork.com/",k:"data ecommerce cleaning"},
- {t:"X/Twitter growth automation",p:"X",u:"https://twitter.com/",k:"automation social growth twitter"},
- {t:"Facebook ads lead-gen assistant",p:"Facebook",u:"https://www.facebook.com/groups/",k:"facebook ads leads"},
- {t:"Instagram content automation",p:"Instagram",u:"https://www.instagram.com/",k:"instagram content automation"},
- {t:"Telegram community bot developer",p:"Telegram",u:"https://t.me/",k:"telegram bot python"},
- {t:"WhatsApp business bot",p:"WhatsApp",u:"https://wa.me/",k:"whatsapp bot automation"},
- {t:"TikTok shop product listings",p:"TikTok",u:"https://www.tiktok.com/",k:"tiktok ecommerce products"}
-];
-function ls(k,d){try{return JSON.parse(localStorage.getItem(k)||d)||JSON.parse(d);}catch(e){return JSON.parse(d);}}
-function profile(){return ls('rf_profile'+UID,JSON.stringify({mode:'jobs',skills:'',target:'',whatsapp:'',telegram:''}));}
-function services(){return ls('rf_services'+UID,'[]');}
-function prospects(){return ls('rf_prospects'+UID,'[]');}
-function apps(){return ls('rf_apps'+UID,'[]');}
-function save(k,v){localStorage.setItem(k,JSON.stringify(v));}
-function localMatches(){var pr=profile();var words=(pr.skills+' '+pr.target).toLowerCase().split(/\W+/).filter(function(w){return w.length>2;});
- if(!words.length)return [];var s=OPPS.map(function(o){var hay=(o.t+' '+o.k+' '+o.p).toLowerCase();var h=0;words.forEach(function(w){if(hay.indexOf(w)>-1)h++;});return{t:o.t,p:o.p,u:o.u,score:Math.min(99,55+h*9)};});
- s.sort(function(a,b){return b.score-a.score;});return s;}
-function liveJobs(words,cb){
-  var q = encodeURIComponent((words || '').trim());
-  fetch(API+'/api/search-hiring?q=' + q + '&limit=25')
-    .then(function(r){return r.json();})
-    .then(function(d){
-      var out = (d.results || []).map(function(x){
-        return {t:x.title, p:x.platform, u:x.url, score:x.score||70};
-      });
-      cb(out);
-    })
-    .catch(function(){
-      cb([]);
-    });
-}).then(function(x){((((x||{}).data||{}).children)||[]).forEach(function(c){var v=c.data||{};var t2=v.title||'';
-   if(/\[hiring\]|hiring|looking for|need|seeking|wanted/i.test(t2))out.push({t:t2,p:'Reddit',u:'https://reddit.com'+v.permalink,score:74});});f();}).catch(f);}
-function genDraft(j){var pr=profile();
- return 'Hi there,\n\nI came across your post "'+j.t+'" on '+j.p+' and I can help you with this right away.\n\nWhat I understand you need:\n• A reliable specialist — I\'ll confirm the exact details with you first.\n\nHow I\'ll deliver:\n1. Quick chat to lock requirements.\n2. Build & test a working solution.\n3. Deliver with documentation + free support.\n\nWhy me:\n• Relevant experience in '+(pr.skills||'automation & development')+'.\n• Fast turnaround (2-5 days), clear communication.\n• You only pay when you\'re happy.\n\nI\'m available to start immediately. Reply here or contact me at '+sess.email+'.\n\nBest regards,\n'+sess.email;}
-function toggleSide(){document.getElementById('side').classList.toggle('open');document.getElementById('backdrop').classList.toggle('show');}
-function go(p){
-  ['ov','eng','jobs','apps','serv','social','pros','ana','set','plan','help'].forEach(function(x){
-    var el=document.getElementById('tab-'+x);
-    if(el) el.style.display='none';
-  });
-  var target=document.getElementById('tab-'+p);
-  if(target) target.style.display='block';
-  if(p==='plan'&&typeof loadBilling==='function') loadBilling();
-  if(p==='serv'&&typeof loadServs==='function') loadServs();
-  if(p==='jobs'&&typeof renderAll==='function') renderAll();
-  if(p==='pros'&&typeof renderPros==='function') renderPros();
-}
-
-function loadBilling() {
-  fetch(API+'/api/sub/' + sess.email)
-    .then(r => r.json())
-    .then(d => {
-      var el = document.getElementById('currentPlan');
-      if (el) {
-        if (d && d.plan) {
-          el.innerHTML = '<h3 style="margin:0">' + d.plan + '</h3><p style="color:#64748B;margin:8px 0 0 0">Status: ' + (d.status || 'active') + '</p>';
-        } else {
-          el.innerHTML = '<p style="color:#64748B">No active plan. Upgrade to unlock more features.</p>';
-        }
-      }
-    })
-    .catch(() => {
-      var el = document.getElementById('currentPlan');
-      if (el) el.innerHTML = '<p style="color:#64748B">Free tier - 3 matches per day</p>';
-    });
-}
-
-function loadServs(){
-  fetch(API+'/api/my/products?email='+sess.email)
-    .then(function(r){return r.json();})
-    .then(function(d){
-      var body = document.getElementById('servBody');
-      if(!body) return;
-      var prods = d.products || d.results || [];
-      if(prods.length === 0){
-        body.innerHTML = '<p class="muted">No services yet. Publish your first service above.</p>';
-        return;
-      }
-      body.innerHTML = prods.map(function(p){
-        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid #E2E8F0">'
-          + '<div><strong>' + p.name + '</strong> - $' + p.price + '<br><span class="muted">' + (p.description||'').slice(0,60) + '</span></div>'
-          + '<button class="btn-s" onclick="deleteServ(' + p.id + ')" style="background:#FEE;color:#DC2626">Delete</button>'
-          + '</div>';
-      }).join('');
-    })
-    .catch(function(){
-      document.getElementById('servBody').innerHTML = '<p class="muted">Error loading services</p>';
-    });
-}
-</script>
-</body></html>
+var API=(location.hostname==='localhost'||location.hostname==='127.0.0.1')?'http://localhost:8502':'https://revenueforge-api.onrender.com';
+var sess=JSON.parse(sessionStorage.getItem('rf_session')||'{}');
+if(!sess.email){var q=new URLSearchParams(location.search).get('email');if(q)sess={email:q};else{location.href='login.html';}}
+document.getElementById('userName').textContent=(sess.email||'').split('@')[0];
+document.getElementById('userEmail').textContent=sess.email||'';
+function showView(n){document.querySelectorAll('main > div').forEach(function(d){d.style.display='none';});var t=document.getElementById('view-'+n);if(t)t.style.display='block';document.querySelectorAll('.nav-i').forEach(function(b){b.classList.remove('active');});var b=document.querySelector('.nav-i[data-view="'+n+'"]');if(b)b.classList.add('active');if(n==='engine')loadEngine();if(n==='services')loadServices();if(n==='billing')loadPlan();}
+document.querySelectorAll('.nav-i').forEach(function(b){b.addEventListener('click',function(){showView(this.getAttribute('data-view'));});});
+document.getElementById('burger').addEventListener('click',function(){document.getElementById('side').classList.toggle('open');});
+function saveConfig(){fetch(API+'/api/save-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,skills:document.getElementById('skills').value,target:document.getElementById('target').value})}).then(function(r){return r.json();}).then(function(d){alert(d.ok?'✓ Saved':'Error');}).catch(function(){alert('Error');});}
+function loadEngine(){fetch(API+'/api/get-profile?email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){if(d.skills)document.getElementById('skills').value=d.skills;if(d.target)document.getElementById('target').value=d.target;});}
+function runEngine(){var q=document.getElementById('skills').value||'hiring';showView('jobs');document.getElementById('jobsBody').innerHTML='<p class="muted">Searching...</p>';fetch(API+'/api/search-hiring?q='+encodeURIComponent(q)+'&limit=10').then(function(r){return r.json();}).then(function(d){var n=(d.results||[]).length;document.getElementById('jobCount').textContent=n;if(!n){document.getElementById('jobsBody').innerHTML='<p class="muted">No matches. Try different skills.</p>';return;}document.getElementById('jobsBody').innerHTML=d.results.map(function(r){return '<div class="job-card"><h4>'+r.title+'</h4><div class="meta">'+r.platform+' • '+r.score+'%</div><button class="btn btn-p" onclick="applyJob(\''+r.url+'\')"><i class="fa-solid fa-paper-plane"></i> Apply & Copy Proposal</button></div>';}).join('');}).catch(function(){document.getElementById('jobsBody').innerHTML='<p class="muted">Error.</p>';});}
+function applyJob(url){var p='Hi,\n\nI saw your post and can help immediately. I have relevant experience and can deliver quickly.\n\nContact me at '+sess.email+'.\n\nBest,\n'+sess.email;if(navigator.clipboard)navigator.clipboard.writeText(p);alert('✓ Proposal copied. Opening hirer page...');window.open(url,'_blank');}
+function publishService(){var img=document.getElementById('sv_image').files[0];function fin(iu){fetch(API+'/api/my/products',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,name:document.getElementById('sv_name').value,price:document.getElementById('sv_price').value,description:document.getElementById('sv_desc').value,image_url:iu,contact_method:document.getElementById('sv_contact').value,contact_value:document.getElementById('sv_contactval').value||sess.email})}).then(function(r){return r.json();}).then(function(d){if(d.ok){alert('✓ Published');loadServices();}else alert('Error');}).catch(function(){alert('Error');});}if(img){var fd=new FormData();fd.append('file',img);fetch('https://file.io',{method:'POST',body:fd}).then(function(r){return r.json();}).then(function(d){fin(d.link||'');}).catch(function(){fin('');});}else fin('');}
+function loadServices(){fetch(API+'/api/my/products?email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){var prods=d.products||[];document.getElementById('servCount').textContent=prods.length;if(!prods.length){document.getElementById('servBody').innerHTML='<p class="muted">No services yet.</p>';return;}document.getElementById('servBody').innerHTML=prods.map(function(p){return '<div class="service-card"><div><strong>'+p.name+'</strong> - $'+p.price+'</div><button class="btn btn-d" onclick="deleteServ('+p.id+')">Delete</button></div>';}).join('');});}
+function deleteServ(id){if(!confirm('Delete?'))return;fetch(API+'/api/my/products/'+id+'/delete',{method:'POST'}).then(function(r){return r.json();}).then(function(d){if(d.ok){alert('✓ Deleted');loadServices();}});}
+function copyAllAds(){var ps=['X','Facebook','Instagram','LinkedIn','WhatsApp','Telegram','TikTok','YouTube','Pinterest','Snapchat','Reddit'];var ads=ps.map(function(p){return p+' Ad:\nProfessional services available. Contact '+sess.email;}).join('\n\n---\n\n');if(navigator.clipboard)navigator.clipboard.writeText(ads).then(function(){alert('✓ Copied for 11 platforms');});else prompt('Copy:',ads);}
+function loadPlan(){fetch(API+'/api/sub/'+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){document.getElementById('planBody').innerHTML=(d&&d.plan)?'<div style="padding:20px;background:#EFF4FF;border-radius:12px"><h3 style="margin:0">'+d.plan+'</h3></div>':'<div style="padding:20px;background:#F8FAFC;border-radius:12px"><h3 style="margin:0">Free Tier</h3></div>';}).catch(function(){document.getElementById('planBody').innerHTML='<div style="padding:20px;background:#F8FAFC;border-radius:12px"><h3 style="margin:0">Free Tier</h3></div>';});}
+function logout(){sessionStorage.removeItem('rf_session');location.href='login.html';}
+showView('dashboard');loadServices();
+</script></body></html>
