@@ -1227,30 +1227,7 @@ async def resend_code(email: str = ""):
         s.close()
 
 
-@app.get("/api/my/products")
-async def my_products(email: str = ""):
-    from app.core.models import SubscriberProduct
-    s = SessionLocal()
-    try:
-        rows = s.query(SubscriberProduct).filter_by(owner_email=email.strip().lower()).order_by(SubscriberProduct.id.desc()).all()
-        return {"products": [{"id": r.id, "name": r.name, "price": r.price, "description": r.description or "", "status": r.status, "image": getattr(r,"image_url","") or "", "video": getattr(r,"video_url","") or "", "contact_method": getattr(r,"contact_method","") or "email", "contact_value": getattr(r,"contact_value","") or ""} for r in rows]}
-    finally:
-        s.close()
 
-@app.post("/api/my/products")
-async def add_my_product(request: Request):
-    from app.core.models import SubscriberProduct
-    d = await request.json()
-    email = (d.get("email") or "").strip().lower()
-    name = (d.get("name") or "").strip()
-    if not email or not name: return {"ok": False}
-    s = SessionLocal()
-    try:
-        s.add(SubscriberProduct(owner_email=email, name=name,
-                price=int(d.get("price") or 0), description=d.get("description") or ""))
-        s.commit(); return {"ok": True}
-    finally:
-        s.close()
 
 
 RUN_LIMITS = {"": 2, "v50": 10, "v300": 25, "v1000": 60}
@@ -1687,16 +1664,42 @@ async def owner_delete_product(pid: int):
         s.close()
 
 
+
+@app.get("/api/my/products")
+async def my_products(email: str = ""):
+    from app.core.models import SubscriberProduct
+    if not email: return {"ok": True, "products": []}
+    s = SessionLocal()
+    try:
+        rows = s.query(SubscriberProduct).filter_by(owner_email=email).order_by(SubscriberProduct.id.desc()).all()
+        return {"ok": True, "products": [{"id": r.id, "name": r.name, "price": r.price, "description": r.description or "", "image": getattr(r, "image_url", "") or "", "contact_method": getattr(r, "contact_method", "") or "email", "contact_value": getattr(r, "contact_value", "") or email} for r in rows]}
+    finally:
+        s.close()
+
+@app.post("/api/my/products")
+async def my_add_product(request: Request):
+    from app.core.models import SubscriberProduct
+    p = await request.json()
+    email = p.get("email", "")
+    if not email: return {"ok": False, "error": "no account"}
+    s = SessionLocal()
+    try:
+        row = SubscriberProduct(owner_email=email, name=p.get("name", ""), price=p.get("price", 0), description=p.get("description", ""), status="active")
+        for k in ["image_url", "video_url", "contact_method", "contact_value"]:
+            if hasattr(row, k): setattr(row, k, p.get(k, ""))
+        s.add(row); s.commit()
+        return {"ok": True, "id": row.id}
+    finally:
+        s.close()
+
 @app.post("/api/my/products/{pid}/delete")
 async def my_delete_product(pid: int, email: str = ""):
     from app.core.models import SubscriberProduct
     s = SessionLocal()
     try:
-        p = s.query(SubscriberProduct).filter_by(id=pid, owner_email=email).first()
-        if not p:
-            return {"ok": False, "error": "Product not found or not yours"}
-        s.delete(p)
-        s.commit()
-        return {"ok": True, "id": pid}
+        row = s.query(SubscriberProduct).filter_by(id=pid, owner_email=email).first()
+        if not row: return {"ok": False, "error": "not yours"}
+        s.delete(row); s.commit()
+        return {"ok": True}
     finally:
         s.close()
