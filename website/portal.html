@@ -252,4 +252,35 @@ var servCards=document.querySelectorAll('#view-serv .card');
 if(servCards.length){servCards[0].insertAdjacentHTML('beforeend','<div style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px"><h3>📢 Auto-Advertise (20+ platforms)</h3><p class="muted">Marketplace + Telegram post automatically. X/FB/IG/LinkedIn/TikTok & more = one tap until you connect logins.</p><button class="btn btn-p" id="adBtn">Advertise now</button><p class="muted" id="adStat" style="margin-top:10px"></p></div>');
  $('adBtn').addEventListener('click',function(){fetch(API+'/api/auto-advertise',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email})}).then(function(r){return r.json();}).then(function(d){$('adStat').textContent='Marketplace: '+d.marketplace+' · Telegram: '+d.telegram+' · WhatsApp: '+d.whatsapp+' · 20+ social: '+d.social_20;});});}
 </script>
+
+<script>
+// PAYSTACK SELF-SERVE UPGRADE
+function startUpgrade(){
+  fetch(API+'/api/upgrade',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email})})
+  .then(function(r){return r.json();}).then(function(d){
+    if(d.ok){localStorage.setItem('rf_payref::'+sess.email, d.ref);location.href=d.url;}
+    else alert('Upgrade error: '+(d.error||'check Paystack keys in Render'));
+  }).catch(function(){alert('Could not reach payment server');});
+}
+// after Paystack returns with ?pay=1 → verify & unlock
+(function(){
+  if(new URLSearchParams(location.search).has('pay')){
+    var ref=localStorage.getItem('rf_payref::'+sess.email)||'';
+    fetch(API+'/api/paystack/verify?ref='+encodeURIComponent(ref)+'&email='+encodeURIComponent(sess.email))
+    .then(function(r){return r.json();}).then(function(d){
+      if(d.plan==='Pro')alert('🎉 Pro unlocked — alerts, auto-ads & unlimited matches are ON.');
+    });
+  }
+})();
+// wire every Upgrade button
+document.querySelectorAll('button,a').forEach(function(b){
+  if((b.textContent||'').trim().indexOf('Upgrade')===0 || b.id==='upgBtn'){ b.addEventListener('click',function(e){e.preventDefault();startUpgrade();}); }
+});
+// show real plan on Plan page
+(function(){var pb=$('planBody');if(pb){fetch(API+'/api/sub/'+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){
+  pb.innerHTML='Plan: <b>'+((d&&d.plan)||'Free')+'</b>'+(((d&&d.plan)==='Pro')?' — unlimited matches, alerts & auto-ads active.':' — 3 matches/day. Upgrade for alerts, auto-ads & unlimited.')+'<br><button class="btn btn-p" style="margin-top:12px" id="upgBtn">Upgrade with Paystack</button>';
+  $('upgBtn').addEventListener('click',startUpgrade);});}})();
+// label alerts as Pro in Settings
+var tgL=document.querySelector('#view-set label');if(tgL&&tgL.textContent.indexOf('Telegram')>-1)tgL.textContent='Telegram chat ID (Pro alerts)';
+</script>
 </body></html>
