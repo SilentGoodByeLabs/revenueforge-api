@@ -1,118 +1,225 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RevenueForge Portal</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RevenueForge Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
-:root{--accent:#2563EB;--ink:#0B2239;--muted:#64748B;--line:#E2E8F0;--bg:#F4F6FA;--side:#0B2239}
-*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex}
-aside{background:var(--side);width:260px;padding:24px 16px;display:flex;flex-direction:column;gap:6px;position:fixed;height:100vh;z-index:100}
-.brand{color:#fff;font-family:'Sora';font-weight:800;font-size:1.2rem;padding:8px 12px 24px;border-bottom:1px solid #1D4E75;margin-bottom:16px}.brand b{color:var(--accent)}
-.nav-i{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:none;border:0;color:#A9BBD0;padding:14px 16px;border-radius:10px;font-weight:600;font-size:.9rem;cursor:pointer;transition:.15s}
+:root{--accent:#2563EB;--ink:#0B2239;--muted:#64748B;--line:#E2E8F0;--bg:#EEF1F6;--side:#0B2239}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink)}
+.hdr{background:#fff;border-bottom:1px solid var(--line);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:60}
+.hdr .brand{display:flex;gap:8px;align-items:center;font-family:'Sora';font-weight:800}
+.hdr .brand b{color:var(--accent)}
+.hdr button{background:none;border:0;font-size:1.3rem;cursor:pointer;color:var(--ink)}
+.dashbar{background:#0B2239;color:#fff;padding:14px 16px;display:flex;gap:14px;align-items:center;font-family:'Sora';font-weight:700}
+.dashbar button{background:var(--accent);border:0;color:#fff;border-radius:10px;width:42px;height:42px;font-size:1.1rem;cursor:pointer}
+aside{background:var(--side);width:270px;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;transform:translateX(-100%);transition:.25s;padding:18px 12px}
+aside.open{transform:none}
+.brand2{color:#fff;font-family:'Sora';font-weight:800;display:flex;gap:10px;align-items:center;padding:6px 10px 18px}
+.brand2 .logo{width:34px;height:34px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.brand2 b{color:var(--accent)}
+.nav-i{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:none;border:0;color:#A9BBD0;padding:13px 14px;border-radius:10px;font-weight:600;font-size:.9rem;cursor:pointer;margin-bottom:4px}
 .nav-i:hover,.nav-i.active{background:#1D4E75;color:#fff}.nav-i i{width:20px;text-align:center}
-main{flex:1;margin-left:260px;padding:32px 40px;overflow-y:auto}
-.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px;margin-bottom:24px}
-.card h2{font-family:'Sora';font-size:1.5rem;margin-bottom:8px}.card h3{font-family:'Sora';font-size:1.1rem;margin-bottom:16px}
-.muted{color:var(--muted);font-size:.88rem}
-input,select,textarea{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;margin-top:8px;font-family:inherit}
-label{display:block;margin-top:16px;font-weight:600;font-size:.9rem}
-.btn{border:0;border-radius:10px;padding:12px 24px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-size:.9rem}
-.btn-p{background:var(--accent);color:#fff}.btn-s{background:#EFF4FF;color:var(--accent);padding:8px 16px;font-size:.85rem}.btn-d{background:#FEE;color:#DC2626;padding:8px 16px;font-size:.85rem;border:1px solid #FCA5A5}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-bottom:24px}
-.stat-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px}
-.stat-card .icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:16px}
-.stat-card h4{font-size:.85rem;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:8px}.stat-card .val{font-family:'Sora';font-size:1.8rem;font-weight:800}
-.job-card{border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:12px;background:#FAFAFA}.job-card h4{margin-bottom:6px}.job-card .meta{font-size:.8rem;color:var(--accent);font-weight:600;margin-bottom:12px}
-.service-card{display:flex;justify-content:space-between;align-items:center;padding:16px;border:1px solid var(--line);border-radius:12px;margin-bottom:12px}
-.burger{display:none;position:fixed;top:20px;left:20px;z-index:200;background:var(--accent);color:#fff;border:0;border-radius:10px;width:44px;height:44px;font-size:1.2rem;cursor:pointer}
-@media(max-width:900px){aside{transform:translateX(-100%);transition:.3s}aside.open{transform:translateX(0)}main{margin-left:0;padding:80px 20px 20px}.burger{display:flex;align-items:center;justify-content:center}}
-</style></head>
-<body>
-<button class="burger" id="burger"><i class="fa-solid fa-bars"></i></button>
+main{padding:20px 16px 40px;max-width:760px;margin:0 auto}
+.crumbs{color:var(--muted);font-size:.8rem;margin:6px 0 4px}
+h1{font-family:'Sora';font-size:1.5rem;margin-bottom:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
+.card h2{font-family:'Sora';font-size:1.25rem;margin-bottom:10px}
+.card h3{font-family:'Sora';font-size:1.05rem;margin-bottom:10px}
+.muted{color:var(--muted);font-size:.9rem}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;position:relative}
+.kpi .v{font-family:'Sora';font-size:1.8rem;font-weight:800}
+.kpi .l{color:var(--muted);font-size:.85rem;margin-top:6px}
+.kpi i{position:absolute;top:16px;right:16px;color:var(--accent);font-size:1.1rem}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#16A34A;margin-right:6px}
+input,select,textarea{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;margin-top:6px;font-family:inherit;background:#fff}
+label{display:block;margin-top:14px;font-weight:600;font-size:.85rem;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.btn{border:0;border-radius:10px;padding:12px 20px;font-weight:700;cursor:pointer;display:inline-flex;gap:8px;align-items:center;font-size:.9rem}
+.btn-p{background:var(--accent);color:#fff}
+.btn-o{background:#fff;border:1.5px solid var(--line);color:var(--ink);padding:9px 18px;font-size:.85rem}
+.btn-s{background:#EFF4FF;color:var(--accent);padding:9px 16px;font-size:.85rem}
+.btn-d{background:#FEE;color:#DC2626;padding:8px 14px;font-size:.8rem;border:1px solid #FCA5A5}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 2px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.badge{background:#DCFCE7;color:#15803D;padding:3px 10px;border-radius:8px;font-size:.75rem;font-weight:700}
+.badge-b{background:#DBEAFE;color:#1D4ED8;padding:4px 12px;border-radius:8px;font-size:.8rem;font-weight:700}
+.plat{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:10px 0;text-align:center;font-weight:700;font-size:.8rem;cursor:pointer}
+.pgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:10px 0}
+.bar{height:8px;border-radius:99px;background:#E2E8F0;margin:8px 0 14px}.bar i{display:block;height:100%;border-radius:99px;background:var(--accent)}
+footer{background:#0B2239;color:#fff;padding:26px 18px;margin-top:30px}
+footer .b{font-family:'Sora';font-weight:800}footer .b b{color:var(--accent)}
+footer p{color:#A9BBD0;font-size:.9rem;margin-top:8px}
+.svc{border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+</style></head><body>
+<header class="hdr"><div class="brand"><i class="fa-solid fa-shield-halved"></i>Revenue<b>Forge</b></div><button id="burger2"><i class="fa-solid fa-bars"></i></button></header>
+<div class="dashbar"><button id="burger"><i class="fa-solid fa-bars"></i></button> RevenueForge Dashboard</div>
 <aside id="side">
-  <div class="brand">Revenue<b>Forge</b></div>
-  <button class="nav-i active" data-view="dashboard"><i class="fa-solid fa-chart-line"></i> Overview</button>
-  <button class="nav-i" data-view="engine"><i class="fa-solid fa-robot"></i> My Engine</button>
-  <button class="nav-i" data-view="jobs"><i class="fa-solid fa-briefcase"></i> Jobs & Proposals</button>
-  <button class="nav-i" data-view="services"><i class="fa-solid fa-boxes-stacked"></i> My Services</button>
+  <div class="brand2"><span class="logo"><i class="fa-solid fa-shield-halved"></i></span>Revenue<b>Forge</b></div>
+  <button class="nav-i active" data-view="ov"><i class="fa-solid fa-chart-line"></i> Overview</button>
+  <button class="nav-i" data-view="eng"><i class="fa-solid fa-robot"></i> My Engine</button>
+  <button class="nav-i" data-view="jobs"><i class="fa-solid fa-briefcase"></i> Jobs & Progress</button>
+  <button class="nav-i" data-view="serv"><i class="fa-solid fa-boxes-stacked"></i> My Services</button>
   <button class="nav-i" data-view="social"><i class="fa-solid fa-share-nodes"></i> Social Selling</button>
-  <button class="nav-i" data-view="billing"><i class="fa-solid fa-crown"></i> Plan & Billing</button>
-  <button class="nav-i" data-view="settings"><i class="fa-solid fa-sliders"></i> Settings</button>
+  <button class="nav-i" data-view="pros"><i class="fa-solid fa-users"></i> Prospects & Follow-ups</button>
+  <button class="nav-i" data-view="ana"><i class="fa-solid fa-chart-pie"></i> Analytics</button>
+  <button class="nav-i" data-view="plan"><i class="fa-solid fa-crown"></i> Plan & Billing</button>
+  <button class="nav-i" data-view="set"><i class="fa-solid fa-sliders"></i> Settings & Alerts</button>
+  <button class="nav-i" data-view="help"><i class="fa-solid fa-life-ring"></i> Help & Guide</button>
 </aside>
 <main>
-  <div id="view-dashboard">
-    <h1 style="font-family:'Sora';font-size:2rem;margin-bottom:8px">Welcome back, <span id="userName">User</span></h1>
-    <p class="muted" style="margin-bottom:32px">Your autonomous revenue dashboard.</p>
-    <div class="grid">
-      <div class="stat-card"><div class="icon" style="background:#EFF4FF;color:var(--accent)"><i class="fa-solid fa-robot"></i></div><h4>Engine</h4><div class="val">Ready</div></div>
-      <div class="stat-card"><div class="icon" style="background:#DCFCE7;color:#15803D"><i class="fa-solid fa-briefcase"></i></div><h4>Jobs Found</h4><div class="val" id="jobCount">0</div></div>
-      <div class="stat-card"><div class="icon" style="background:#FEF3C7;color:#D97706"><i class="fa-solid fa-boxes-stacked"></i></div><h4>Services</h4><div class="val" id="servCount">0</div></div>
-    </div>
-    <div class="card"><h3>Quick Actions</h3><button class="btn btn-p" onclick="showView('engine')"><i class="fa-solid fa-play"></i> Run My Engine</button> <button class="btn btn-s" onclick="showView('services')" style="margin-left:8px">Publish Service</button></div>
+<div id="view-ov">
+  <div class="crumbs">Dashboard / Overview</div><h1>Welcome back 👋</h1>
+  <div class="kpis">
+    <div class="kpi"><div class="v" id="kMat">0</div><div class="l">Matches found</div><i class="fa-solid fa-briefcase"></i></div>
+    <div class="kpi"><div class="v" id="kApps">0</div><div class="l">Applications sent</div><i class="fa-solid fa-paper-plane"></i></div>
+    <div class="kpi"><div class="v" id="kPros">0</div><div class="l">Prospects</div><i class="fa-solid fa-users"></i></div>
+    <div class="kpi"><div class="v" style="font-size:1.2rem"><span class="dot"></span>Active</div><div class="l">Engine status</div><i class="fa-solid fa-robot"></i></div>
   </div>
-  <div id="view-engine" style="display:none">
-    <div class="card"><h2><i class="fa-solid fa-robot" style="color:var(--accent)"></i> Configure Your Engine</h2>
-      <p class="muted">Set what work you do. The engine finds people actively HIRING for these skills.</p>
-      <label>Your Skills / Work Type</label><textarea id="skills" rows="3" placeholder="e.g., cleaning, design, writing, virtual assistant, python..."></textarea>
-      <label>Target Clients</label><input id="target" placeholder="e.g., small businesses, startups">
-      <div style="margin-top:24px;display:flex;gap:12px"><button class="btn btn-p" onclick="saveConfig()"><i class="fa-solid fa-save"></i> Save</button><button class="btn btn-s" onclick="runEngine()"><i class="fa-solid fa-magnifying-glass"></i> Find Hiring Posts</button></div>
-    </div>
+  <div class="card"><h3><i class="fa-solid fa-gear"></i> Daily Briefing</h3><p class="muted" id="brief"></p></div>
+  <div class="card"><h3><i class="fa-solid fa-rocket"></i> Quick start</h3>
+    <div class="row"><span>1 · Configure engine</span><button class="btn btn-o" data-go="eng">Open</button></div>
+    <div class="row"><span>2 · Review & submit proposals</span><button class="btn btn-o" data-go="jobs">Open</button></div>
+    <div class="row"><span>3 · Sell everywhere</span><button class="btn btn-o" data-go="serv">Open</button></div>
+    <div class="row"><span>4 · Upgrade for more</span><button class="btn btn-p" data-go="plan">Upgrade</button></div>
   </div>
-  <div id="view-jobs" style="display:none">
-    <div class="card"><h2><i class="fa-solid fa-briefcase" style="color:var(--accent)"></i> Jobs & Proposals</h2>
-      <p class="muted">Real people looking to hire. "Apply" copies your proposal and opens their page.</p>
-      <button class="btn btn-p" onclick="runEngine()" style="margin-bottom:16px"><i class="fa-solid fa-rotate"></i> Refresh</button>
-      <div id="jobsBody"><p class="muted">Run your engine to see matches.</p></div>
-    </div>
+  <div class="card"><h3><i class="fa-solid fa-robot"></i> Your engine</h3><p class="muted"><span class="dot"></span>It finds jobs, writes proposals & sells for you across 10+ platforms.</p><button class="btn btn-p" data-go="eng" style="margin-top:14px">Open my engine</button></div>
+</div>
+<div id="view-eng" style="display:none"><div class="crumbs">Dashboard / My Engine</div><h1>My Engine</h1>
+  <div class="card"><h2><i class="fa-solid fa-robot"></i> Engine configuration</h2>
+    <label>Mode</label><select id="mode"><option>Find me jobs</option><option>Sell my services</option><option>Both</option></select>
+    <label>Skills</label><textarea id="skills" rows="3" placeholder="your skills / work type"></textarea>
+    <label>Target</label><input id="target" placeholder="who you want to work for">
+    <button class="btn btn-p" id="saveBtn" style="margin-top:18px">Save settings</button>
   </div>
-  <div id="view-services" style="display:none">
-    <div class="card"><h2><i class="fa-solid fa-boxes-stacked" style="color:var(--accent)"></i> Publish a Service</h2>
-      <label>Service Name</label><input id="sv_name" placeholder="e.g., House Cleaning">
-      <label>Price (USD)</label><input id="sv_price" type="number" placeholder="50">
-      <label>Description</label><textarea id="sv_desc" rows="3"></textarea>
-      <label>Image (optional)</label><input id="sv_image" type="file" accept="image/*">
-      <label>Contact Method</label><select id="sv_contact"><option value="whatsapp">WhatsApp</option><option value="telegram">Telegram</option><option value="email">Email</option><option value="phone">Phone</option></select>
-      <label>Contact Value</label><input id="sv_contactval" placeholder="Phone or email">
-      <button class="btn btn-p" onclick="publishService()" style="margin-top:24px"><i class="fa-solid fa-rocket"></i> Publish</button>
-    </div>
-    <div class="card"><h3>Your Published Services</h3><div id="servBody"><p class="muted">Loading...</p></div></div>
+  <div class="card"><h3><i class="fa-solid fa-power-off"></i> Engine control</h3><p class="muted" id="engStat">Stopped</p>
+    <button class="btn btn-p" id="startBtn" style="margin-top:12px"><i class="fa-solid fa-play"></i> Start engine</button>
+    <button class="btn btn-d" id="stopBtn" style="margin-top:12px;display:none"><i class="fa-solid fa-stop"></i> Stop engine</button>
+    <p class="muted" style="margin-top:10px">When started, it keeps working for you in the cloud until you stop it — even if you close the app.</p></div>
+  <div class="card"><h3>🌍 Where the engine searches</h3><p class="muted">Remotive (global) · RemoteOK (global) · Arbeitnow (Europe) · Reed (UK) · Indeed (worldwide) · Reddit (r/forhire, r/Jobs, r/WorkOnline, r/slavelabour) · Hacker News (tech). Any kind of work, people who need to HIRE.</p></div><div class="card"><h3>Run once</h3><p class="muted">Finds people actively HIRING for your skills right now.</p><button class="btn btn-p" id="runBtn" style="margin-top:12px"><i class="fa-solid fa-play"></i> Run now</button><div id="matchList" style="margin-top:14px"></div></div>
+</div>
+<div id="view-jobs" style="display:none"><div class="crumbs">Dashboard / Jobs</div><h1>Jobs & Progress</h1>
+  <div class="card"><p class="muted">Every match gets a proposal — approve & submit.</p><button class="btn btn-s" id="refBtn" style="margin:12px 0"><i class="fa-solid fa-rotate"></i> Refresh matches</button><div id="jobsBody" class="muted">No jobs yet.</div></div></div>
+<div id="view-serv" style="display:none"><div class="crumbs">Dashboard / My Services</div><h1>My Services</h1>
+  <div class="card"><h2>＋ Add a service</h2>
+    <input id="sv_name" placeholder="Service name"><input id="sv_price" type="number" placeholder="Price (USD)" style="margin-top:12px"><textarea id="sv_desc" rows="3" placeholder="Short description" style="margin-top:12px"></textarea>
+    <label>Image (optional)</label><input id="sv_img" type="file" accept="image/*">
+    <label>Video (optional)</label><input id="sv_vid" type="file" accept="video/*">
+    <label>Contact method</label><select id="sv_cm"><option>whatsapp</option><option>telegram</option><option>email</option><option>phone</option></select>
+    <label>Contact value (number/username/email)</label><input id="sv_cv" placeholder="+234… or @username or email">
+    <button class="btn btn-p" id="pubBtn" style="margin-top:18px"><i class="fa-solid fa-floppy-disk"></i> Publish service</button>
   </div>
-  <div id="view-social" style="display:none">
-    <div class="card"><h2><i class="fa-solid fa-share-nodes" style="color:var(--accent)"></i> Social Selling</h2>
-      <p class="muted">Promote on 11 platforms instantly.</p>
-      <button class="btn btn-p" onclick="copyAllAds()"><i class="fa-solid fa-copy"></i> Copy Ads for 11 Platforms</button>
-    </div>
-  </div>
-  <div id="view-billing" style="display:none">
-    <div class="card"><h2><i class="fa-solid fa-crown" style="color:var(--accent)"></i> Plan & Billing</h2><div id="planBody"><p class="muted">Loading...</p></div></div>
-  </div>
-  <div id="view-settings" style="display:none">
-    <div class="card"><h2><i class="fa-solid fa-sliders" style="color:var(--accent)"></i> Settings</h2>
-      <p class="muted">Logged in as: <strong id="userEmail"></strong></p>
-      <button class="btn btn-d" onclick="logout()" style="margin-top:24px"><i class="fa-solid fa-sign-out"></i> Logout</button>
-    </div>
-  </div>
+  <div class="card"><h2>Published services</h2><div id="servBody" class="muted">Loading…</div></div></div>
+<div id="view-social" style="display:none"><div class="crumbs">Dashboard / Social Selling</div><h1>Social Selling</h1>
+  <div class="card"><h2><i class="fa-solid fa-share-nodes"></i> One-tap selling posts</h2><p class="muted">The caption is written for you. Post anywhere, or copy for Instagram/TikTok.</p><div id="socialBody" style="margin-top:14px"></div></div></div>
+<div id="view-pros" style="display:none"><div class="crumbs">Dashboard / Prospects</div><h1>Prospects & Follow-ups</h1>
+  <div class="card"><h2><i class="fa-solid fa-user-plus"></i> Add a prospect</h2><input id="pr_name" placeholder="Company / person"><input id="pr_note" placeholder="Note" style="margin-top:12px"><button class="btn btn-p" id="prBtn" style="margin-top:14px">＋ Add prospect</button></div>
+  <div class="card"><h3><i class="fa-solid fa-bell"></i> Due for follow-up</h3><div id="dueBody" class="muted">Nothing due.</div></div>
+  <div class="card"><h3><i class="fa-solid fa-filter"></i> Pipeline</h3><div id="prosBody"></div></div></div>
+<div id="view-ana" style="display:none"><div class="crumbs">Dashboard / Analytics</div><h1>Analytics</h1>
+  <div class="card"><h2><i class="fa-solid fa-chart-pie"></i> Your activity</h2><div id="anaBody"></div></div></div>
+<div id="view-plan" style="display:none"><div class="crumbs">Dashboard / Plan</div><h1>Plan & Billing</h1>
+  <div class="card"><p class="muted" id="planBody">Loading…</p><button class="btn btn-p" style="margin-top:12px" onclick="location.href='pricing.html'">Upgrade</button></div></div>
+<div id="view-set" style="display:none"><div class="crumbs">Dashboard / Settings</div><h1>Settings & Alerts</h1>
+  <div class="card"><p class="muted">Account: <b id="setEmail"></b></p>
+    <label>WhatsApp (Growth+)</label><input id="wa" placeholder="">
+    <label>Telegram (Growth+)</label><input id="tg" placeholder="">
+    <button class="btn btn-p" id="alertBtn" style="margin-top:16px">Save alerts</button>
+    <button class="btn btn-d" id="outBtn" style="margin-top:16px"><i class="fa-solid fa-sign-out"></i> Logout</button></div></div>
+<div id="view-help" style="display:none"><div class="crumbs">Dashboard / Help</div><h1>Help & Guide</h1>
+  <div class="card"><ol style="margin-left:20px;line-height:2"><li>Configure skills in My Engine.</li><li>Run the engine to find hiring posts.</li><li>Review & submit proposals.</li><li>Publish services with your contact.</li><li>Sell everywhere; track buyers to WON.</li></ol></div></div>
 </main>
+<footer><div class="b">Revenue <b>Forge</b></div><p>The autonomous revenue engine for freelancers and agencies.</p>
+<div id="modal" style="display:none;position:fixed;inset:0;background:rgba(11,34,57,.6);z-index:300;padding:20px;overflow:auto">
+ <div style="background:#fff;border-radius:14px;max-width:640px;margin:6vh auto;padding:20px">
+  <h3 style="font-family:Sora;margin-bottom:10px">📄 Your proposal</h3>
+  <textarea id="propTxt" rows="14" style="width:100%;border:1.5px solid #E2E8F0;border-radius:10px;padding:12px;font-size:13px"></textarea>
+  <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+   <button class="btn btn-p" id="sendBtn">📨 Submit & send</button>
+   <button class="btn btn-o" id="closeM">Close</button>
+  </div>
+  <p class="muted" style="margin-top:10px">Submit & send = copies the proposal, opens the hirer's page, and opens a pre-filled email to them when a contact email exists — as automatic as platforms allow.</p>
+ </div></div>
+</footer>
 <script>
-var API=(location.hostname==='localhost'||location.hostname==='127.0.0.1')?'http://localhost:8502':'https://revenueforge-api.onrender.com';
-var sess=JSON.parse(sessionStorage.getItem('rf_session')||'{}');
-if(!sess.email){var q=new URLSearchParams(location.search).get('email');if(q)sess={email:q};else{location.href='login.html';}}
-document.getElementById('userName').textContent=(sess.email||'').split('@')[0];
-document.getElementById('userEmail').textContent=sess.email||'';
-function showView(n){document.querySelectorAll('main > div').forEach(function(d){d.style.display='none';});var t=document.getElementById('view-'+n);if(t)t.style.display='block';document.querySelectorAll('.nav-i').forEach(function(b){b.classList.remove('active');});var b=document.querySelector('.nav-i[data-view="'+n+'"]');if(b)b.classList.add('active');if(n==='engine')loadEngine();if(n==='services')loadServices();if(n==='billing')loadPlan();}
-document.querySelectorAll('.nav-i').forEach(function(b){b.addEventListener('click',function(){showView(this.getAttribute('data-view'));});});
-document.getElementById('burger').addEventListener('click',function(){document.getElementById('side').classList.toggle('open');});
-function saveConfig(){fetch(API+'/api/save-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,skills:document.getElementById('skills').value,target:document.getElementById('target').value})}).then(function(r){return r.json();}).then(function(d){alert(d.ok?'✓ Saved':'Error');}).catch(function(){alert('Error');});}
-function loadEngine(){fetch(API+'/api/get-profile?email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){if(d.skills)document.getElementById('skills').value=d.skills;if(d.target)document.getElementById('target').value=d.target;});}
-function runEngine(){var q=document.getElementById('skills').value||'hiring';showView('jobs');document.getElementById('jobsBody').innerHTML='<p class="muted">Searching...</p>';fetch(API+'/api/search-hiring?q='+encodeURIComponent(q)+'&limit=10').then(function(r){return r.json();}).then(function(d){var n=(d.results||[]).length;document.getElementById('jobCount').textContent=n;if(!n){document.getElementById('jobsBody').innerHTML='<p class="muted">No matches. Try different skills.</p>';return;}document.getElementById('jobsBody').innerHTML=d.results.map(function(r){return '<div class="job-card"><h4>'+r.title+'</h4><div class="meta">'+r.platform+' • '+r.score+'%</div><button class="btn btn-p" onclick="applyJob(\''+r.url+'\')"><i class="fa-solid fa-paper-plane"></i> Apply & Copy Proposal</button></div>';}).join('');}).catch(function(){document.getElementById('jobsBody').innerHTML='<p class="muted">Error.</p>';});}
-function applyJob(url){var p='Hi,\n\nI saw your post and can help immediately. I have relevant experience and can deliver quickly.\n\nContact me at '+sess.email+'.\n\nBest,\n'+sess.email;if(navigator.clipboard)navigator.clipboard.writeText(p);alert('✓ Proposal copied. Opening hirer page...');window.open(url,'_blank');}
-function publishService(){var img=document.getElementById('sv_image').files[0];function fin(iu){fetch(API+'/api/my/products',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,name:document.getElementById('sv_name').value,price:document.getElementById('sv_price').value,description:document.getElementById('sv_desc').value,image_url:iu,contact_method:document.getElementById('sv_contact').value,contact_value:document.getElementById('sv_contactval').value||sess.email})}).then(function(r){return r.json();}).then(function(d){if(d.ok){alert('✓ Published');loadServices();}else alert('Error');}).catch(function(){alert('Error');});}if(img){var fd=new FormData();fd.append('file',img);fetch('https://file.io',{method:'POST',body:fd}).then(function(r){return r.json();}).then(function(d){fin(d.link||'');}).catch(function(){fin('');});}else fin('');}
-function loadServices(){fetch(API+'/api/my/products?email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){var prods=d.products||[];document.getElementById('servCount').textContent=prods.length;if(!prods.length){document.getElementById('servBody').innerHTML='<p class="muted">No services yet.</p>';return;}document.getElementById('servBody').innerHTML=prods.map(function(p){return '<div class="service-card"><div><strong>'+p.name+'</strong> - $'+p.price+'</div><button class="btn btn-d" onclick="deleteServ('+p.id+')">Delete</button></div>';}).join('');});}
-function deleteServ(id){if(!confirm('Delete?'))return;fetch(API+'/api/my/products/'+id+'/delete',{method:'POST'}).then(function(r){return r.json();}).then(function(d){if(d.ok){alert('✓ Deleted');loadServices();}});}
-function copyAllAds(){var ps=['X','Facebook','Instagram','LinkedIn','WhatsApp','Telegram','TikTok','YouTube','Pinterest','Snapchat','Reddit'];var ads=ps.map(function(p){return p+' Ad:\nProfessional services available. Contact '+sess.email;}).join('\n\n---\n\n');if(navigator.clipboard)navigator.clipboard.writeText(ads).then(function(){alert('✓ Copied for 11 platforms');});else prompt('Copy:',ads);}
-function loadPlan(){fetch(API+'/api/sub/'+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){document.getElementById('planBody').innerHTML=(d&&d.plan)?'<div style="padding:20px;background:#EFF4FF;border-radius:12px"><h3 style="margin:0">'+d.plan+'</h3></div>':'<div style="padding:20px;background:#F8FAFC;border-radius:12px"><h3 style="margin:0">Free Tier</h3></div>';}).catch(function(){document.getElementById('planBody').innerHTML='<div style="padding:20px;background:#F8FAFC;border-radius:12px"><h3 style="margin:0">Free Tier</h3></div>';});}
-function logout(){sessionStorage.removeItem('rf_session');location.href='login.html';}
-showView('dashboard');loadServices();
+var API='https://revenueforge-api.onrender.com';
+var sess={email:''};
+try{var u=new URLSearchParams(location.search);var a=u.get('authed')||u.get('email');if(a){sess={email:a};sessionStorage.setItem('rf_session',JSON.stringify(sess));}}catch(e){}
+if(!sess.email){try{sess=JSON.parse(sessionStorage.getItem('rf_session')||'{}');}catch(e){}}
+if(!sess.email){location.href='login.html';}
+function $(id){return document.getElementById(id);}
+function ls(k,d){try{return JSON.parse(localStorage.getItem(k+'::'+sess.email)||d);}catch(e){return d;}}
+function sv(k,v){localStorage.setItem(k+'::'+sess.email,JSON.stringify(v));}
+var SERVICES=[];
+function go(v){var ids=['ov','eng','jobs','serv','social','pros','ana','plan','set','help'];for(var i=0;i<ids.length;i++){var el=$('view-'+ids[i]);if(el)el.style.display=(ids[i]===v)?'block':'none';}
+ var bs=document.querySelectorAll('.nav-i');for(var j=0;j<bs.length;j++)bs[j].classList.toggle('active',bs[j].getAttribute('data-view')===v);
+ $('side').classList.remove('open');window.scrollTo(0,0);
+ if(v==='ov')loadOv();if(v==='serv')loadServ();if(v==='social')loadSocial();if(v==='pros')loadPros();if(v==='ana')loadAna();if(v==='plan')loadPlan();if(v==='jobs')loadJobs();if(v==='eng')loadEng();}
+document.querySelectorAll('.nav-i').forEach(function(b){b.addEventListener('click',function(){go(this.getAttribute('data-view'));});});
+document.querySelectorAll('[data-go]').forEach(function(b){b.addEventListener('click',function(){go(this.getAttribute('data-go'));});});
+$('burger').addEventListener('click',function(){$('side').classList.toggle('open');});
+$('burger2').addEventListener('click',function(){$('side').classList.toggle('open');});
+function hasCfg(){var c=ls('rf_cfg',null);return !!(c&&c.skills);}
+function loadOv(){$('setEmail').textContent=sess.email;var j=hasCfg()?ls('rf_jobs','[]'):[],ap=ls('rf_apps','[]'),pr=ls('rf_pros','[]');
+ $('kMat').textContent=j.length;$('kApps').textContent=ap.length;$('kPros').textContent=pr.length;
+ $('brief').innerHTML='Today: <b>'+j.length+'</b> matches · <b>'+ap.length+'</b> proposals · <b>0</b> follow-ups due · plan: <b>Free</b> (3 matches). <a href="#" data-go="plan" style="color:var(--accent)">Upgrade for more →</a>';
+ document.querySelectorAll('[data-go]').forEach(function(b){b.onclick=function(){go(this.getAttribute('data-go'));};});}
+function loadEng(){var c=ls('rf_cfg',null);if(c){$('skills').value=c.skills||'';$('target').value=c.target||'';$('wa').value=c.wa||'';$('tg').value=c.tg||'';}}
+$('saveBtn').addEventListener('click',function(){sv('rf_cfg',{skills:$('skills').value,target:$('target').value,wa:$('wa').value,tg:$('tg').value});
+ fetch(API+'/api/save-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,skills:$('skills').value,target:$('target').value})}).catch(function(){});
+ alert('✓ Settings saved');});
+$('runBtn').addEventListener('click',runEng);$('refBtn').addEventListener('click',runEng);
+function hasCfg(){var c=ls('rf_cfg',null);return !!(c&&c.skills);} function runEng(){if(!hasCfg()){alert('Configure your skills first — My Engine → Save settings.');go('eng');return;} var q=$('skills').value;$('jobsBody').innerHTML='Searching…';fetch(API+'/api/search-hiring?q='+encodeURIComponent(q)+'&limit=10').then(function(r){return r.json();}).then(function(d){var rs=d.results||[];sv('rf_jobs',rs);renderJobs(rs);go('jobs');}).catch(function(){$('jobsBody').innerHTML='Search error.';});}
+function proposal(r){var c=ls('rf_cfg',null);var sk=(c&&c.skills)||'this field';return 'Hi there,\n\nI found your opening "'+r.title+'" on '+r.platform+' and I can help you right away.\n\nWhat I offer:\n• Proven experience in '+sk+'\n• Fast, reliable delivery (2-5 days) with clear communication\n• Free support after delivery - you only pay when satisfied\n\nHow I work:\n1. Quick chat to confirm your exact needs\n2. Deliver a working result with updates along the way\n3. Handover + documentation + support\n\nI can start immediately. Reply here or contact me at '+sess.email+'.\n\nBest regards,\n'+sess.email;}
+var CURJOB=null;
+function openModal(r){CURJOB=r;$('propTxt').value=proposal(r);$('modal').style.display='block';}
+$('closeM').addEventListener('click',function(){$('modal').style.display='none';});
+$('sendBtn').addEventListener('click',function(){var r=CURJOB;if(!r)return;var txt=$('propTxt').value;if(navigator.clipboard)navigator.clipboard.writeText(txt);var ap=ls('rf_apps','[]');ap.push(1);sv('rf_apps',ap);var m=(r.title+' '+(r.description||'')).match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);$('modal').style.display='none';if(m){location.href='mailto:'+m[0]+'?subject='+encodeURIComponent('Proposal: '+r.title)+'&body='+encodeURIComponent(txt);}window.open(r.url,'_blank');alert('✓ Proposal sent: copied + hirer page opened'+(m?' + email drafted':'')+'.');});
+function renderJobs(rs){if(!rs||!rs.length){$('jobsBody').innerHTML='<p class="muted">No matches. Try different skills.</p>';return;}
+ $('jobsBody').innerHTML=rs.map(function(r){return '<div class="row"><div><b>'+r.title+'</b><br><span class="muted">'+r.platform+' · '+r.score+'%</span></div><button class="btn btn-p" data-j="'+encodeURIComponent(JSON.stringify(r))+'">Review</button></div>';}).join('');
+ $('jobsBody').querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){openModal(JSON.parse(decodeURIComponent(b.getAttribute('data-j'))));});});}
+function loadJobs(){if(!hasCfg()){$('jobsBody').innerHTML='<p class="muted">Configure your engine first (My Engine → save settings), then run it.</p>';return;} renderJobs(ls('rf_jobs','[]'));}
+function cap(s){return '🚀 '+s.name+' — professional service. '+(s.description||'')+' Price: $'+s.price+'. Contact: '+(s.contact_method||'email')+' '+(s.contact_value||sess.email);}
+function share(p,s){var c=cap(s);var mk='https://silentgoodbyelabs.github.io/revenueforge/marketplace.html';var u='';
+ if(p==='X')u='https://twitter.com/intent/tweet?text='+encodeURIComponent(c);
+ else if(p==='FB')u='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(mk);
+ else if(p==='in')u='https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(mk);
+ else if(p==='WA')u='https://wa.me/?text='+encodeURIComponent(c);
+ else if(p==='TG')u='https://t.me/share/url?url='+encodeURIComponent(mk)+'&text='+encodeURIComponent(c);
+ else if(p==='Reddit')u='https://www.reddit.com/submit?title='+encodeURIComponent(c);
+ else if(p==='Pin')u='https://pinterest.com/pin/create/button/?description='+encodeURIComponent(c);
+ if(u)window.open(u,'_blank');else{if(navigator.clipboard)navigator.clipboard.writeText(c);alert('Caption copied for '+p+' — paste in the app.');}}
+$('pubBtn').addEventListener('click',function(){var img=$('sv_img').files[0];function fin(iu){fetch(API+'/api/my/products',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,name:$('sv_name').value,price:$('sv_price').value,description:$('sv_desc').value,image_url:iu,contact_method:$('sv_cm').value,contact_value:$('sv_cv').value||sess.email})}).then(function(r){return r.json();}).then(function(d){if(d.ok){alert('✓ Published — live on marketplace');loadServ();}else alert('Error');}).catch(function(){alert('Error');});}
+ if(img){var fd=new FormData();fd.append('file',img);fetch('https://file.io',{method:'POST',body:fd}).then(function(r){return r.json();}).then(function(d){fin(d.link||'');}).catch(function(){fin('');});}else fin('');});
+function loadServ(){fetch(API+'/api/my/products?email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){SERVICES=d.products||[];if(!SERVICES.length){$('servBody').innerHTML='No services yet.';return;}
+ $('servBody').innerHTML=SERVICES.map(function(p,i){return '<div class="svc"><div class="row" style="border:0;padding:0"><div><b>'+p.name+'</b> <span class="badge">live on marketplace</span></div><b>$'+p.price+'</b></div><p class="muted" style="margin:8px 0"><i class="fa-solid fa-mobile"></i> '+p.contact_method+': '+p.contact_value+'</p><p class="muted">Share on all platforms:</p><div class="pgrid">'+['X','FB','IG','in','WA','TG','TikTok','YT','Pin','Snap','Reddit'].map(function(pl){return '<button class="plat" data-i="'+i+'" data-p="'+pl+'">'+pl+'</button>';}).join('')+'</div><button class="btn btn-s" data-copy="'+i+'">Copy ads for all platforms</button> <button class="btn btn-d" data-del="'+p.id+'">Delete</button></div>';}).join('');
+ $('servBody').querySelectorAll('.plat').forEach(function(b){b.addEventListener('click',function(){share(b.getAttribute('data-p'),SERVICES[+b.getAttribute('data-i')]);});});
+ $('servBody').querySelectorAll('[data-copy]').forEach(function(b){b.addEventListener('click',function(){var s=SERVICES[+b.getAttribute('data-copy')];if(navigator.clipboard)navigator.clipboard.writeText(cap(s));alert('✓ Ads copied for all platforms');});});
+ $('servBody').querySelectorAll('[data-del]').forEach(function(b){b.addEventListener('click',function(){if(!confirm('Delete this service?'))return;fetch(API+'/api/my/products/'+b.getAttribute('data-del')+'/delete?email='+encodeURIComponent(sess.email),{method:'POST'}).then(function(){loadServ();});});});}).catch(function(){$('servBody').innerHTML='Error loading.';});}
+function loadSocial(){if(!SERVICES.length)loadServSilent();
+ $('socialBody').innerHTML=SERVICES.length?SERVICES.map(function(s,i){return '<div style="margin-bottom:18px"><b>'+s.name+'</b><div class="pgrid" style="grid-template-columns:repeat(5,1fr)">'+['X','FB','in','WA','TG'].map(function(pl){return '<button class="plat" data-i="'+i+'" data-p="'+pl+'">'+pl+'</button>';}).join('')+'</div><button class="btn btn-o" data-ig="'+i+'">Copy IG/TikTok</button></div>';}).join(''):'<p class="muted">Publish a service first.</p>';
+ $('socialBody').querySelectorAll('.plat').forEach(function(b){b.addEventListener('click',function(){share(b.getAttribute('data-p'),SERVICES[+b.getAttribute('data-i')]);});});
+ $('socialBody').querySelectorAll('[data-ig]').forEach(function(b){b.addEventListener('click',function(){if(navigator.clipboard)navigator.clipboard.writeText(cap(SERVICES[+b.getAttribute('data-ig')]));alert('✓ Caption copied for IG/TikTok');});});}
+function loadServSilent(){fetch(API+'/api/my/products?email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){SERVICES=d.products||[];});}
+$('prBtn').addEventListener('click',function(){var l=ls('rf_pros','[]');l.push({n:$('pr_name').value||'Prospect',note:$('pr_note').value,s:'New'});sv('rf_pros',l);$('pr_name').value='';$('pr_note').value='';loadPros();});
+function loadPros(){var l=ls('rf_pros','[]');var stages=['New','Contacted','Replied','Won'];var html='';
+ stages.forEach(function(st){var items=l.map(function(p,i){p._i=i;return p;}).filter(function(p){return p.s===st;});
+  html+='<span class="badge-b" style="background:'+(st==='Won'?'#DCFCE7;color:#15803D':st==='New'?'#DBEAFE;color:#1D4ED8':'#E2E8F0;color:#334155')+'">'+st+' · '+items.length+'</span>';
+  items.forEach(function(p){html+='<div class="row"><div><b>'+p.n+'</b></div><div>'+(st!=='Won'?'<button class="btn btn-s" data-adv="'+p._i+'">Advance →</button> ':'')+'<button class="btn btn-o" data-rm="'+p._i+'">×</button></div></div>';});
+  html+='<div style="height:10px"></div>';});
+ $('prosBody').innerHTML=html||'<p class="muted">No prospects.</p>';
+ var due=l.filter(function(p){return p.s==='Contacted'||p.s==='Replied';});
+ $('dueBody').innerHTML=due.length?due.map(function(p){return '<div class="row"><span>'+p.n+'</span></div>';}).join(''):'Nothing due.';
+ $('prosBody').querySelectorAll('[data-adv]').forEach(function(b){b.addEventListener('click',function(){var i=+b.getAttribute('data-adv');var l=ls('rf_pros','[]');var o=['New','Contacted','Replied','Won'];l[i].s=o[Math.min(o.indexOf(l[i].s)+1,3)];sv('rf_pros',l);loadPros();});});
+ $('prosBody').querySelectorAll('[data-rm]').forEach(function(b){b.addEventListener('click',function(){var i=+b.getAttribute('data-rm');var l=ls('rf_pros','[]');l.splice(i,1);sv('rf_pros',l);loadPros();});});}
+function loadAna(){var l=ls('rf_pros','[]');var c={New:0,Contacted:0,Replied:0,Won:0};l.forEach(function(p){c[p.s]=(c[p.s]||0)+1;});var tot=Math.max(l.length,1);
+ fetch(API+'/api/my/products?email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){var s=(d.products||[]).length;
+ $('anaBody').innerHTML=['New','Contacted','Replied','Won'].map(function(st){return '<div class="muted">'+st+' · '+c[st]+'</div><div class="bar"><i style="width:'+(c[st]/tot*100)+'%"></i></div>';}).join('')+
+ '<div class="row"><span>Jobs matched</span><b>'+ls('rf_jobs','[]').length+'</b></div><div class="row"><span>Proposals submitted</span><b>'+ls('rf_apps','[]').length+'</b></div><div class="row"><span>Services live</span><b>'+s+'</b></div><div class="row"><span>Clients won</span><b>'+c.Won+'</b></div>';}).catch(function(){});}
+function loadPlan(){fetch(API+'/api/sub/'+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){$('planBody').innerHTML=(d&&d.plan)?'Plan: <b>'+d.plan+'</b>':'Plan: <b>Free</b> — 3 matches & submissions.';}).catch(function(){$('planBody').innerHTML='Plan: <b>Free</b> — 3 matches & submissions.';});}
+$('outBtn').addEventListener('click',function(){sessionStorage.removeItem('rf_session');location.href='login.html';});
+function engUI(){var e=ls('rf_eng',{on:false});$('engStat').innerHTML=e.on?'<span class="dot"></span>Running — working for you until you stop it':'Stopped';$('startBtn').style.display=e.on?'none':'inline-flex';$('stopBtn').style.display=e.on?'inline-flex':'none';}
+$('startBtn').addEventListener('click',function(){sv('rf_eng',{on:true});fetch(API+'/api/engine-toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,on:true})}).catch(function(){});engUI();alert('✓ Engine started — it keeps working until you stop it.');});
+$('stopBtn').addEventListener('click',function(){sv('rf_eng',{on:false});fetch(API+'/api/engine-toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,on:false})}).catch(function(){});engUI();alert('✓ Engine stopped.');});
+$('alertBtn').addEventListener('click',function(){sv('rf_alerts',{wa:$('wa').value,tg:$('tg').value});alert('✓ Alerts saved');});
+(function(){var a=ls('rf_alerts',null);if(a){$('wa').value=a.wa||'';$('tg').value=a.tg||'';}})();
+go('ov');if($('engStat'))engUI();
 </script></body></html>

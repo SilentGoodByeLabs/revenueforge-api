@@ -1665,16 +1665,6 @@ async def owner_delete_product(pid: int):
 
 
 
-@app.get("/api/my/products")
-async def my_products(email: str = ""):
-    from app.core.models import SubscriberProduct
-    if not email: return {"ok": True, "products": []}
-    s = SessionLocal()
-    try:
-        rows = s.query(SubscriberProduct).filter_by(owner_email=email).order_by(SubscriberProduct.id.desc()).all()
-        return {"ok": True, "products": [{"id": r.id, "name": r.name, "price": r.price, "description": r.description or "", "image": getattr(r, "image_url", "") or "", "contact_method": getattr(r, "contact_method", "") or "email", "contact_value": getattr(r, "contact_value", "") or email} for r in rows]}
-    finally:
-        s.close()
 
 @app.post("/api/my/products")
 async def my_add_product(request: Request):
@@ -1689,6 +1679,22 @@ async def my_add_product(request: Request):
             if hasattr(row, k): setattr(row, k, p.get(k, ""))
         s.add(row); s.commit()
         return {"ok": True, "id": row.id}
+    finally:
+        s.close()
+
+
+@app.get("/api/my/products")
+async def my_products(email: str = ""):
+    from app.core.models import SubscriberProduct, Product
+    if not email: return {"ok": True, "products": []}
+    s = SessionLocal()
+    try:
+        owner_names = set()
+        try: owner_names = {r.name for r in s.query(Product).all()}
+        except Exception: pass
+        rows = s.query(SubscriberProduct).filter_by(owner_email=email).order_by(SubscriberProduct.id.desc()).all()
+        rows = [r for r in rows if r.name not in owner_names]
+        return {"ok": True, "products": [{"id": r.id, "name": r.name, "price": r.price, "description": r.description or "", "image": getattr(r, "image_url", "") or "", "contact_method": getattr(r, "contact_method", "") or "email", "contact_value": getattr(r, "contact_value", "") or email} for r in rows]}
     finally:
         s.close()
 

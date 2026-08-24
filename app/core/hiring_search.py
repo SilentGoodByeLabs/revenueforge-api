@@ -170,6 +170,51 @@ def search_reddit(query="", limit=15):
     results.sort(key=lambda x: x["score"], reverse=True)
     return results[:limit]
 
+
+def search_remoteok(query="", limit=10):
+    results = []
+    try:
+        r = requests.get("https://remoteok.com/api", timeout=10, headers={"User-Agent": "Mozilla/5.0"})
+        data = r.json()
+        items = data[1:] if isinstance(data, list) else []
+        for job in items:
+            title = job.get("position") or ""
+            url = job.get("url") or ""
+            if url and not url.startswith("http"): url = "https://remoteok.com/" + url
+            desc = job.get("description") or ""
+            text = (title + " " + desc).lower()
+            if query:
+                ws = [w.lower() for w in re.split(r"[,\s]+", query) if len(w) > 2]
+                if ws and not any(w in text for w in ws): continue
+            if title and url: results.append({"title": title[:180], "platform": "RemoteOK", "url": url, "score": 85})
+    except Exception: pass
+    return results[:limit]
+
+def search_hn(query="", limit=8):
+    results = []
+    try:
+        ts = int(time.time()) - 30*86400
+        q = urllib.parse.quote((query + " hiring").strip())
+        r = requests.get(f"https://hn.algolia.com/api/v1/search_by_date?query={q}&tags=story&numericFilters=created_at_i>{ts}", timeout=10, headers={"User-Agent": "Mozilla/5.0"})
+        for h in r.json().get("hits", []):
+            t2 = h.get("title") or ""; u2 = h.get("url") or ""
+            if t2 and u2 and HIRING_RE.search(t2) and not BAD_RE.search(t2):
+                results.append({"title": t2[:180], "platform": "HackerNews", "url": u2, "score": 75})
+    except Exception: pass
+    return results[:limit]
+
+def search_indeed(query="", limit=10):
+    results = []
+    try:
+        r = requests.get("https://www.indeed.com/rss?q=" + urllib.parse.quote(query or "hiring"), timeout=10, headers={"User-Agent": "Mozilla/5.0"})
+        soup = BeautifulSoup(r.content, "html.parser")
+        for item in soup.find_all("item")[:limit]:
+            t2 = item.find("title").text if item.find("title") else ""
+            u2 = item.find("link").text if item.find("link") else ""
+            if t2 and u2: results.append({"title": t2[:180], "platform": "Indeed", "url": u2, "score": 80})
+    except Exception: pass
+    return results[:limit]
+
 def search_hiring(query="", limit=25):
     """Main search: combines multiple sources."""
     results = []
@@ -179,6 +224,9 @@ def search_hiring(query="", limit=25):
     results.extend(search_arbeitnow(query, limit=10))
     results.extend(search_reed(query, limit=10))
     results.extend(search_reddit(query, limit=15))
+    results.extend(search_remoteok(query, limit=10))
+    results.extend(search_hn(query, limit=8))
+    results.extend(search_indeed(query, limit=10))
     
     # Deduplicate by URL
     seen = set()
