@@ -222,4 +222,34 @@ $('stopBtn').addEventListener('click',function(){sv('rf_eng',{on:false});fetch(A
 $('alertBtn').addEventListener('click',function(){sv('rf_alerts',{wa:$('wa').value,tg:$('tg').value});alert('✓ Alerts saved');});
 (function(){var a=ls('rf_alerts',null);if(a){$('wa').value=a.wa||'';$('tg').value=a.tg||'';}})();
 go('ov');if($('engStat'))engUI();
-</script></body></html>
+</script>
+<div id="modal" style="display:none;position:fixed;inset:0;background:rgba(11,34,57,.6);z-index:300;padding:20px;overflow:auto">
+ <div style="background:#fff;border-radius:14px;max-width:640px;margin:6vh auto;padding:20px">
+  <h3 style="font-family:Sora;margin-bottom:10px">📄 Your proposal</h3>
+  <textarea id="propTxt" rows="14" style="width:100%;border:1.5px solid #E2E8F0;border-radius:10px;padding:12px;font-size:13px"></textarea>
+  <div style="display:flex;gap:10px;margin-top:14px"><button class="btn btn-p" id="sendBtn">📨 Submit & send</button><button class="btn btn-o" id="closeM">Close</button></div>
+ </div></div>
+<script>
+function hasCfg2(){var c=ls('rf_cfg',null);return !!(c&&c.skills);}
+function proposal2(r){var c=ls('rf_cfg',null);var sk=(c&&c.skills)||'this field';return 'Hi there,\n\nI found your opening "'+r.title+'" on '+r.platform+' and I can help you right away.\n\nWhat I offer:\n• Proven experience in '+sk+'\n• Fast, reliable delivery (2-5 days) with clear communication\n• Free support after delivery - you only pay when satisfied\n\nHow I work:\n1. Quick chat to confirm your exact needs\n2. Deliver a working result with updates along the way\n3. Handover + documentation + support\n\nI can start immediately. Reply here or contact me at '+sess.email+'.\n\nBest regards,\n'+sess.email;}
+var CUR=null;
+function openModal(r){CUR=r;$('propTxt').value=proposal2(r);$('modal').style.display='block';}
+if($('closeM'))$('closeM').addEventListener('click',function(){$('modal').style.display='none';});
+if($('sendBtn'))$('sendBtn').addEventListener('click',function(){var r=CUR;if(!r)return;var txt=$('propTxt').value;if(navigator.clipboard)navigator.clipboard.writeText(txt);var ap=ls('rf_apps','[]');ap.push(1);sv('rf_apps',ap);var m=(r.title+' '+(r.description||'')).match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);$('modal').style.display='none';if(m)location.href='mailto:'+m[0]+'?subject='+encodeURIComponent('Proposal: '+r.title)+'&body='+encodeURIComponent(txt);window.open(r.url,'_blank');alert('✓ Submitted: copied + hirer page opened'+(m?' + email drafted':'')+'.');});
+function renderJobs(rs){if(!rs||!rs.length){$('jobsBody').innerHTML='<p class="muted">No matches. Configure skills & run the engine.</p>';return;}
+ $('jobsBody').innerHTML=rs.map(function(r){var au=r.author||'';var prof=au?('https://www.reddit.com/user/'+au):r.url;var msg=au?('https://www.reddit.com/message/compose?to='+au):('mailto:'+((r.title+' '+(r.description||'')).match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)||[''])[0]);
+ return '<div class="row" style="align-items:flex-start"><div><b>'+r.title+'</b><br><span class="muted">'+r.platform+' · '+r.score+'%'+(au?' · by u/'+au:'')+'</span><div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn btn-p" data-j="'+encodeURIComponent(JSON.stringify(r))+'">Review & submit</button><button class="btn btn-o" data-u="'+prof+'">View profile</button>'+(au?'<button class="btn btn-o" data-u="'+msg+'">Message</button><button class="btn btn-o" data-u="'+prof+'">Follow</button>':'')+'</div></div></div>';}).join('');
+ $('jobsBody').querySelectorAll('[data-j]').forEach(function(b){b.addEventListener('click',function(){openModal(JSON.parse(decodeURIComponent(b.getAttribute('data-j'))));});});
+ $('jobsBody').querySelectorAll('[data-u]').forEach(function(b){b.addEventListener('click',function(){var u=b.getAttribute('data-u');if(u.startsWith('mailto:')&&!u.slice(7))alert('No direct email found — use Review & submit.');else window.open(u,'_blank');});});}
+// Settings: alerts fields
+var setCard=document.querySelector('#view-set .card');
+if(setCard){setCard.insertAdjacentHTML('beforeend','<label>Telegram chat ID (alerts)</label><input id="tgId" placeholder="e.g. 123456789"><label>WhatsApp number (alerts, Pro)</label><input id="waNum" placeholder="+234..."><div style="display:flex;gap:10px;margin-top:14px"><button class="btn btn-p" id="alSave">Save alerts</button><button class="btn btn-s" id="alTest">Send test</button></div><p class="muted" id="alStat" style="margin-top:10px"></p>');
+ $('alSave').addEventListener('click',function(){sv('rf_alerts2',{tg:$('tgId').value,wa:$('waNum').value});fetch(API+'/api/save-alerts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,telegram:$('tgId').value,whatsapp:$('waNum').value})}).then(function(){alert('✓ Alerts saved');});});
+ $('alTest').addEventListener('click',function(){fetch(API+'/api/alert-test',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email})}).then(function(r){return r.json();}).then(function(d){$('alStat').textContent='Telegram: '+d.telegram+' · WhatsApp: '+d.whatsapp;});});
+ var a2=ls('rf_alerts2',null);if(a2){$('tgId').value=a2.tg||'';$('waNum').value=a2.wa||'';}}
+// Services: auto-advertise
+var servCards=document.querySelectorAll('#view-serv .card');
+if(servCards.length){servCards[0].insertAdjacentHTML('beforeend','<div style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px"><h3>📢 Auto-Advertise (20+ platforms)</h3><p class="muted">Marketplace + Telegram post automatically. X/FB/IG/LinkedIn/TikTok & more = one tap until you connect logins.</p><button class="btn btn-p" id="adBtn">Advertise now</button><p class="muted" id="adStat" style="margin-top:10px"></p></div>');
+ $('adBtn').addEventListener('click',function(){fetch(API+'/api/auto-advertise',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email})}).then(function(r){return r.json();}).then(function(d){$('adStat').textContent='Marketplace: '+d.marketplace+' · Telegram: '+d.telegram+' · WhatsApp: '+d.whatsapp+' · 20+ social: '+d.social_20;});});}
+</script>
+</body></html>

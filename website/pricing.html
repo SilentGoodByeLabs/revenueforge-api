@@ -1,90 +1,18 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><title>Pricing | RevenueForge</title><link rel="icon" type="image/png" href="assets/logo.png"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><link rel="stylesheet" href="css/style.css"><script src="https://js.paystack.co/v1/inline.js"></script>
-<style>
-body{background:#F4F6FA}
-.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
-.hero{background:linear-gradient(160deg,#0B2239,#123B5C);color:#fff;padding:56px 0 90px;text-align:center}
-.hero h1{font-family:'Sora';font-size:2rem}
-.hero p{color:#CBD5E1;margin-top:8px}
-.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:-60px}
-.tier{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 22px;position:relative;display:flex;flex-direction:column}
-.tier.pop{border:2px solid var(--accent);box-shadow:0 20px 50px rgba(37,99,235,.18)}
-.pop-tag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:11px;font-weight:800;border-radius:99px;padding:4px 14px}
-.tier h3{font-family:'Sora'}
-.price{font-family:'Sora';font-size:2.1rem;font-weight:800;margin:6px 0}
-.price span{font-size:.85rem;color:var(--muted);font-weight:600}
-.tier ul{list-style:none;margin:14px 0;flex:1}
-.tier li{padding:7px 0;color:var(--muted);font-size:.9rem;display:flex;gap:9px}
-.tier li i{color:#16A34A;margin-top:3px}
-.tier li strong{color:var(--ink)}
-.tier .btn{width:100%}
-.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:44px 0}
-.step{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;text-align:center}
-.step .n{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 8px}
-.step p{font-size:.8rem;color:var(--muted)}
-.co{max-width:520px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px}
-.co h3{font-family:'Sora';text-align:center}
-.co input{width:100%;margin:8px 0 14px;padding:12px;border:1.5px solid var(--line);border-radius:10px}
-.curs{display:flex;gap:8px;margin:4px 0 12px}
-.cur{flex:1;border:1.5px solid var(--line);border-radius:10px;padding:10px 6px;font-size:.78rem;font-weight:600;display:flex;gap:6px;align-items:center;justify-content:center;cursor:pointer;color:var(--muted)}
-.cur input{width:auto;margin:0}
-.cur.on{border-color:var(--accent);color:var(--ink);background:#EFF4FF}
-.trust{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;color:var(--muted);font-size:.8rem;margin-top:16px}
-@media (max-width:900px){.tiers{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}.hero h1{font-size:1.5rem}}
-</style></head><body><div id="header"></div>
-<div class="hero"><div class="wrap"><h1>Simple packages. Real results.</h1><p>Every plan includes the full dashboard, your services, and selling on all platforms for a month. Daily matches reset each day. Agency includes everything.</p></div></div>
-<div class="wrap">
-<div class="tiers">
-  <div class="tier"><h3>Starter</h3><div class="price">$29<span>/mo</span></div>
-    <ul><li><i class="fa-solid fa-check"></i>10 job matches every day</li><li><i class="fa-solid fa-check"></i>Full dashboard for 1 month</li><li><i class="fa-solid fa-check"></i>AI proposal drafts</li><li><i class="fa-solid fa-check"></i>Job radar (3 boards)</li><li><i class="fa-solid fa-check"></i>Dashboard + progress tracking</li><li><i class="fa-solid fa-check"></i>Publish your services</li><li><i class="fa-solid fa-check"></i>Email support</li><li><i class="fa-solid fa-check"></i><strong>Sell on all platforms</strong> (included)</li><li><i class="fa-solid fa-check"></i><strong>Sell on all platforms</strong> (included)</li></ul>
-    <button class="btn btn-g" onclick="buy('Starter','v50',29)">Start with Starter</button></div>
-  <div class="tier pop"><span class="pop-tag">MOST POPULAR</span><h3>Growth</h3><div class="price">$79<span>/mo</span></div>
-    <ul><li><i class="fa-solid fa-check"></i><strong>Everything in Starter</strong></li><li><i class="fa-solid fa-check"></i>25 job matches every day</li><li><i class="fa-solid fa-check"></i>Job radar across 6 platforms</li><li><i class="fa-solid fa-check"></i>Client outreach engine</li><li><i class="fa-solid fa-check"></i><strong>WhatsApp + Telegram alerts</strong></li><li><i class="fa-solid fa-check"></i>Unlimited services</li><li><i class="fa-solid fa-check"></i>Priority support</li><li><i class="fa-solid fa-check"></i><strong>Sell on all platforms</strong> (included)</li><li><i class="fa-solid fa-check"></i><strong>Sell on all platforms</strong> (included)</li></ul>
-    <button class="btn btn-p" onclick="buy('Growth','v300',79)">Choose Growth</button></div>
-  <div class="tier"><h3>Agency</h3><div class="price">$199<span>/mo</span></div>
-    <ul><li><i class="fa-solid fa-check"></i><strong>Everything in Growth</strong></li><li><i class="fa-solid fa-check"></i>60 job matches every day</li><li><i class="fa-solid fa-check"></i>Job radar across ALL platforms</li><li><i class="fa-solid fa-check"></i>Dedicated autonomous robot</li><li><i class="fa-solid fa-check"></i>Weekly strategy report</li><li><i class="fa-solid fa-check"></i>1-on-1 onboarding call</li><li><i class="fa-solid fa-check"></i><strong>All current + future features</strong></li><li><i class="fa-solid fa-check"></i><strong>Sell on all platforms</strong> (included)</li><li><i class="fa-solid fa-check"></i><strong>Sell on all platforms</strong> (included)</li></ul>
-    <button class="btn btn-g" onclick="buy('Agency','v1000',199)">Go Agency</button></div>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Pricing — RevenueForge</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet"><style>
+body{margin:0;font-family:Inter,sans-serif;background:#F4F6FA;color:#0B2239;padding:40px 16px}
+h1{font-family:Sora;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;max-width:900px;margin:30px auto}
+.card{background:#fff;border:1px solid #E2E8F0;border-radius:16px;padding:28px}
+.card.pro{border:2px solid #2563EB}
+.price{font-family:Sora;font-size:2rem;font-weight:800;margin:10px 0}
+ul{margin:16px 0;padding-left:20px;line-height:2}
+.btn{display:block;text-align:center;background:#2563EB;color:#fff;border:0;border-radius:10px;padding:13px;font-weight:700;text-decoration:none}
+</style></head><body>
+<h1>Simple pricing</h1>
+<div class="grid">
+ <div class="card"><h2>Free</h2><div class="price">$0</div><ul><li>3 job matches / day</li><li>Manual proposals</li><li>Publish services to marketplace</li><li>One-tap social sharing</li></ul><a class="btn" href="signup.html">Start free</a></div>
+ <div class="card pro"><h2>Pro ⚡</h2><div class="price">$19/mo</div><ul><li>Unlimited matches on 30+ platforms</li><li>Telegram & WhatsApp job alerts</li><li>Auto-advertise on 20+ platforms</li><li>Priority autonomous engine</li><li>Profile/message/follow tools</li></ul><a class="btn" href="login.html">Upgrade</a></div>
 </div>
-<div class="steps">
-  <div class="step"><div class="n">1</div><p>Create free account</p></div>
-  <div class="step"><div class="n">2</div><p>Run free audit</p></div>
-  <div class="step"><div class="n">3</div><p>Set up robot + services</p></div>
-  <div class="step"><div class="n">4</div><p>Pick a plan</p></div>
-  <div class="step"><div class="n">5</div><p>Get jobs + alerts</p></div>
-</div>
-<div class="co" id="checkout">
-  <h3>Secure checkout</h3>
-  <label style="font-size:12px;font-weight:700;color:var(--muted)">YOUR ACCOUNT EMAIL</label>
-  <input id="payEmail" type="email" placeholder="you@example.com">
-  <label style="font-size:12px;font-weight:700;color:var(--muted)">PAY WITH</label>
-  <div class="curs">
-    <label class="cur on" id="cNGN"><input type="radio" name="cur" value="NGN" checked onchange="pickCur('NGN')"> ₦ NGN · transfer / USSD</label>
-    <label class="cur" id="cUSD"><input type="radio" name="cur" value="USD" onchange="pickCur('USD')"> $ USD · intl card</label>
-  </div>
-  <p id="curHint" style="font-size:.8rem;color:var(--muted);text-align:center;margin:-4px 0 10px"></p>
-  <p id="paySel" style="color:var(--muted);font-size:.9rem;text-align:center">Selected: <strong>Growth — $79/mo</strong></p>
-  <p id="payMsg" style="color:#B91C1C;min-height:18px;text-align:center"></p>
-  <button class="btn btn-p" style="width:100%" onclick="payNow()"><i class="fa-solid fa-lock"></i> Pay securely →</button>
-  <div class="trust"><span><i class="fa-solid fa-shield-halved"></i> Paystack secured</span><span><i class="fa-solid fa-credit-card"></i> Card · Bank · USSD</span><span><i class="fa-solid fa-rotate-left"></i> Cancel anytime</span></div>
-</div>
-</div>
-<div style="height:50px"></div><div id="footer"></div>
-<script src="js/config.js?v=4"></script><script src="js/layout.js?v=11"></script>
-<script>
-var SEL={plan:'Growth',vol:'v300',price:79};var RATE=1;
-function pickCur(c){document.getElementById('cNGN').classList.toggle('on',c==='NGN');document.getElementById('cUSD').classList.toggle('on',c==='USD');hint();}
-function hint(){var h=document.getElementById('curHint');if(!h)return;h.textContent=( (document.querySelector('input[name=cur]:checked')||{}).value==='USD') ? 'Charged in US Dollars — international cards accepted' : '≈ ₦'+Math.round(SEL.price*RATE).toLocaleString()+' / month';}
-fetch((window.RF_API||'')+'/api/paystack-public').then(function(r){return r.json();}).then(function(c){RATE=c.rate||1;hint();}).catch(function(){});
-function buy(p,v,pr){SEL={plan:p,vol:v,price:pr};document.getElementById('paySel').innerHTML='Selected: <strong>'+p+' — $'+pr+'/mo</strong>';document.getElementById('checkout').scrollIntoView({behavior:'smooth'});}
-function payNow(){
-  var email=document.getElementById('payEmail').value.trim().toLowerCase();var msg=document.getElementById('payMsg');
-  if(!email||email.indexOf('@')<0){msg.textContent='Enter your account email first.';return;}
-  var API=window.RF_API||'';msg.textContent='';
-  fetch(API+'/api/paystack-public').then(r=>r.json()).then(function(cfg){
-    var cur=(document.querySelector('input[name=cur]:checked')||{}).value||'NGN';
-    var amount= cur==='USD' ? SEL.price*100 : Math.round(SEL.price*cfg.rate)*100;
-    PaystackPop.setup({key:cfg.key,email:email,amount:amount,currency:cur,
-      callback:function(resp){fetch(API+'/api/subscribe',{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({email:email,plan:SEL.plan,volume:SEL.vol,modules:SEL.plan,ref:resp.reference})}).then(function(){location.href='portal.html?authed='+encodeURIComponent(email);});},
-      onClose:function(){}}).openIframe();
-  }).catch(function(){msg.textContent='Server waking up — try again in 20s.';});
-}
-</script></body></html>
+<p style="text-align:center;color:#64748B">Payments via Stripe (connecting). Until then, upgrades are activated by our team within 24h.</p>
+</body></html>
