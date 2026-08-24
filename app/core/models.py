@@ -227,6 +227,9 @@ class AuditUse(Base):
 
 class SubscriberProduct(Base):
     __tablename__ = "subscriber_products"
+    ip = Column(String, default="")
+    flagged = Column(String, default="0")
+    trial_expires = Column(String, default="")
     id = Column(Integer, primary_key=True, index=True)
     owner_email = Column(String, index=True)
     name = Column(String)
@@ -263,3 +266,10 @@ class SubscriberJob(Base):
     draft = Column(Text, nullable=True)
     status = Column(String, default="Draft")
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+class UpgradeCode(Base):
+    __tablename__ = "upgrade_codes"
+    id = Column(Integer, primary_key=True)
+    code = Column(String, default="")
+    plan = Column(String, default="Pro")
+    used = Column(String, default="")

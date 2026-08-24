@@ -1035,20 +1035,6 @@ async def paystack_public():
     except Exception: rate = 1.0
     return {"key": os.getenv("PAYSTACK_PUBLIC", ""), "currency": os.getenv("PAYSTACK_CURRENCY", "USD"), "rate": rate}
 
-@app.get("/api/sub/{email}")
-async def my_sub(email: str):
-    from app.core.models import Subscription
-    s = SessionLocal()
-    try:
-        r = s.query(Subscription).filter_by(email=email).first()
-        if not r: return {"has": False}
-        return {"has": True,
-                "plan": getattr(r, "plan", "") or "",
-                "volume": getattr(r, "volume", "") or "",
-                "status": getattr(r, "status", "") or "",
-                "modules": getattr(r, "modules", "") or ""}
-    finally:
-        s.close()
 
 @app.post("/api/subscribe")
 async def subscribe(request: Request):
@@ -1643,29 +1629,6 @@ async def owner_advertise_now():
 
 
 
-@app.get("/api/search-hiring")
-async def api_search_hiring(q: str = "", limit: int = 25, email: str = ""):
-    from app.core.hiring_search import search_hiring
-    plan = "Free"
-    try:
-        from app.core.models import Subscriber
-        s2 = SessionLocal(); row = s2.query(Subscriber).filter_by(email=email).first(); s2.close()
-        plan = getattr(row, "plan", "Free") if row else "Free"
-    except Exception: pass
-    if not plan or plan == "Free": limit = min(limit, 3)
-    results = search_hiring(q, limit)
-    try:
-        if plan == "Pro" and results:
-            from app.core.models import Subscriber
-            from app.core.alerts import send_telegram, send_whatsapp
-            s2 = SessionLocal(); row = s2.query(Subscriber).filter_by(email=email).first(); s2.close()
-            t = getattr(row, "telegram", "") or ""; wa = getattr(row, "whatsapp", "") or ""
-            msg = f"💼 {len(results)} new hiring matches for '{q}'. Top: {results[0]['title']}"
-            if t: send_telegram(t, msg)
-            if wa: send_whatsapp(wa, msg)
-    except Exception: pass
-    return {"ok": True, "query": q, "plan": plan, "count": len(results), "results": results}
-
 
 @app.post("/api/owner/products/{pid}/delete")
 async def owner_delete_product(pid: int):
@@ -1796,21 +1759,6 @@ async def my_products(email: str = ""):
     finally:
         s.close()
 
-@app.post("/api/my/products")
-async def my_add_product(request: Request):
-    from app.core.models import SubscriberProduct
-    p = await request.json()
-    email = p.get("email", "")
-    if not email: return {"ok": False, "error": "no account"}
-    s = SessionLocal()
-    try:
-        row = SubscriberProduct(owner_email=email, name=p.get("name", ""), price=p.get("price", 0), description=p.get("description", ""), status="active")
-        for k in ["image_url", "video_url", "contact_method", "contact_value"]:
-            if hasattr(row, k): setattr(row, k, p.get(k, ""))
-        s.add(row); s.commit()
-        return {"ok": True, "id": row.id}
-    finally:
-        s.close()
 
 @app.post("/api/my/products/{pid}/delete")
 async def my_delete_product(pid: int, email: str = ""):
@@ -1821,5 +1769,105 @@ async def my_delete_product(pid: int, email: str = ""):
         if not row: return {"ok": False, "error": "not yours"}
         s.delete(row); s.commit()
         return {"ok": True}
+    finally:
+        s.close()
+
+async def _sub_info(email, request):
+    import time as _t
+    from app.core.models import Subscriber
+    out = {"plan": "Free", "paid": False, "trial_active": False, "active": False, "trial_hours_left": 0, "flagged": False, "limits": {"matches": 5, "can_sell": False, "alerts": False}}
+    if not email: return out
+    s = SessionLocal()
+    try:
+        row = s.query(Subscriber).filter_by(email=email).first()
+        if not row: return out
+        if not getattr(row, "trial_expires", ""):
+            row.trial_expires = str(_t.time() + 24*3600)
+        if request is not None:
+            try:
+                ip = request.client.host if request.client else ""
+                if ip and not getattr(row, "ip", ""):
+                    row.ip = ip
+                s.commit()
+                if ip and s.query(Subscriber).filter_by(ip=ip).count() > 1:
+                    for r2 in s.query(Subscriber).filter_by(ip=ip).all(): r2.flagged = "1"
+                    s.commit()
+            except Exception: pass
+        plan = getattr(row, "plan", "Free") or "Free"
+        paid = plan not in ("Free", "free", "")
+        try: left = max(0.0, (float(row.trial_expires or 0) - _t.time())/3600.0)
+        except Exception: left = 0.0
+        out.update({"plan": plan, "paid": paid, "trial_active": left > 0, "active": paid or left > 0, "trial_hours_left": round(left, 1), "flagged": str(getattr(row, "flagged", "0")) == "1", "limits": {"matches": 5 if not paid else 999, "can_sell": paid, "alerts": paid}})
+        return out
+    finally:
+        s.close()
+
+@app.get("/api/sub/{email}")
+async def api_sub(email: str, request: Request):
+    return await _sub_info(email, request)
+
+@app.get("/api/search-hiring")
+async def api_search_hiring(q: str = "", limit: int = 25, email: str = ""):
+    from app.core.hiring_search import search_hiring
+    sub = await _sub_info(email, None)
+    if not sub["active"]:
+        return {"ok": False, "error": "trial_expired", "query": q, "count": 0, "results": []}
+    if not sub["paid"]:
+        limit = min(limit, 5)
+    results = search_hiring(q, limit)
+    return {"ok": True, "query": q, "count": len(results), "results": results, "plan": sub["plan"]}
+
+@app.post("/api/my/products")
+async def my_add_product(request: Request):
+    from app.core.models import SubscriberProduct
+    p = await request.json()
+    email = p.get("email", "")
+    sub = await _sub_info(email, None)
+    if not sub["paid"]:
+        return {"ok": False, "error": "Publishing & selling is a Pro feature - upgrade in Plan & Billing."}
+    s = SessionLocal()
+    try:
+        row = SubscriberProduct(owner_email=email, name=p.get("name", ""), price=p.get("price", 0), description=p.get("description", ""), status="active")
+        for k in ["image_url", "video_url", "contact_method", "contact_value"]:
+            if hasattr(row, k): setattr(row, k, p.get(k, ""))
+        s.add(row); s.commit()
+        return {"ok": True, "id": row.id}
+    finally:
+        s.close()
+
+@app.post("/api/redeem")
+async def redeem(request: Request):
+    p = await request.json(); email = p.get("email", ""); code = (p.get("code") or "").strip().upper()
+    from app.core.models import Subscriber, UpgradeCode
+    s = SessionLocal()
+    try:
+        rowc = s.query(UpgradeCode).filter_by(code=code, used="").first()
+        if not rowc: return {"ok": False, "error": "Invalid or already used code"}
+        row = s.query(Subscriber).filter_by(email=email).first()
+        if not row: return {"ok": False, "error": "Account not found"}
+        row.plan = rowc.plan; rowc.used = email; s.commit()
+        return {"ok": True, "plan": rowc.plan}
+    finally:
+        s.close()
+
+@app.post("/api/owner/codes")
+async def owner_codes(request: Request):
+    import random, string
+    p = await request.json(); plan = p.get("plan", "Pro")
+    from app.core.models import UpgradeCode
+    s = SessionLocal()
+    try:
+        code = plan.upper()[:1] + "-" + "".join(random.choices(string.ascii_uppercase + string.digits, k=8))
+        s.add(UpgradeCode(code=code, plan=plan, used="")); s.commit()
+        return {"ok": True, "code": code}
+    finally:
+        s.close()
+
+@app.get("/api/owner/flagged")
+async def owner_flagged():
+    from app.core.models import Subscriber
+    s = SessionLocal()
+    try:
+        return {"ok": True, "accounts": [{"email": r.email, "ip": getattr(r, "ip", ""), "plan": getattr(r, "plan", "Free")} for r in s.query(Subscriber).filter_by(flagged="1").all()]}
     finally:
         s.close()

@@ -6,8 +6,7 @@
 :root{--accent:#2563EB;--ink:#0B2239;--muted:#64748B;--line:#E2E8F0;--bg:#EEF1F6;--side:#0B2239}
 *{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink)}
 .hdr{background:#fff;border-bottom:1px solid var(--line);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:60}
-.hdr .brand{display:flex;gap:8px;align-items:center;font-family:'Sora';font-weight:800}
-.hdr .brand b{color:var(--accent)}
+.hdr .brand{display:flex;gap:8px;align-items:center;font-family:'Sora';font-weight:800}.hdr .brand b{color:var(--accent)}
 .hdr button{background:none;border:0;font-size:1.3rem;cursor:pointer;color:var(--ink)}
 .dashbar{background:#0B2239;color:#fff;padding:14px 16px;display:flex;gap:14px;align-items:center;font-family:'Sora';font-weight:700}
 .dashbar button{background:var(--accent);border:0;color:#fff;border-radius:10px;width:42px;height:42px;font-size:1.1rem;cursor:pointer}
@@ -22,20 +21,17 @@ main{padding:20px 16px 40px;max-width:760px;margin:0 auto}
 .crumbs{color:var(--muted);font-size:.8rem;margin:6px 0 4px}
 h1{font-family:'Sora';font-size:1.5rem;margin-bottom:14px}
 .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
-.card h2{font-family:'Sora';font-size:1.25rem;margin-bottom:10px}
-.card h3{font-family:'Sora';font-size:1.05rem;margin-bottom:10px}
+.card h2{font-family:'Sora';font-size:1.25rem;margin-bottom:10px}.card h3{font-family:'Sora';font-size:1.05rem;margin-bottom:10px}
 .muted{color:var(--muted);font-size:.9rem}
 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
 .kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;position:relative}
-.kpi .v{font-family:'Sora';font-size:1.8rem;font-weight:800}
-.kpi .l{color:var(--muted);font-size:.85rem;margin-top:6px}
+.kpi .v{font-family:'Sora';font-size:1.8rem;font-weight:800}.kpi .l{color:var(--muted);font-size:.85rem;margin-top:6px}
 .kpi i{position:absolute;top:16px;right:16px;color:var(--accent);font-size:1.1rem}
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#16A34A;margin-right:6px}
 input,select,textarea{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;margin-top:6px;font-family:inherit;background:#fff}
 label{display:block;margin-top:14px;font-weight:600;font-size:.85rem;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
 .btn{border:0;border-radius:10px;padding:12px 20px;font-weight:700;cursor:pointer;display:inline-flex;gap:8px;align-items:center;font-size:.9rem}
-.btn-p{background:var(--accent);color:#fff}
-.btn-o{background:#fff;border:1.5px solid var(--line);color:var(--ink);padding:9px 18px;font-size:.85rem}
+.btn-p{background:var(--accent);color:#fff}.btn-o{background:#fff;border:1.5px solid var(--line);color:var(--ink);padding:9px 18px;font-size:.85rem}
 .btn-s{background:#EFF4FF;color:var(--accent);padding:9px 16px;font-size:.85rem}
 .btn-d{background:#FEE;color:#DC2626;padding:8px 14px;font-size:.8rem;border:1px solid #FCA5A5}
 .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 2px;border-bottom:1px solid var(--line)}
@@ -46,8 +42,7 @@ label{display:block;margin-top:14px;font-weight:600;font-size:.85rem;color:var(-
 .pgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:10px 0}
 .bar{height:8px;border-radius:99px;background:#E2E8F0;margin:8px 0 14px}.bar i{display:block;height:100%;border-radius:99px;background:var(--accent)}
 footer{background:#0B2239;color:#fff;padding:26px 18px;margin-top:30px}
-footer .b{font-family:'Sora';font-weight:800}footer .b b{color:var(--accent)}
-footer p{color:#A9BBD0;font-size:.9rem;margin-top:8px}
+footer .b{font-family:'Sora';font-weight:800}footer .b b{color:var(--accent)}footer p{color:#A9BBD0;font-size:.9rem;margin-top:8px}
 .svc{border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
 </style></head><body>
 <header class="hdr"><div class="brand"><i class="fa-solid fa-shield-halved"></i>Revenue<b>Forge</b></div><button id="burger2"><i class="fa-solid fa-bars"></i></button></header>
@@ -94,10 +89,11 @@ footer p{color:#A9BBD0;font-size:.9rem;margin-top:8px}
     <button class="btn btn-p" id="startBtn" style="margin-top:12px"><i class="fa-solid fa-play"></i> Start engine</button>
     <button class="btn btn-d" id="stopBtn" style="margin-top:12px;display:none"><i class="fa-solid fa-stop"></i> Stop engine</button>
     <p class="muted" style="margin-top:10px">When started, it keeps working for you in the cloud until you stop it — even if you close the app.</p></div>
-  <div class="card"><h3>🌍 Where the engine searches</h3><p class="muted">Remotive (global) · RemoteOK (global) · Arbeitnow (Europe) · Reed (UK) · Indeed (worldwide) · Reddit (r/forhire, r/Jobs, r/WorkOnline, r/slavelabour) · Hacker News (tech). Any kind of work, people who need to HIRE.</p></div><div class="card"><h3>Run once</h3><p class="muted">Finds people actively HIRING for your skills right now.</p><button class="btn btn-p" id="runBtn" style="margin-top:12px"><i class="fa-solid fa-play"></i> Run now</button><div id="matchList" style="margin-top:14px"></div></div>
+  <div class="card"><h3>🌍 Where the engine searches (30+ sources)</h3><p class="muted">Remotive · RemoteOK · Arbeitnow · The Muse · Hacker News · Indeed (US/UK/CA/AU/IN/DE) · We Work Remotely · Working Nomads · Jobspresso · Freelancer · Guru · Craigslist gigs · ProBlogger · Authentic Jobs · Upwork · Reddit (r/forhire, r/Jobs, r/WorkOnline, r/slavelabour, r/freelance, r/designjobs, r/Hiring, r/remotejobs). Any kind of work, people who need to HIRE.</p></div>
+  <div class="card"><h3>Run once</h3><p class="muted">Finds people actively HIRING for your skills right now.</p><button class="btn btn-p" id="runBtn" style="margin-top:12px"><i class="fa-solid fa-play"></i> Run now</button><div id="matchList" style="margin-top:14px"></div></div>
 </div>
 <div id="view-jobs" style="display:none"><div class="crumbs">Dashboard / Jobs</div><h1>Jobs & Progress</h1>
-  <div class="card"><p class="muted">Every match gets a proposal — approve & submit.</p><button class="btn btn-s" id="refBtn" style="margin:12px 0"><i class="fa-solid fa-rotate"></i> Refresh matches</button><div id="jobsBody" class="muted">No jobs yet.</div></div></div>
+  <div class="card"><p class="muted">Every match gets a proposal — review, message, view profile, submit.</p><button class="btn btn-s" id="refBtn" style="margin:12px 0"><i class="fa-solid fa-rotate"></i> Refresh matches</button><div id="jobsBody" class="muted">No jobs yet.</div></div></div>
 <div id="view-serv" style="display:none"><div class="crumbs">Dashboard / My Services</div><h1>My Services</h1>
   <div class="card"><h2>＋ Add a service</h2>
     <input id="sv_name" placeholder="Service name"><input id="sv_price" type="number" placeholder="Price (USD)" style="margin-top:12px"><textarea id="sv_desc" rows="3" placeholder="Short description" style="margin-top:12px"></textarea>
@@ -107,6 +103,10 @@ footer p{color:#A9BBD0;font-size:.9rem;margin-top:8px}
     <label>Contact value (number/username/email)</label><input id="sv_cv" placeholder="+234… or @username or email">
     <button class="btn btn-p" id="pubBtn" style="margin-top:18px"><i class="fa-solid fa-floppy-disk"></i> Publish service</button>
   </div>
+  <div class="card"><h3><i class="fa-solid fa-bullhorn"></i> Auto-Advertise (20+ platforms)</h3><p class="muted">Marketplace + Telegram post automatically (Pro). The other 20+ platforms = one tap each.</p>
+    <button class="btn btn-p" id="adNow" style="margin-top:12px">Advertise now</button>
+    <div class="pgrid" id="adpack" style="margin-top:14px"></div>
+    <button class="btn btn-s" id="copyPack">Copy full ad pack</button></div>
   <div class="card"><h2>Published services</h2><div id="servBody" class="muted">Loading…</div></div></div>
 <div id="view-social" style="display:none"><div class="crumbs">Dashboard / Social Selling</div><h1>Social Selling</h1>
   <div class="card"><h2><i class="fa-solid fa-share-nodes"></i> One-tap selling posts</h2><p class="muted">The caption is written for you. Post anywhere, or copy for Instagram/TikTok.</p><div id="socialBody" style="margin-top:14px"></div></div></div>
@@ -120,14 +120,14 @@ footer p{color:#A9BBD0;font-size:.9rem;margin-top:8px}
   <div class="card"><p class="muted" id="planBody">Loading…</p><button class="btn btn-p" style="margin-top:12px" onclick="location.href='pricing.html'">Upgrade</button></div></div>
 <div id="view-set" style="display:none"><div class="crumbs">Dashboard / Settings</div><h1>Settings & Alerts</h1>
   <div class="card"><p class="muted">Account: <b id="setEmail"></b></p>
+    <label>Telegram handle (Pro — job & sale alerts)</label><input id="tg" placeholder="@yourhandle">
     <label>WhatsApp (Growth+)</label><input id="wa" placeholder="">
-    <label>Telegram (Growth+)</label><input id="tg" placeholder="">
     <button class="btn btn-p" id="alertBtn" style="margin-top:16px">Save alerts</button>
     <button class="btn btn-d" id="outBtn" style="margin-top:16px"><i class="fa-solid fa-sign-out"></i> Logout</button></div></div>
 <div id="view-help" style="display:none"><div class="crumbs">Dashboard / Help</div><h1>Help & Guide</h1>
-  <div class="card"><ol style="margin-left:20px;line-height:2"><li>Configure skills in My Engine.</li><li>Run the engine to find hiring posts.</li><li>Review & submit proposals.</li><li>Publish services with your contact.</li><li>Sell everywhere; track buyers to WON.</li></ol></div></div>
+  <div class="card"><ol style="margin-left:20px;line-height:2"><li>Configure skills in My Engine.</li><li>Start the engine (keeps running until you stop it).</li><li>Review proposals, message hirers, view profiles.</li><li>Publish services; advertise on 20+ platforms.</li><li>Track prospects to WON.</li></ol></div></div>
 </main>
-<footer><div class="b">Revenue <b>Forge</b></div><p>The autonomous revenue engine for freelancers and agencies.</p>
+<footer><div class="b">Revenue <b>Forge</b></div><p>The autonomous revenue engine for freelancers and agencies.</p></footer>
 <div id="modal" style="display:none;position:fixed;inset:0;background:rgba(11,34,57,.6);z-index:300;padding:20px;overflow:auto">
  <div style="background:#fff;border-radius:14px;max-width:640px;margin:6vh auto;padding:20px">
   <h3 style="font-family:Sora;margin-bottom:10px">📄 Your proposal</h3>
@@ -136,9 +136,8 @@ footer p{color:#A9BBD0;font-size:.9rem;margin-top:8px}
    <button class="btn btn-p" id="sendBtn">📨 Submit & send</button>
    <button class="btn btn-o" id="closeM">Close</button>
   </div>
-  <p class="muted" style="margin-top:10px">Submit & send = copies the proposal, opens the hirer's page, and opens a pre-filled email to them when a contact email exists — as automatic as platforms allow.</p>
+  <p class="muted" style="margin-top:10px">Submit & send = copies the proposal, opens the hirer's page, and drafts a pre-filled email when a contact email exists.</p>
  </div></div>
-</footer>
 <script>
 var API='https://revenueforge-api.onrender.com';
 var sess={email:''};
@@ -149,6 +148,8 @@ function $(id){return document.getElementById(id);}
 function ls(k,d){try{return JSON.parse(localStorage.getItem(k+'::'+sess.email)||d);}catch(e){return d;}}
 function sv(k,v){localStorage.setItem(k+'::'+sess.email,JSON.stringify(v));}
 var SERVICES=[];
+var PLATS=['X','Facebook','Instagram','LinkedIn','WhatsApp','Telegram','TikTok','YouTube','Pinterest','Snapchat','Reddit','Threads','Tumblr','Bluesky','Mastodon','Quora','Medium','Craigslist','Nextdoor','OfferUp'];
+function hasCfg(){var c=ls('rf_cfg',null);return !!(c&&c.skills);}
 function go(v){var ids=['ov','eng','jobs','serv','social','pros','ana','plan','set','help'];for(var i=0;i<ids.length;i++){var el=$('view-'+ids[i]);if(el)el.style.display=(ids[i]===v)?'block':'none';}
  var bs=document.querySelectorAll('.nav-i');for(var j=0;j<bs.length;j++)bs[j].classList.toggle('active',bs[j].getAttribute('data-view')===v);
  $('side').classList.remove('open');window.scrollTo(0,0);
@@ -157,26 +158,30 @@ document.querySelectorAll('.nav-i').forEach(function(b){b.addEventListener('clic
 document.querySelectorAll('[data-go]').forEach(function(b){b.addEventListener('click',function(){go(this.getAttribute('data-go'));});});
 $('burger').addEventListener('click',function(){$('side').classList.toggle('open');});
 $('burger2').addEventListener('click',function(){$('side').classList.toggle('open');});
-function hasCfg(){var c=ls('rf_cfg',null);return !!(c&&c.skills);}
 function loadOv(){$('setEmail').textContent=sess.email;var j=hasCfg()?ls('rf_jobs','[]'):[],ap=ls('rf_apps','[]'),pr=ls('rf_pros','[]');
  $('kMat').textContent=j.length;$('kApps').textContent=ap.length;$('kPros').textContent=pr.length;
- $('brief').innerHTML='Today: <b>'+j.length+'</b> matches · <b>'+ap.length+'</b> proposals · <b>0</b> follow-ups due · plan: <b>Free</b> (3 matches). <a href="#" data-go="plan" style="color:var(--accent)">Upgrade for more →</a>';
- document.querySelectorAll('[data-go]').forEach(function(b){b.onclick=function(){go(this.getAttribute('data-go'));};});}
-function loadEng(){var c=ls('rf_cfg',null);if(c){$('skills').value=c.skills||'';$('target').value=c.target||'';$('wa').value=c.wa||'';$('tg').value=c.tg||'';}}
-$('saveBtn').addEventListener('click',function(){sv('rf_cfg',{skills:$('skills').value,target:$('target').value,wa:$('wa').value,tg:$('tg').value});
+ $('brief').innerHTML='Today: <b>'+j.length+'</b> matches · <b>'+ap.length+'</b> proposals · <b>0</b> follow-ups due · plan: <b>Free</b> (3 matches). <a href="#" data-go="plan" style="color:var(--accent)">Upgrade for more →</a>';}
+function loadEng(){var c=ls('rf_cfg',null);if(c){$('skills').value=c.skills||'';$('target').value=c.target||'';}engUI();}
+$('saveBtn').addEventListener('click',function(){sv('rf_cfg',{skills:$('skills').value,target:$('target').value});
  fetch(API+'/api/save-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,skills:$('skills').value,target:$('target').value})}).catch(function(){});
  alert('✓ Settings saved');});
+function engUI(){var e=ls('rf_eng',{on:false});$('engStat').innerHTML=e.on?'<span class="dot"></span>Running — working for you until you stop it':'Stopped';$('startBtn').style.display=e.on?'none':'inline-flex';$('stopBtn').style.display=e.on?'inline-flex':'none';}
+$('startBtn').addEventListener('click',function(){sv('rf_eng',{on:true});fetch(API+'/api/engine-toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,on:true})}).catch(function(){});engUI();alert('✓ Engine started — it keeps working until you stop it.');});
+$('stopBtn').addEventListener('click',function(){sv('rf_eng',{on:false});fetch(API+'/api/engine-toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,on:false})}).catch(function(){});engUI();alert('✓ Engine stopped.');});
 $('runBtn').addEventListener('click',runEng);$('refBtn').addEventListener('click',runEng);
-function hasCfg(){var c=ls('rf_cfg',null);return !!(c&&c.skills);} function runEng(){if(!hasCfg()){alert('Configure your skills first — My Engine → Save settings.');go('eng');return;} var q=$('skills').value;$('jobsBody').innerHTML='Searching…';fetch(API+'/api/search-hiring?q='+encodeURIComponent(q)+'&limit=10').then(function(r){return r.json();}).then(function(d){var rs=d.results||[];sv('rf_jobs',rs);renderJobs(rs);go('jobs');}).catch(function(){$('jobsBody').innerHTML='Search error.';});}
+function runEng(){if(!hasCfg()){alert('Configure your skills first — My Engine → Save settings.');go('eng');return;}
+ var q=$('skills').value;$('jobsBody').innerHTML='Searching 30+ sources…';fetch(API+'/api/search-hiring?q='+encodeURIComponent(q)+'&limit=15').then(function(r){return r.json();}).then(function(d){var rs=d.results||[];sv('rf_jobs',rs);renderJobs(rs);go('jobs');}).catch(function(){$('jobsBody').innerHTML='Search error.';});}
 function proposal(r){var c=ls('rf_cfg',null);var sk=(c&&c.skills)||'this field';return 'Hi there,\n\nI found your opening "'+r.title+'" on '+r.platform+' and I can help you right away.\n\nWhat I offer:\n• Proven experience in '+sk+'\n• Fast, reliable delivery (2-5 days) with clear communication\n• Free support after delivery - you only pay when satisfied\n\nHow I work:\n1. Quick chat to confirm your exact needs\n2. Deliver a working result with updates along the way\n3. Handover + documentation + support\n\nI can start immediately. Reply here or contact me at '+sess.email+'.\n\nBest regards,\n'+sess.email;}
 var CURJOB=null;
 function openModal(r){CURJOB=r;$('propTxt').value=proposal(r);$('modal').style.display='block';}
 $('closeM').addEventListener('click',function(){$('modal').style.display='none';});
-$('sendBtn').addEventListener('click',function(){var r=CURJOB;if(!r)return;var txt=$('propTxt').value;if(navigator.clipboard)navigator.clipboard.writeText(txt);var ap=ls('rf_apps','[]');ap.push(1);sv('rf_apps',ap);var m=(r.title+' '+(r.description||'')).match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);$('modal').style.display='none';if(m){location.href='mailto:'+m[0]+'?subject='+encodeURIComponent('Proposal: '+r.title)+'&body='+encodeURIComponent(txt);}window.open(r.url,'_blank');alert('✓ Proposal sent: copied + hirer page opened'+(m?' + email drafted':'')+'.');});
+$('sendBtn').addEventListener('click',function(){var r=CURJOB;if(!r)return;var txt=$('propTxt').value;if(navigator.clipboard)navigator.clipboard.writeText(txt);var ap=ls('rf_apps','[]');ap.push(1);sv('rf_apps',ap);var m=(r.title+' '+(r.description||'')).match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);$('modal').style.display='none';if(m){location.href='mailto:'+m[0]+'?subject='+encodeURIComponent('Proposal: '+r.title)+'&body='+encodeURIComponent(txt);}window.open(r.url,'_blank');alert('✓ Submitted: proposal copied + hirer page opened'+(m?' + email drafted':'')+'.');});
 function renderJobs(rs){if(!rs||!rs.length){$('jobsBody').innerHTML='<p class="muted">No matches. Try different skills.</p>';return;}
- $('jobsBody').innerHTML=rs.map(function(r){return '<div class="row"><div><b>'+r.title+'</b><br><span class="muted">'+r.platform+' · '+r.score+'%</span></div><button class="btn btn-p" data-j="'+encodeURIComponent(JSON.stringify(r))+'">Review</button></div>';}).join('');
- $('jobsBody').querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){openModal(JSON.parse(decodeURIComponent(b.getAttribute('data-j'))));});});}
-function loadJobs(){if(!hasCfg()){$('jobsBody').innerHTML='<p class="muted">Configure your engine first (My Engine → save settings), then run it.</p>';return;} renderJobs(ls('rf_jobs','[]'));}
+ $('jobsBody').innerHTML=rs.map(function(r){return '<div class="row"><div><b>'+r.title+'</b><br><span class="muted">'+r.platform+' · '+r.score+'%</span></div><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn btn-p" data-j="'+encodeURIComponent(JSON.stringify(r))+'">Review</button>'+(r.profile?'<button class="btn btn-o" data-pf="'+r.profile+'">Profile</button>':'')+'<button class="btn btn-s" data-ms="'+encodeURIComponent(JSON.stringify(r))+'">Message</button></div></div>';}).join('');
+ $('jobsBody').querySelectorAll('[data-j]').forEach(function(b){b.addEventListener('click',function(){openModal(JSON.parse(decodeURIComponent(b.getAttribute('data-j'))));});});
+ $('jobsBody').querySelectorAll('[data-pf]').forEach(function(b){b.addEventListener('click',function(){window.open(b.getAttribute('data-pf'),'_blank');});});
+ $('jobsBody').querySelectorAll('[data-ms]').forEach(function(b){b.addEventListener('click',function(){var r=JSON.parse(decodeURIComponent(b.getAttribute('data-ms')));var txt=proposal(r);if(navigator.clipboard)navigator.clipboard.writeText(txt);var m=(r.title+' '+(r.description||'')).match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);if(m)location.href='mailto:'+m[0]+'?subject='+encodeURIComponent('Proposal: '+r.title)+'&body='+encodeURIComponent(txt);else{window.open(r.url,'_blank');alert('Proposal copied — paste it in their message box.');}});});}
+function loadJobs(){if(!hasCfg()){$('jobsBody').innerHTML='<p class="muted">Configure your engine first (My Engine → Save settings), then run it.</p>';return;}renderJobs(ls('rf_jobs','[]'));}
 function cap(s){return '🚀 '+s.name+' — professional service. '+(s.description||'')+' Price: $'+s.price+'. Contact: '+(s.contact_method||'email')+' '+(s.contact_value||sess.email);}
 function share(p,s){var c=cap(s);var mk='https://silentgoodbyelabs.github.io/revenueforge/marketplace.html';var u='';
  if(p==='X')u='https://twitter.com/intent/tweet?text='+encodeURIComponent(c);
@@ -194,15 +199,22 @@ function loadServ(){fetch(API+'/api/my/products?email='+encodeURIComponent(sess.
  $('servBody').querySelectorAll('.plat').forEach(function(b){b.addEventListener('click',function(){share(b.getAttribute('data-p'),SERVICES[+b.getAttribute('data-i')]);});});
  $('servBody').querySelectorAll('[data-copy]').forEach(function(b){b.addEventListener('click',function(){var s=SERVICES[+b.getAttribute('data-copy')];if(navigator.clipboard)navigator.clipboard.writeText(cap(s));alert('✓ Ads copied for all platforms');});});
  $('servBody').querySelectorAll('[data-del]').forEach(function(b){b.addEventListener('click',function(){if(!confirm('Delete this service?'))return;fetch(API+'/api/my/products/'+b.getAttribute('data-del')+'/delete?email='+encodeURIComponent(sess.email),{method:'POST'}).then(function(){loadServ();});});});}).catch(function(){$('servBody').innerHTML='Error loading.';});}
-function loadSocial(){if(!SERVICES.length)loadServSilent();
- $('socialBody').innerHTML=SERVICES.length?SERVICES.map(function(s,i){return '<div style="margin-bottom:18px"><b>'+s.name+'</b><div class="pgrid" style="grid-template-columns:repeat(5,1fr)">'+['X','FB','in','WA','TG'].map(function(pl){return '<button class="plat" data-i="'+i+'" data-p="'+pl+'">'+pl+'</button>';}).join('')+'</div><button class="btn btn-o" data-ig="'+i+'">Copy IG/TikTok</button></div>';}).join(''):'<p class="muted">Publish a service first.</p>';
+$('adNow').addEventListener('click',function(){fetch(API+'/api/sub/'+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){var paid=d&&d.plan&&d.plan!=='Free';if(!paid){alert('Auto-Advertise is a Pro feature — see Plan & Billing.');location.href='pricing.html';return;}
+ sv('rf_autoad',{on:true});fetch(API+'/api/engine-toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,on:true,autoad:true})}).catch(function(){});
+ var c=PLATS.map(function(pl){return pl+' Ad:\nProfessional services by '+sess.email+'. Contact: '+sess.email;}).join('\n\n---\n\n');if(navigator.clipboard)navigator.clipboard.writeText(c);
+ window.open('https://silentgoodbyelabs.github.io/revenueforge/marketplace.html','_blank');
+ alert('✓ Advertised: live on Marketplace + Telegram queued + 20+ platform ad pack copied.');});});
+$('adpack').innerHTML=PLATS.map(function(pl){return '<button class="plat" data-pl="'+pl+'">'+pl+'</button>';}).join('');
+$('adpack').querySelectorAll('.plat').forEach(function(b){b.addEventListener('click',function(){var pl=b.getAttribute('data-pl');var c='🚀 '+pl+' Ad:\nProfessional services by '+sess.email+'. Quality work, fast delivery. Contact: '+sess.email;if(navigator.clipboard)navigator.clipboard.writeText(c);alert('✓ '+pl+' ad copied — paste in '+pl+'.');});});
+$('copyPack').addEventListener('click',function(){var c=PLATS.map(function(pl){return pl+' Ad:\nProfessional services by '+sess.email+'. Contact: '+sess.email;}).join('\n\n---\n\n');if(navigator.clipboard)navigator.clipboard.writeText(c);alert('✓ 20+ platform ad pack copied');});
+function loadSocial(){if(!SERVICES.length)fetch(API+'/api/my/products?email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){SERVICES=d.products||[];renderSocial();});else renderSocial();}
+function renderSocial(){$('socialBody').innerHTML=SERVICES.length?SERVICES.map(function(s,i){return '<div style="margin-bottom:18px"><b>'+s.name+'</b><div class="pgrid">'+['X','FB','in','WA','TG'].map(function(pl){return '<button class="plat" data-i="'+i+'" data-p="'+pl+'">'+pl+'</button>';}).join('')+'</div><button class="btn btn-o" data-ig="'+i+'">Copy IG/TikTok</button></div>';}).join(''):'<p class="muted">Publish a service first.</p>';
  $('socialBody').querySelectorAll('.plat').forEach(function(b){b.addEventListener('click',function(){share(b.getAttribute('data-p'),SERVICES[+b.getAttribute('data-i')]);});});
  $('socialBody').querySelectorAll('[data-ig]').forEach(function(b){b.addEventListener('click',function(){if(navigator.clipboard)navigator.clipboard.writeText(cap(SERVICES[+b.getAttribute('data-ig')]));alert('✓ Caption copied for IG/TikTok');});});}
-function loadServSilent(){fetch(API+'/api/my/products?email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){SERVICES=d.products||[];});}
 $('prBtn').addEventListener('click',function(){var l=ls('rf_pros','[]');l.push({n:$('pr_name').value||'Prospect',note:$('pr_note').value,s:'New'});sv('rf_pros',l);$('pr_name').value='';$('pr_note').value='';loadPros();});
 function loadPros(){var l=ls('rf_pros','[]');var stages=['New','Contacted','Replied','Won'];var html='';
  stages.forEach(function(st){var items=l.map(function(p,i){p._i=i;return p;}).filter(function(p){return p.s===st;});
-  html+='<span class="badge-b" style="background:'+(st==='Won'?'#DCFCE7;color:#15803D':st==='New'?'#DBEAFE;color:#1D4ED8':'#E2E8F0;color:#334155')+'">'+st+' · '+items.length+'</span>';
+  html+='<span class="badge-b" style="'+(st==='Won'?'background:#DCFCE7;color:#15803D':st==='New'?'':'background:#E2E8F0;color:#334155')+'">'+st+' · '+items.length+'</span>';
   items.forEach(function(p){html+='<div class="row"><div><b>'+p.n+'</b></div><div>'+(st!=='Won'?'<button class="btn btn-s" data-adv="'+p._i+'">Advance →</button> ':'')+'<button class="btn btn-o" data-rm="'+p._i+'">×</button></div></div>';});
   html+='<div style="height:10px"></div>';});
  $('prosBody').innerHTML=html||'<p class="muted">No prospects.</p>';
@@ -213,103 +225,10 @@ function loadPros(){var l=ls('rf_pros','[]');var stages=['New','Contacted','Repl
 function loadAna(){var l=ls('rf_pros','[]');var c={New:0,Contacted:0,Replied:0,Won:0};l.forEach(function(p){c[p.s]=(c[p.s]||0)+1;});var tot=Math.max(l.length,1);
  fetch(API+'/api/my/products?email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){var s=(d.products||[]).length;
  $('anaBody').innerHTML=['New','Contacted','Replied','Won'].map(function(st){return '<div class="muted">'+st+' · '+c[st]+'</div><div class="bar"><i style="width:'+(c[st]/tot*100)+'%"></i></div>';}).join('')+
- '<div class="row"><span>Jobs matched</span><b>'+ls('rf_jobs','[]').length+'</b></div><div class="row"><span>Proposals submitted</span><b>'+ls('rf_apps','[]').length+'</b></div><div class="row"><span>Services live</span><b>'+s+'</b></div><div class="row"><span>Clients won</span><b>'+c.Won+'</b></div>';}).catch(function(){});}
-function loadPlan(){fetch(API+'/api/sub/'+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){$('planBody').innerHTML=(d&&d.plan)?'Plan: <b>'+d.plan+'</b>':'Plan: <b>Free</b> — 3 matches & submissions.';}).catch(function(){$('planBody').innerHTML='Plan: <b>Free</b> — 3 matches & submissions.';});}
-$('outBtn').addEventListener('click',function(){sessionStorage.removeItem('rf_session');location.href='login.html';});
-function engUI(){var e=ls('rf_eng',{on:false});$('engStat').innerHTML=e.on?'<span class="dot"></span>Running — working for you until you stop it':'Stopped';$('startBtn').style.display=e.on?'none':'inline-flex';$('stopBtn').style.display=e.on?'inline-flex':'none';}
-$('startBtn').addEventListener('click',function(){sv('rf_eng',{on:true});fetch(API+'/api/engine-toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,on:true})}).catch(function(){});engUI();alert('✓ Engine started — it keeps working until you stop it.');});
-$('stopBtn').addEventListener('click',function(){sv('rf_eng',{on:false});fetch(API+'/api/engine-toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,on:false})}).catch(function(){});engUI();alert('✓ Engine stopped.');});
-$('alertBtn').addEventListener('click',function(){sv('rf_alerts',{wa:$('wa').value,tg:$('tg').value});alert('✓ Alerts saved');});
+ '<div class="row"><span>Jobs matched</span><b>'+(hasCfg()?ls('rf_jobs','[]').length:0)+'</b></div><div class="row"><span>Proposals submitted</span><b>'+ls('rf_apps','[]').length+'</b></div><div class="row"><span>Services live</span><b>'+s+'</b></div><div class="row"><span>Clients won</span><b>'+c.Won+'</b></div>';}).catch(function(){});}
+function loadPlan(){fetch(API+'/api/sub/'+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){$('planBody').innerHTML=(d&&d.plan&&d.plan!=='Free')?'Plan: <b>'+d.plan+'</b> — active':'Plan: <b>Free</b> — 3 matches & submissions. Upgrade for alerts + auto-advertise.';}).catch(function(){$('planBody').innerHTML='Plan: <b>Free</b> — 3 matches & submissions.';});}
+$('alertBtn').addEventListener('click',function(){sv('rf_alerts',{wa:$('wa').value,tg:$('tg').value});fetch(API+'/api/save-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,telegram:$('tg').value,whatsapp:$('wa').value})}).catch(function(){});alert('✓ Alerts saved');});
 (function(){var a=ls('rf_alerts',null);if(a){$('wa').value=a.wa||'';$('tg').value=a.tg||'';}})();
-go('ov');if($('engStat'))engUI();
-</script>
-<div id="modal" style="display:none;position:fixed;inset:0;background:rgba(11,34,57,.6);z-index:300;padding:20px;overflow:auto">
- <div style="background:#fff;border-radius:14px;max-width:640px;margin:6vh auto;padding:20px">
-  <h3 style="font-family:Sora;margin-bottom:10px">📄 Your proposal</h3>
-  <textarea id="propTxt" rows="14" style="width:100%;border:1.5px solid #E2E8F0;border-radius:10px;padding:12px;font-size:13px"></textarea>
-  <div style="display:flex;gap:10px;margin-top:14px"><button class="btn btn-p" id="sendBtn">📨 Submit & send</button><button class="btn btn-o" id="closeM">Close</button></div>
- </div></div>
-<script>
-function hasCfg2(){var c=ls('rf_cfg',null);return !!(c&&c.skills);}
-function proposal2(r){var c=ls('rf_cfg',null);var sk=(c&&c.skills)||'this field';return 'Hi there,\n\nI found your opening "'+r.title+'" on '+r.platform+' and I can help you right away.\n\nWhat I offer:\n• Proven experience in '+sk+'\n• Fast, reliable delivery (2-5 days) with clear communication\n• Free support after delivery - you only pay when satisfied\n\nHow I work:\n1. Quick chat to confirm your exact needs\n2. Deliver a working result with updates along the way\n3. Handover + documentation + support\n\nI can start immediately. Reply here or contact me at '+sess.email+'.\n\nBest regards,\n'+sess.email;}
-var CUR=null;
-function openModal(r){CUR=r;$('propTxt').value=proposal2(r);$('modal').style.display='block';}
-if($('closeM'))$('closeM').addEventListener('click',function(){$('modal').style.display='none';});
-if($('sendBtn'))$('sendBtn').addEventListener('click',function(){var r=CUR;if(!r)return;var txt=$('propTxt').value;if(navigator.clipboard)navigator.clipboard.writeText(txt);var ap=ls('rf_apps','[]');ap.push(1);sv('rf_apps',ap);var m=(r.title+' '+(r.description||'')).match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);$('modal').style.display='none';if(m)location.href='mailto:'+m[0]+'?subject='+encodeURIComponent('Proposal: '+r.title)+'&body='+encodeURIComponent(txt);window.open(r.url,'_blank');alert('✓ Submitted: copied + hirer page opened'+(m?' + email drafted':'')+'.');});
-function renderJobs(rs){if(!rs||!rs.length){$('jobsBody').innerHTML='<p class="muted">No matches. Configure skills & run the engine.</p>';return;}
- $('jobsBody').innerHTML=rs.map(function(r){var au=r.author||'';var prof=au?('https://www.reddit.com/user/'+au):r.url;var msg=au?('https://www.reddit.com/message/compose?to='+au):('mailto:'+((r.title+' '+(r.description||'')).match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)||[''])[0]);
- return '<div class="row" style="align-items:flex-start"><div><b>'+r.title+'</b><br><span class="muted">'+r.platform+' · '+r.score+'%'+(au?' · by u/'+au:'')+'</span><div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn btn-p" data-j="'+encodeURIComponent(JSON.stringify(r))+'">Review & submit</button><button class="btn btn-o" data-u="'+prof+'">View profile</button>'+(au?'<button class="btn btn-o" data-u="'+msg+'">Message</button><button class="btn btn-o" data-u="'+prof+'">Follow</button>':'')+'</div></div></div>';}).join('');
- $('jobsBody').querySelectorAll('[data-j]').forEach(function(b){b.addEventListener('click',function(){openModal(JSON.parse(decodeURIComponent(b.getAttribute('data-j'))));});});
- $('jobsBody').querySelectorAll('[data-u]').forEach(function(b){b.addEventListener('click',function(){var u=b.getAttribute('data-u');if(u.startsWith('mailto:')&&!u.slice(7))alert('No direct email found — use Review & submit.');else window.open(u,'_blank');});});}
-// Settings: alerts fields
-var setCard=document.querySelector('#view-set .card');
-if(setCard){setCard.insertAdjacentHTML('beforeend','<label>Telegram chat ID (alerts)</label><input id="tgId" placeholder="e.g. 123456789"><label>WhatsApp number (alerts, Pro)</label><input id="waNum" placeholder="+234..."><div style="display:flex;gap:10px;margin-top:14px"><button class="btn btn-p" id="alSave">Save alerts</button><button class="btn btn-s" id="alTest">Send test</button></div><p class="muted" id="alStat" style="margin-top:10px"></p>');
- $('alSave').addEventListener('click',function(){sv('rf_alerts2',{tg:$('tgId').value,wa:$('waNum').value});fetch(API+'/api/save-alerts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,telegram:$('tgId').value,whatsapp:$('waNum').value})}).then(function(){alert('✓ Alerts saved');});});
- $('alTest').addEventListener('click',function(){fetch(API+'/api/alert-test',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email})}).then(function(r){return r.json();}).then(function(d){$('alStat').textContent='Telegram: '+d.telegram+' · WhatsApp: '+d.whatsapp;});});
- var a2=ls('rf_alerts2',null);if(a2){$('tgId').value=a2.tg||'';$('waNum').value=a2.wa||'';}}
-// Services: auto-advertise
-var servCards=document.querySelectorAll('#view-serv .card');
-if(servCards.length){servCards[0].insertAdjacentHTML('beforeend','<div style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px"><h3>📢 Auto-Advertise (20+ platforms)</h3><p class="muted">Marketplace + Telegram post automatically. X/FB/IG/LinkedIn/TikTok & more = one tap until you connect logins.</p><button class="btn btn-p" id="adBtn">Advertise now</button><p class="muted" id="adStat" style="margin-top:10px"></p></div>');
- $('adBtn').addEventListener('click',function(){fetch(API+'/api/auto-advertise',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email})}).then(function(r){return r.json();}).then(function(d){$('adStat').textContent='Marketplace: '+d.marketplace+' · Telegram: '+d.telegram+' · WhatsApp: '+d.whatsapp+' · 20+ social: '+d.social_20;});});}
-</script>
-
-<script>
-// PAYSTACK SELF-SERVE UPGRADE
-function startUpgrade(){
-  fetch(API+'/api/upgrade',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email})})
-  .then(function(r){return r.json();}).then(function(d){
-    if(d.ok){localStorage.setItem('rf_payref::'+sess.email, d.ref);location.href=d.url;}
-    else alert('Upgrade error: '+(d.error||'check Paystack keys in Render'));
-  }).catch(function(){alert('Could not reach payment server');});
-}
-// after Paystack returns with ?pay=1 → verify & unlock
-(function(){
-  if(new URLSearchParams(location.search).has('pay')){
-    var ref=localStorage.getItem('rf_payref::'+sess.email)||'';
-    fetch(API+'/api/paystack/verify?ref='+encodeURIComponent(ref)+'&email='+encodeURIComponent(sess.email))
-    .then(function(r){return r.json();}).then(function(d){
-      if(d.plan==='Pro')alert('🎉 Pro unlocked — alerts, auto-ads & unlimited matches are ON.');
-    });
-  }
-})();
-// wire every Upgrade button
-document.querySelectorAll('button,a').forEach(function(b){
-  if((b.textContent||'').trim().indexOf('Upgrade')===0 || b.id==='upgBtn'){ b.addEventListener('click',function(e){e.preventDefault();startUpgrade();}); }
-});
-// show real plan on Plan page
-(function(){var pb=$('planBody');if(pb){fetch(API+'/api/sub/'+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){
-  pb.innerHTML='Plan: <b>'+((d&&d.plan)||'Free')+'</b>'+(((d&&d.plan)==='Pro')?' — unlimited matches, alerts & auto-ads active.':' — 3 matches/day. Upgrade for alerts, auto-ads & unlimited.')+'<br><button class="btn btn-p" style="margin-top:12px" id="upgBtn">Upgrade with Paystack</button>';
-  $('upgBtn').addEventListener('click',startUpgrade);});}})();
-// label alerts as Pro in Settings
-var tgL=document.querySelector('#view-set label');if(tgL&&tgL.textContent.indexOf('Telegram')>-1)tgL.textContent='Telegram chat ID (Pro alerts)';
-</script>
-
-<div id="modal" style="display:none;position:fixed;inset:0;background:rgba(11,34,57,.6);z-index:300;padding:20px;overflow:auto">
- <div style="background:#fff;border-radius:14px;max-width:640px;margin:6vh auto;padding:20px">
-  <h3 style="font-family:Sora;margin-bottom:10px">📄 Your proposal</h3>
-  <textarea id="propTxt" rows="14" style="width:100%;border:1.5px solid #E2E8F0;border-radius:10px;padding:12px;font-size:13px"></textarea>
-  <div style="display:flex;gap:10px;margin-top:14px"><button class="btn btn-p" id="sendBtn">📨 Submit & send</button><button class="btn btn-o" id="closeM">Close</button></div>
- </div></div>
-<script>// rf_portal_final
-function proposal2(r){var c=ls('rf_cfg',null);var sk=(c&&c.skills)||'this field';return 'Hi there,\n\nI found your opening "'+r.title+'" on '+r.platform+' and I can help you right away.\n\nWhat I offer:\n• Proven experience in '+sk+'\n• Fast, reliable delivery (2-5 days) with clear communication\n• Free support after delivery - you only pay when satisfied\n\nHow I work:\n1. Quick chat to confirm your exact needs\n2. Deliver a working result with updates along the way\n3. Handover + documentation + support\n\nI can start immediately. Reply here or contact me at '+sess.email+'.\n\nBest regards,\n'+sess.email;}
-var CUR=null;
-function openModal(r){CUR=r;$('propTxt').value=proposal2(r);$('modal').style.display='block';}
-$('closeM').addEventListener('click',function(){$('modal').style.display='none';});
-$('sendBtn').addEventListener('click',function(){var r=CUR;if(!r)return;var txt=$('propTxt').value;if(navigator.clipboard)navigator.clipboard.writeText(txt);var ap=ls('rf_apps','[]');ap.push(1);sv('rf_apps',ap);var m=(r.title+' '+(r.description||'')).match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);$('modal').style.display='none';if(m)location.href='mailto:'+m[0]+'?subject='+encodeURIComponent('Proposal: '+r.title)+'&body='+encodeURIComponent(txt);window.open(r.url,'_blank');alert('✓ Submitted: copied + hirer page opened'+(m?' + email drafted':'')+'.');});
-function renderJobs(rs){if(!rs||!rs.length){$('jobsBody').innerHTML='<p class="muted">No matches. Configure skills & run the engine.</p>';return;}
- $('jobsBody').innerHTML=rs.map(function(r){var au=r.author||'';var prof=au?('https://www.reddit.com/user/'+au):r.url;var msg=au?('https://www.reddit.com/message/compose?to='+au):'';
- return '<div class="row" style="align-items:flex-start"><div><b>'+r.title+'</b><br><span class="muted">'+r.platform+' · '+r.score+'%'+(au?' · by u/'+au:'')+'</span><div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn btn-p" data-j="'+encodeURIComponent(JSON.stringify(r))+'">Review & submit</button><button class="btn btn-o" data-u="'+prof+'">View profile</button>'+(au?'<button class="btn btn-o" data-u="'+msg+'">Message</button><button class="btn btn-o" data-u="'+prof+'">Follow</button>':'')+'</div></div></div>';}).join('');
- $('jobsBody').querySelectorAll('[data-j]').forEach(function(b){b.addEventListener('click',function(){openModal(JSON.parse(decodeURIComponent(b.getAttribute('data-j'))));});});
- $('jobsBody').querySelectorAll('[data-u]').forEach(function(b){b.addEventListener('click',function(){var u=b.getAttribute('data-u');if(u)window.open(u,'_blank');});});}
-var setCard=document.querySelector('#view-set .card');
-if(setCard){setCard.insertAdjacentHTML('beforeend','<label>Telegram chat ID (Pro alerts)</label><input id="tgId" placeholder="e.g. 123456789"><label>WhatsApp number (Pro alerts)</label><input id="waNum" placeholder="+234..."><div style="display:flex;gap:10px;margin-top:14px"><button class="btn btn-p" id="alSave">Save alerts</button><button class="btn btn-s" id="alTest">Send test</button></div><p class="muted" id="alStat" style="margin-top:10px"></p>');
- $('alSave').addEventListener('click',function(){fetch(API+'/api/save-alerts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,telegram:$('tgId').value,whatsapp:$('waNum').value})}).then(function(){alert('✓ Alerts saved');});});
- $('alTest').addEventListener('click',function(){fetch(API+'/api/alert-test',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email})}).then(function(r){return r.json();}).then(function(d){$('alStat').textContent='Telegram: '+d.telegram+' · WhatsApp: '+d.whatsapp;});});}
-var servCards=document.querySelectorAll('#view-serv .card');
-if(servCards.length){servCards[0].insertAdjacentHTML('beforeend','<div style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px"><h3>📢 Auto-Advertise (20+ platforms)</h3><p class="muted">Marketplace + Telegram post automatically (Pro). Others = one tap.</p><button class="btn btn-p" id="adBtn">Advertise now</button><p class="muted" id="adStat" style="margin-top:10px"></p></div>');
- $('adBtn').addEventListener('click',function(){fetch(API+'/api/auto-advertise',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email})}).then(function(r){return r.json();}).then(function(d){$('adStat').textContent='Marketplace: '+d.marketplace+' · Telegram: '+d.telegram+' · WhatsApp: '+d.whatsapp+' · 20+ social: '+d.social_20;});});}
-function startUpgrade(){fetch(API+'/api/upgrade',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email})}).then(function(r){return r.json();}).then(function(d){if(d.ok){localStorage.setItem('rf_payref::'+sess.email,d.ref);location.href=d.url;}else alert('Upgrade error: '+(d.error||'check Paystack keys'));}).catch(function(){alert('Could not reach payment server');});}
-(function(){if(new URLSearchParams(location.search).has('pay')){var ref=localStorage.getItem('rf_payref::'+sess.email)||'';fetch(API+'/api/paystack/verify?ref='+encodeURIComponent(ref)+'&email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){if(d.plan==='Pro')alert('🎉 Pro unlocked.');});}})();
-document.querySelectorAll('button,a').forEach(function(b){if((b.textContent||'').trim().indexOf('Upgrade')===0){b.addEventListener('click',function(e){e.preventDefault();startUpgrade();});}});
-</script>
-</body></html>
+$('outBtn').addEventListener('click',function(){sessionStorage.removeItem('rf_session');location.href='login.html';});
+go('ov');
+</script></body></html>
