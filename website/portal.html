@@ -103,10 +103,6 @@ footer .b{font-family:'Sora';font-weight:800}footer .b b{color:var(--accent)}foo
     <label>Contact value (number/username/email)</label><input id="sv_cv" placeholder="+234… or @username or email">
     <button class="btn btn-p" id="pubBtn" style="margin-top:18px"><i class="fa-solid fa-floppy-disk"></i> Publish service</button>
   </div>
-  <div class="card"><h3><i class="fa-solid fa-bullhorn"></i> Auto-Advertise (20+ platforms)</h3><p class="muted">Marketplace + Telegram post automatically (Pro). The other 20+ platforms = one tap each.</p>
-    <button class="btn btn-p" id="adNow" style="margin-top:12px">Advertise now</button>
-    <div class="pgrid" id="adpack" style="margin-top:14px"></div>
-    <button class="btn btn-s" id="copyPack">Copy full ad pack</button></div>
   <div class="card"><h2>Published services</h2><div id="servBody" class="muted">Loading…</div></div></div>
 <div id="view-social" style="display:none"><div class="crumbs">Dashboard / Social Selling</div><h1>Social Selling</h1>
   <div class="card"><h2><i class="fa-solid fa-share-nodes"></i> One-tap selling posts</h2><p class="muted">The caption is written for you. Post anywhere, or copy for Instagram/TikTok.</p><div id="socialBody" style="margin-top:14px"></div></div></div>
@@ -156,7 +152,7 @@ var PLATS=['X','Facebook','Instagram','LinkedIn','WhatsApp','Telegram','TikTok',
 function hasCfg(){var c=ls('rf_cfg',null);return !!(c&&c.skills);}
 function go(v){var ids=['ov','eng','jobs','serv','social','pros','ana','plan','set','help'];for(var i=0;i<ids.length;i++){var el=$('view-'+ids[i]);if(el)el.style.display=(ids[i]===v)?'block':'none';}
  var bs=document.querySelectorAll('.nav-i');for(var j=0;j<bs.length;j++)bs[j].classList.toggle('active',bs[j].getAttribute('data-view')===v);
- $('side').classList.remove('open');window.scrollTo(0,0);
+ $('side').classList.remove('open');window.scrollTo(0,0);if(history.replaceState)history.replaceState(null,'','#'+v);
  if(v==='ov')loadOv();if(v==='serv')loadServ();if(v==='social')loadSocial();if(v==='pros')loadPros();if(v==='ana')loadAna();if(v==='plan')loadPlan();if(v==='jobs')loadJobs();if(v==='eng')loadEng();}
 document.querySelectorAll('.nav-i').forEach(function(b){b.addEventListener('click',function(){go(this.getAttribute('data-view'));});});
 document.querySelectorAll('[data-go]').forEach(function(b){b.addEventListener('click',function(){go(this.getAttribute('data-go'));});});
@@ -199,18 +195,18 @@ function share(p,s){var c=cap(s);var mk='https://silentgoodbyelabs.github.io/rev
 $('pubBtn').addEventListener('click',function(){if(window.SUB&&!SUB.paid){alert('Publishing & selling is a Pro feature — see Plan & Billing.');go('plan');return;} var img=$('sv_img').files[0];function fin(iu){fetch(API+'/api/my/products',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,name:$('sv_name').value,price:$('sv_price').value,description:$('sv_desc').value,image_url:iu,contact_method:$('sv_cm').value,contact_value:$('sv_cv').value||sess.email})}).then(function(r){return r.json();}).then(function(d){if(d.ok){alert('✓ Published — live on marketplace');loadServ();}else alert('Error');}).catch(function(){alert('Error');});}
  if(img){var fd=new FormData();fd.append('file',img);fetch('https://file.io',{method:'POST',body:fd}).then(function(r){return r.json();}).then(function(d){fin(d.link||'');}).catch(function(){fin('');});}else fin('');});
 function loadServ(){fetch(API+'/api/my/products?email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){SERVICES=d.products||[];if(!SERVICES.length){$('servBody').innerHTML='No services yet.';return;}
- $('servBody').innerHTML=SERVICES.map(function(p,i){return '<div class="svc"><div class="row" style="border:0;padding:0"><div><b>'+p.name+'</b> <span class="badge">live on marketplace</span></div><b>$'+p.price+'</b></div><p class="muted" style="margin:8px 0"><i class="fa-solid fa-mobile"></i> '+p.contact_method+': '+p.contact_value+'</p><p class="muted">Share on all platforms:</p><div class="pgrid">'+['X','FB','IG','in','WA','TG','TikTok','YT','Pin','Snap','Reddit'].map(function(pl){return '<button class="plat" data-i="'+i+'" data-p="'+pl+'">'+pl+'</button>';}).join('')+'</div><button class="btn btn-s" data-copy="'+i+'">Copy ads for all platforms</button> <button class="btn btn-d" data-del="'+p.id+'">Delete</button></div>';}).join('');
+ $('servBody').innerHTML=SERVICES.map(function(p,i){return '<div class="svc"><div class="row" style="border:0;padding:0"><div><b>'+p.name+'</b> <span class="badge">live on marketplace</span></div><b>$'+p.price+'</b></div><p class="muted" style="margin:8px 0"><i class="fa-solid fa-mobile"></i> '+p.contact_method+': '+p.contact_value+'</p><p class="muted">Share on all platforms:</p><div class="pgrid">'+['X','FB','IG','in','WA','TG','TikTok','YT','Pin','Snap','Reddit'].map(function(pl){return '<button class="plat" data-i="'+i+'" data-p="'+pl+'">'+pl+'</button>';}).join('')+'</div><button class="btn btn-s" data-copy="'+i+'">Copy ads</button> <button class="btn btn-p" data-ad="'+i+'">Advertise</button> <button class="btn btn-d" data-del="'+p.id+'">Delete</button></div>';}).join('');
  $('servBody').querySelectorAll('.plat').forEach(function(b){b.addEventListener('click',function(){share(b.getAttribute('data-p'),SERVICES[+b.getAttribute('data-i')]);});});
  $('servBody').querySelectorAll('[data-copy]').forEach(function(b){b.addEventListener('click',function(){var s=SERVICES[+b.getAttribute('data-copy')];if(navigator.clipboard)navigator.clipboard.writeText(cap(s));alert('✓ Ads copied for all platforms');});});
+ $('servBody').querySelectorAll('[data-ad]').forEach(function(b){b.addEventListener('click',function(){advertise(SERVICES[+b.getAttribute('data-ad')]);});});
  $('servBody').querySelectorAll('[data-del]').forEach(function(b){b.addEventListener('click',function(){if(!confirm('Delete this service?'))return;fetch(API+'/api/my/products/'+b.getAttribute('data-del')+'/delete?email='+encodeURIComponent(sess.email),{method:'POST'}).then(function(){loadServ();});});});}).catch(function(){$('servBody').innerHTML='Error loading.';});}
-$('adNow').addEventListener('click',function(){fetch(API+'/api/sub/'+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){var paid=d&&d.plan&&d.plan!=='Free';if(!paid){alert('Auto-Advertise is a Pro feature — see Plan & Billing.');location.href='pricing.html';return;}
- sv('rf_autoad',{on:true});fetch(API+'/api/engine-toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,on:true,autoad:true})}).catch(function(){});
- var c=PLATS.map(function(pl){return pl+' Ad:\nProfessional services by '+sess.email+'. Contact: '+sess.email;}).join('\n\n---\n\n');if(navigator.clipboard)navigator.clipboard.writeText(c);
- window.open('https://silentgoodbyelabs.github.io/revenueforge/marketplace.html','_blank');
- alert('✓ Advertised: live on Marketplace + Telegram queued + 20+ platform ad pack copied.');});});
-$('adpack').innerHTML=PLATS.map(function(pl){return '<button class="plat" data-pl="'+pl+'">'+pl+'</button>';}).join('');
-$('adpack').querySelectorAll('.plat').forEach(function(b){b.addEventListener('click',function(){var pl=b.getAttribute('data-pl');var c='🚀 '+pl+' Ad:\nProfessional services by '+sess.email+'. Quality work, fast delivery. Contact: '+sess.email;if(navigator.clipboard)navigator.clipboard.writeText(c);alert('✓ '+pl+' ad copied — paste in '+pl+'.');});});
-$('copyPack').addEventListener('click',function(){var c=PLATS.map(function(pl){return pl+' Ad:\nProfessional services by '+sess.email+'. Contact: '+sess.email;}).join('\n\n---\n\n');if(navigator.clipboard)navigator.clipboard.writeText(c);alert('✓ 20+ platform ad pack copied');});
+function advertise(s){if(window.SUB&&!SUB.paid){alert('Auto-Advertise is a Pro feature — see Plan & Billing.');go('plan');return;}
+ var c=cap(s);var mk='https://silentgoodbyelabs.github.io/revenueforge/marketplace.html';
+ if(navigator.clipboard)navigator.clipboard.writeText(c);
+ fetch(API+'/api/engine-toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,on:true,autoad:true})}).catch(function(){});
+ window.open(mk,'_blank');
+ alert('✓ Advertising started on all included platforms (Marketplace + Telegram + 20+ ad pack copied). Buyers message you directly on '+s.contact_method+'. Pro gets alerts.');}
+
 function loadSocial(){if(!SERVICES.length)fetch(API+'/api/my/products?email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){SERVICES=d.products||[];renderSocial();});else renderSocial();}
 function renderSocial(){$('socialBody').innerHTML=SERVICES.length?SERVICES.map(function(s,i){return '<div style="margin-bottom:18px"><b>'+s.name+'</b><div class="pgrid">'+['X','FB','in','WA','TG'].map(function(pl){return '<button class="plat" data-i="'+i+'" data-p="'+pl+'">'+pl+'</button>';}).join('')+'</div><button class="btn btn-o" data-ig="'+i+'">Copy IG/TikTok</button></div>';}).join(''):'<p class="muted">Publish a service first.</p>';
  $('socialBody').querySelectorAll('.plat').forEach(function(b){b.addEventListener('click',function(){share(b.getAttribute('data-p'),SERVICES[+b.getAttribute('data-i')]);});});
@@ -236,5 +232,5 @@ $('redeemBtn').addEventListener('click',function(){fetch(API+'/api/redeem',{meth
 $('alertBtn').addEventListener('click',function(){if(window.SUB&&!SUB.paid){alert('Alerts are a Pro feature — see Plan & Billing.');go('plan');return;} sv('rf_alerts',{wa:$('wa').value,tg:$('tg').value});fetch(API+'/api/save-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,telegram:$('tg').value,whatsapp:$('wa').value})}).catch(function(){});alert('✓ Alerts saved');});
 (function(){var a=ls('rf_alerts',null);if(a){$('wa').value=a.wa||'';$('tg').value=a.tg||'';}})();
 $('outBtn').addEventListener('click',function(){sessionStorage.removeItem('rf_session');location.href='login.html';});
-go('ov');
+var hv=(location.hash||'').replace('#','');var valid=['ov','eng','jobs','serv','social','pros','ana','plan','set','help'];go(valid.indexOf(hv)>=0?hv:'ov');
 </script></body></html>
