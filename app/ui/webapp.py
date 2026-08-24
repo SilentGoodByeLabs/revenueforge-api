@@ -1644,10 +1644,28 @@ async def owner_advertise_now():
 
 
 @app.get("/api/search-hiring")
-async def api_search_hiring(q: str = "", limit: int = 25):
+async def api_search_hiring(q: str = "", limit: int = 25, email: str = ""):
     from app.core.hiring_search import search_hiring
+    plan = "Free"
+    try:
+        from app.core.models import Subscriber
+        s2 = SessionLocal(); row = s2.query(Subscriber).filter_by(email=email).first(); s2.close()
+        plan = getattr(row, "plan", "Free") if row else "Free"
+    except Exception: pass
+    if not plan or plan == "Free": limit = min(limit, 3)
     results = search_hiring(q, limit)
-    return {"ok": True, "query": q, "count": len(results), "results": results}
+    try:
+        if plan == "Pro" and results:
+            from app.core.models import Subscriber
+            from app.core.alerts import send_telegram, send_whatsapp
+            s2 = SessionLocal(); row = s2.query(Subscriber).filter_by(email=email).first(); s2.close()
+            t = getattr(row, "telegram", "") or ""; wa = getattr(row, "whatsapp", "") or ""
+            msg = f"💼 {len(results)} new hiring matches for '{q}'. Top: {results[0]['title']}"
+            if t: send_telegram(t, msg)
+            if wa: send_whatsapp(wa, msg)
+    except Exception: pass
+    return {"ok": True, "query": q, "plan": plan, "count": len(results), "results": results}
+
 
 @app.post("/api/owner/products/{pid}/delete")
 async def owner_delete_product(pid: int):
@@ -1709,3 +1727,98 @@ async def my_delete_product(pid: int, email: str = ""):
         return {"ok": True}
     finally:
         s.close()
+
+@app.get("/api/job-sources")
+async def job_sources():
+    from app.core.hiring_search import SOURCE_NAMES
+    return {"ok": True, "count": len(SOURCE_NAMES), "sources": SOURCE_NAMES}
+
+@app.post("/api/save-alerts")
+async def save_alerts(request: Request):
+    p = await request.json(); email = p.get("email", "")
+    s = SessionLocal()
+    try:
+        from app.core.models import Subscriber
+        row = s.query(Subscriber).filter_by(email=email).first()
+        if row:
+            for k in ["telegram", "whatsapp"]:
+                if hasattr(row, k): setattr(row, k, p.get(k, ""))
+            s.commit()
+        return {"ok": True}
+    finally:
+        s.close()
+
+@app.post("/api/alert-test")
+async def alert_test(request: Request):
+    p = await request.json(); email = p.get("email", "")
+    from app.core.alerts import send_telegram, send_whatsapp, telegram_ok, whatsapp_ok
+    s = SessionLocal(); tg = wa = ""
+    try:
+        from app.core.models import Subscriber
+        row = s.query(Subscriber).filter_by(email=email).first()
+        if row: tg = getattr(row, "telegram", "") or ""; wa = getattr(row, "whatsapp", "") or ""
+    finally:
+        s.close()
+    ok_t = send_telegram(tg, "✅ RevenueForge alerts connected!") if telegram_ok() and tg else False
+    ok_w = send_whatsapp(wa, "RevenueForge alerts connected!") if whatsapp_ok() and wa else False
+    return {"ok": True, "telegram": "sent" if ok_t else ("no token" if not telegram_ok() else "no chat id"), "whatsapp": "sent" if ok_w else ("no token" if not whatsapp_ok() else "no number")}
+
+@app.post("/api/auto-advertise")
+async def auto_advertise(request: Request):
+    p = await request.json(); email = p.get("email", "")
+    from app.core.models import SubscriberProduct, Subscriber
+    from app.core.alerts import send_telegram, telegram_ok
+    s = SessionLocal()
+    try:
+        rows = s.query(SubscriberProduct).filter_by(owner_email=email, status="active").all()
+        caps = "\n".join([f"🛒 {r.name} — ${r.price}. Contact: {r.contact_method} {r.contact_value}" for r in rows]) or "No services yet"
+        row = s.query(Subscriber).filter_by(email=email).first()
+        plan = getattr(row, "plan", "Free") if row else "Free"
+        tg_id = getattr(row, "telegram", "") if row else ""
+        tg = (plan == "Pro") and telegram_ok() and tg_id and send_telegram(tg_id, "📢 RevenueForge Marketplace:\n" + caps)
+        return {"ok": True, "marketplace": "auto", "telegram": "auto" if tg else ("Pro required" if plan != "Pro" else "not connected"), "whatsapp": "not connected", "social_20": "one-tap (connect logins for full auto)"}
+    finally:
+        s.close()
+
+@app.post("/api/upgrade")
+async def upgrade(request: Request):
+    import os
+    import requests as rq
+    p = await request.json(); email = p.get("email", "")
+    key = os.environ.get("PAYSTACK_SECRET_KEY", "")
+    if not key: return {"ok": False, "error": "Paystack keys not in Render env"}
+    try:
+        r = rq.post("https://api.paystack.co/transaction/initialize",
+            headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"},
+            json={"email": email, "amount": int(os.environ.get("PRO_AMOUNT", "1900")),
+                  "currency": os.environ.get("PAYSTACK_CURRENCY", "USD"),
+                  "callback_url": "https://silentgoodbyelabs.github.io/revenueforge/portal.html?pay=1",
+                  "metadata": {"email": email}}, timeout=15)
+        d = r.json()
+        if d.get("status"): return {"ok": True, "url": d["data"]["authorization_url"], "ref": d["data"]["reference"]}
+        return {"ok": False, "error": d.get("message", "Paystack error")}
+    except Exception as e:
+        return {"ok": False, "error": str(e)[:120]}
+
+@app.get("/api/paystack/verify")
+async def paystack_verify(ref: str = "", email: str = ""):
+    import os
+    import requests as rq
+    key = os.environ.get("PAYSTACK_SECRET_KEY", "")
+    if not key or not ref: return {"ok": False, "plan": "Free"}
+    try:
+        r = rq.get("https://api.paystack.co/transaction/verify/" + ref, headers={"Authorization": "Bearer " + key}, timeout=15)
+        d = r.json()
+        ok = bool(d.get("status")) and d.get("data", {}).get("status") == "success"
+        if ok:
+            s = SessionLocal()
+            try:
+                from app.core.models import Subscriber
+                em = email or d.get("data", {}).get("customer", {}).get("email", "")
+                row = s.query(Subscriber).filter_by(email=em).first()
+                if row: row.plan = "Pro"; s.commit()
+            finally:
+                s.close()
+        return {"ok": ok, "plan": "Pro" if ok else "Free"}
+    except Exception:
+        return {"ok": False, "plan": "Free"}

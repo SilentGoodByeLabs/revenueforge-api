@@ -1,242 +1,155 @@
 import json, re, time, urllib.parse
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
+import warnings
+warnings.filterwarnings('ignore', category=XMLParsedAsHTMLWarning)
 
-HIRING_RE = re.compile(
-    r"(hiring|looking for|need|seeking|wanted|help needed|job opening|position available)",
-    re.I
-)
-
-BAD_RE = re.compile(
-    r"(for hire|available for work|seeking work|hire me|my resume|i am a|freelancer available)",
-    re.I
-)
+HIRING_RE = re.compile(r"(hiring|looking for|need|seeking|wanted|help needed|job opening|position available|vacancy)", re.I)
+BAD_RE = re.compile(r"(for hire|available for work|seeking work|hire me|my resume|i am a|freelancer available)", re.I)
+UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 
 def search_remotive(query="", limit=10):
-    """Search Remotive API (free, no key needed, real remote jobs)."""
-    results = []
-    
-    url = "https://remotive.com/api/remote-jobs"
-    params = {}
-    if query:
-        params["search"] = query
-    params["limit"] = limit
-    
+    out = []
     try:
-        r = requests.get(url, params=params, timeout=10, headers={
-            "User-Agent": "RevenueForge/1.0"
-        })
-        if r.status_code == 200:
-            data = r.json()
-            jobs = data.get("jobs", [])
-            
-            for job in jobs[:limit]:
-                title = job.get("title", "")
-                if title:
-                    results.append({
-                        "title": title[:180],
-                        "platform": "Remotive",
-                        "url": job.get("url", ""),
-                        "score": 90,
-                        "company": job.get("company_name", "")
-                    })
-    except Exception as e:
-        pass
-    
-    return results[:limit]
+        r = requests.get("https://remotive.com/api/remote-jobs", timeout=10, headers=UA)
+        for job in r.json().get("jobs", [])[:limit]:
+            t = job.get("title", "")
+            if t: out.append({"title": t[:180], "platform": "Remotive", "url": job.get("url", ""), "score": 90})
+    except Exception: pass
+    return out[:limit]
 
 def search_arbeitnow(query="", limit=10):
-    """Search Arbeitnow API (free, European jobs)."""
-    results = []
-    
-    url = "https://www.arbeitnow.com/api/job-board-api"
-    
+    out = []
     try:
-        r = requests.get(url, timeout=10, headers={
-            "User-Agent": "RevenueForge/1.0"
-        })
-        if r.status_code == 200:
-            data = r.json()
-            jobs = data.get("data", [])
-            
-            for job in jobs:
-                title = job.get("title", "")
-                description = job.get("description", "")
-                text = (title + " " + description).lower()
-                
-                # Filter by query if provided
-                if query:
-                    qwords = [w.lower() for w in re.split(r"[,\s]+", query) if len(w) > 2]
-                    if qwords and not any(w in text for w in qwords):
-                        continue
-                
-                if title:
-                    results.append({
-                        "title": title[:180],
-                        "platform": "Arbeitnow",
-                        "url": job.get("url", ""),
-                        "score": 85,
-                        "company": job.get("company_name", "")
-                    })
-    except:
-        pass
-    
-    return results[:limit]
-
-def search_reed(query="", limit=10):
-    """Search Reed API (free UK jobs, no key for basic)."""
-    results = []
-    
-    if not query:
-        query = "hiring"
-    
-    url = f"https://www.reed.co.uk/api/1.0/search?keywords={urllib.parse.quote(query)}&minimumSalary=0&maximumSalary=100000&permanent=true&contract=true&temporary=true&partTime=true&fullTime=true&graduate=true&apprenticeship=true&resultsToTake=20"
-    
-    try:
-        r = requests.get(url, timeout=10, headers={
-            "User-Agent": "RevenueForge/1.0"
-        })
-        if r.status_code == 200:
-            data = r.json()
-            jobs = data.get("results", [])
-            
-            for job in jobs[:limit]:
-                title = job.get("jobTitle", "")
-                if title:
-                    results.append({
-                        "title": title[:180],
-                        "platform": "Reed",
-                        "url": job.get("jobUrl", ""),
-                        "score": 80,
-                        "company": job.get("employerName", "")
-                    })
-    except:
-        pass
-    
-    return results[:limit]
-
-def search_reddit(query="", limit=15):
-    """Search Reddit r/forhire and job subreddits."""
-    results = []
-    
-    # Multiple subreddits
-    subs = ["forhire", "Jobs", "WorkOnline", "slavelabour", "HireAFreelancer"]
-    
-    for sub in subs:
-        url = f"https://www.reddit.com/r/{sub}/new.json"
-        params = {"limit": 25, "raw_json": 1}
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-        }
-        
-        try:
-            r = requests.get(url, params=params, headers=headers, timeout=8)
-            if r.status_code != 200:
-                continue
-                
-            data = r.json()
-            children = data.get("data", {}).get("children", [])
-            
-            for c in children:
-                v = c.get("data", {})
-                title = v.get("title", "")
-                body = v.get("selftext", "")
-                text = title + " " + body
-                
-                # Must be hiring
-                if not HIRING_RE.search(text):
-                    continue
-                
-                # Skip "for hire" freelancers
-                if BAD_RE.search(title):
-                    continue
-                
-                # Filter by query
-                if query:
-                    qwords = [w.lower() for w in re.split(r"[,\s]+", query) if len(w) > 2]
-                    if qwords and not any(w in text.lower() for w in qwords):
-                        continue
-                
-                permalink = v.get("permalink", "")
-                results.append({
-                    "title": title[:180],
-                    "platform": "Reddit",
-                    "url": "https://reddit.com" + permalink,
-                    "score": 75
-                })
-        except:
-            continue
-    
-    results.sort(key=lambda x: x["score"], reverse=True)
-    return results[:limit]
-
-
-def search_remoteok(query="", limit=10):
-    results = []
-    try:
-        r = requests.get("https://remoteok.com/api", timeout=10, headers={"User-Agent": "Mozilla/5.0"})
-        data = r.json()
-        items = data[1:] if isinstance(data, list) else []
-        for job in items:
-            title = job.get("position") or ""
-            url = job.get("url") or ""
-            if url and not url.startswith("http"): url = "https://remoteok.com/" + url
-            desc = job.get("description") or ""
-            text = (title + " " + desc).lower()
+        r = requests.get("https://www.arbeitnow.com/api/job-board-api", timeout=10, headers=UA)
+        for job in r.json().get("data", []):
+            t = job.get("title", ""); text = (t + " " + (job.get("description") or "")).lower()
             if query:
                 ws = [w.lower() for w in re.split(r"[,\s]+", query) if len(w) > 2]
                 if ws and not any(w in text for w in ws): continue
-            if title and url: results.append({"title": title[:180], "platform": "RemoteOK", "url": url, "score": 85})
+            if t: out.append({"title": t[:180], "platform": "Arbeitnow", "url": job.get("url", ""), "score": 85})
     except Exception: pass
-    return results[:limit]
+    return out[:limit]
+
+def search_reed(query="", limit=10):
+    out = []
+    try:
+        r = requests.get("https://www.reed.co.uk/api/1.0/search?keywords=" + urllib.parse.quote(query or "hiring"), timeout=10, headers=UA)
+        for job in r.json().get("results", [])[:limit]:
+            t = job.get("jobTitle", "")
+            if t: out.append({"title": t[:180], "platform": "Reed", "url": job.get("jobUrl", ""), "score": 80})
+    except Exception: pass
+    return out[:limit]
+
+def search_reddit(query="", limit=15):
+    out = []
+    for sub in ["forhire", "Jobs", "WorkOnline", "slavelabour", "freelance", "HireAFreelancer"]:
+        try:
+            r = requests.get(f"https://www.reddit.com/r/{sub}/new.json", params={"limit": 25, "raw_json": 1}, headers=UA, timeout=8)
+            if r.status_code != 200: continue
+            for c in r.json().get("data", {}).get("children", []):
+                v = c.get("data", {}); title = v.get("title", ""); body = v.get("selftext", "")
+                text = title + " " + body
+                if not HIRING_RE.search(text) or BAD_RE.search(title): continue
+                if query:
+                    ws = [w.lower() for w in re.split(r"[,\s]+", query) if len(w) > 2]
+                    if ws and not any(w in text.lower() for w in ws): continue
+                out.append({"title": title[:180], "platform": "Reddit", "url": "https://reddit.com" + v.get("permalink", ""), "score": 75, "author": v.get("author", "")})
+        except Exception: continue
+    return out[:limit]
+
+def search_remoteok(query="", limit=10):
+    out = []
+    try:
+        r = requests.get("https://remoteok.com/api", timeout=10, headers=UA)
+        data = r.json(); items = data[1:] if isinstance(data, list) else []
+        for job in items:
+            t = job.get("position") or ""; u = job.get("url") or ""
+            if u and not u.startswith("http"): u = "https://remoteok.com/" + u
+            text = (t + " " + (job.get("description") or "")).lower()
+            if query:
+                ws = [w.lower() for w in re.split(r"[,\s]+", query) if len(w) > 2]
+                if ws and not any(w in text for w in ws): continue
+            if t and u: out.append({"title": t[:180], "platform": "RemoteOK", "url": u, "score": 85})
+    except Exception: pass
+    return out[:limit]
 
 def search_hn(query="", limit=8):
-    results = []
+    out = []
     try:
         ts = int(time.time()) - 30*86400
         q = urllib.parse.quote((query + " hiring").strip())
-        r = requests.get(f"https://hn.algolia.com/api/v1/search_by_date?query={q}&tags=story&numericFilters=created_at_i>{ts}", timeout=10, headers={"User-Agent": "Mozilla/5.0"})
+        r = requests.get(f"https://hn.algolia.com/api/v1/search_by_date?query={q}&tags=story&numericFilters=created_at_i>{ts}", timeout=10, headers=UA)
         for h in r.json().get("hits", []):
-            t2 = h.get("title") or ""; u2 = h.get("url") or ""
-            if t2 and u2 and HIRING_RE.search(t2) and not BAD_RE.search(t2):
-                results.append({"title": t2[:180], "platform": "HackerNews", "url": u2, "score": 75})
+            t = h.get("title") or ""; u = h.get("url") or ""
+            if t and u and HIRING_RE.search(t) and not BAD_RE.search(t):
+                out.append({"title": t[:180], "platform": "HackerNews", "url": u, "score": 75})
     except Exception: pass
-    return results[:limit]
+    return out[:limit]
 
-def search_indeed(query="", limit=10):
-    results = []
+FEEDS = [
+ ("WeWorkRemotely-Programming","https://weworkremotely.com/categories/remote-programming-jobs.rss"),
+ ("WeWorkRemotely-Design","https://weworkremotely.com/categories/remote-design-jobs.rss"),
+ ("WeWorkRemotely-Marketing","https://weworkremotely.com/categories/remote-marketing-jobs.rss"),
+ ("WeWorkRemotely-Support","https://weworkremotely.com/categories/remote-customer-support-jobs.rss"),
+ ("WeWorkRemotely-Sales","https://weworkremotely.com/categories/remote-sales-jobs.rss"),
+ ("WeWorkRemotely-Product","https://weworkremotely.com/categories/remote-product-jobs.rss"),
+ ("WeWorkRemotely-Management","https://weworkremotely.com/categories/remote-management-jobs.rss"),
+ ("WeWorkRemotely-Finance","https://weworkremotely.com/categories/remote-finance-jobs.rss"),
+ ("Jobspresso","https://jobspresso.co/jobs/feed/"),
+ ("WorkingNomads","https://www.workingnomads.com/feed/jobs"),
+ ("RemoteCo","https://remote.co/jobs/feed/"),
+ ("Indeed-Hiring","https://www.indeed.com/rss?q=hiring"),
+ ("Indeed-Remote","https://www.indeed.com/rss?q=remote+work"),
+]
+FEEDS2 = [
+ ("Indeed-Cleaning","https://www.indeed.com/rss?q=cleaning"),
+ ("Indeed-Design","https://www.indeed.com/rss?q=graphic+design"),
+ ("Indeed-Writing","https://www.indeed.com/rss?q=content+writing"),
+ ("Indeed-Assistant","https://www.indeed.com/rss?q=virtual+assistant"),
+ ("Indeed-Developer","https://www.indeed.com/rss?q=developer"),
+ ("Indeed-Data","https://www.indeed.com/rss?q=data+entry"),
+ ("Indeed-Driver","https://www.indeed.com/rss?q=driver"),
+ ("Indeed-Teacher","https://www.indeed.com/rss?q=teacher"),
+]
+ALL_FEEDS = FEEDS + FEEDS2
+SOURCE_NAMES = [n for n,_ in ALL_FEEDS] + ["Remotive","RemoteOK","Arbeitnow","Reed","HackerNews","Reddit-forhire","Reddit-Jobs","Reddit-WorkOnline","Reddit-SlaveLabour","Reddit-freelance","Reddit-HireAFreelancer"]
+
+def parse_rss(name, url, query="", limit=3):
+    out = []
     try:
-        r = requests.get("https://www.indeed.com/rss?q=" + urllib.parse.quote(query or "hiring"), timeout=10, headers={"User-Agent": "Mozilla/5.0"})
+        r = requests.get(url, timeout=8, headers=UA)
         soup = BeautifulSoup(r.content, "html.parser")
         for item in soup.find_all("item")[:limit]:
-            t2 = item.find("title").text if item.find("title") else ""
-            u2 = item.find("link").text if item.find("link") else ""
-            if t2 and u2: results.append({"title": t2[:180], "platform": "Indeed", "url": u2, "score": 80})
+            t = item.find("title").text if item.find("title") else ""
+            u = item.find("link").text if item.find("link") else ""
+            if not t or not u: continue
+            if query:
+                ws = [w.lower() for w in re.split(r"[,\s]+", query) if len(w) > 2]
+                if ws and not any(w in t.lower() for w in ws): continue
+            out.append({"title": t[:180], "platform": name, "url": u, "score": 80})
     except Exception: pass
-    return results[:limit]
+    return out
+
+def search_feeds(query="", limit=30):
+    out = []
+    for name, url in ALL_FEEDS:
+        out.extend(parse_rss(name, url, query, 2))
+    return out[:limit]
 
 def search_hiring(query="", limit=25):
-    """Main search: combines multiple sources."""
     results = []
-    
-    # Try each source
-    results.extend(search_remotive(query, limit=10))
-    results.extend(search_arbeitnow(query, limit=10))
-    results.extend(search_reed(query, limit=10))
-    results.extend(search_reddit(query, limit=15))
-    results.extend(search_remoteok(query, limit=10))
-    results.extend(search_hn(query, limit=8))
-    results.extend(search_indeed(query, limit=10))
-    
-    # Deduplicate by URL
-    seen = set()
-    clean = []
+    results.extend(search_remotive(query, 10))
+    results.extend(search_arbeitnow(query, 8))
+    results.extend(search_reed(query, 8))
+    results.extend(search_reddit(query, 15))
+    results.extend(search_remoteok(query, 8))
+    results.extend(search_hn(query, 6))
+    results.extend(search_feeds(query, 30))
+    seen = set(); clean = []
     for r in results:
-        key = r.get("url", "")
-        if not key or key in seen:
-            continue
-        seen.add(key)
-        clean.append(r)
-    
+        k = r.get("url", "")
+        if not k or k in seen: continue
+        seen.add(k); clean.append(r)
     clean.sort(key=lambda x: x["score"], reverse=True)
     return clean[:limit]
