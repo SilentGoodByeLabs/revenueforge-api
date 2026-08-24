@@ -1,18 +1,18 @@
 <!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Pricing — RevenueForge</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet"><style>
-body{margin:0;font-family:Inter,sans-serif;background:#F4F6FA;color:#0B2239;padding:40px 16px}
-h1{font-family:Sora;text-align:center}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;max-width:900px;margin:30px auto}
-.card{background:#fff;border:1px solid #E2E8F0;border-radius:16px;padding:28px}
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>body{margin:0;font-family:Inter;background:#F4F6FA;padding:40px 16px}h1{font-family:Sora;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:1000px;margin:30px auto}
+.card{background:#fff;border:1px solid #E2E8F0;border-radius:16px;padding:26px}
 .card.pro{border:2px solid #2563EB}
-.price{font-family:Sora;font-size:2rem;font-weight:800;margin:10px 0}
-ul{margin:16px 0;padding-left:20px;line-height:2}
-.btn{display:block;text-align:center;background:#2563EB;color:#fff;border:0;border-radius:10px;padding:13px;font-weight:700;text-decoration:none}
-</style></head><body>
-<h1>Simple pricing</h1>
+h2{font-family:Sora;margin:0}.price{font-family:Sora;font-size:2rem;font-weight:800;margin:10px 0}
+ul{padding-left:18px;line-height:1.9;color:#334155}
+button{width:100%;background:#2563EB;color:#fff;border:0;border-radius:10px;padding:13px;font-weight:700;cursor:pointer}
+.muted{color:#64748B;font-size:.85rem}</style></head><body>
+<h1>Simple pricing. Real work.</h1>
 <div class="grid">
- <div class="card"><h2>Free</h2><div class="price">$0</div><ul><li>3 job matches / day</li><li>Manual proposals</li><li>Publish services to marketplace</li><li>One-tap social sharing</li></ul><a class="btn" href="signup.html">Start free</a></div>
- <div class="card pro"><h2>Pro ⚡</h2><div class="price">$19/mo</div><ul><li>Unlimited matches on 30+ platforms</li><li>Telegram & WhatsApp job alerts</li><li>Auto-advertise on 20+ platforms</li><li>Priority autonomous engine</li><li>Profile/message/follow tools</li></ul><a class="btn" href="login.html">Upgrade with Paystack</a></div>
+<div class="card"><h2>Starter</h2><div class="price">Free</div><ul><li>24-hour trial</li><li>5 job results per search</li><li>No publishing / selling</li><li>No alerts / auto-advertise</li></ul><button onclick="location.href='signup.html'">Start free trial</button></div>
+<div class="card pro"><h2>Pro ⚡</h2><div class="price">$19<span class="muted">/mo</span></div><ul><li>Unlimited matches — 30+ sources worldwide</li><li>Publish & sell on marketplace</li><li>Telegram job & sale alerts</li><li>Auto-advertise on 20+ platforms</li><li>Priority autonomous engine</li></ul><button onclick="location.href='signup.html?plan=pro'">Go Pro</button></div>
+<div class="card"><h2>Growth</h2><div class="price">$49<span class="muted">/mo</span></div><ul><li>Everything in Pro</li><li>WhatsApp alerts (connected Twilio)</li><li>Priority engine runs</li></ul><button onclick="location.href='signup.html?plan=growth'">Go Growth</button></div>
 </div>
-<p style="text-align:center;color:#64748B">Secure payments via <b>Paystack</b>. Pro unlocks instantly after payment — no manual steps.</p>
+<p class="muted" style="text-align:center">One free trial per device/IP — extra accounts from the same IP are flagged. Selling, alerts & auto-advertising are paid features.</p>
 </body></html>

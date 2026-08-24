@@ -45,6 +45,53 @@ print("✅ Database tables created at import time")
 
 
 
+# STRICT_FIRST
+
+@app.get("/api/my/products")
+async def my_products(email: str = ""):
+    from app.core.models import SubscriberProduct, Product
+    if not email: return {"ok": True, "products": []}
+    s = SessionLocal()
+    try:
+        owner_names = set()
+        try: owner_names = {r.name for r in s.query(Product).all()}
+        except Exception: pass
+        rows = s.query(SubscriberProduct).filter_by(owner_email=email).order_by(SubscriberProduct.id.desc()).all()
+        rows = [r for r in rows if r.name not in owner_names]
+        return {"ok": True, "products": [{"id": r.id, "name": r.name, "price": r.price, "description": r.description or "", "image": getattr(r, "image_url", "") or "", "contact_method": getattr(r, "contact_method", "") or "email", "contact_value": getattr(r, "contact_value", "") or email} for r in rows]}
+    finally:
+        s.close()
+
+@app.post("/api/my/products")
+async def my_add_product(request: Request):
+    from app.core.models import SubscriberProduct
+    p = await request.json()
+    email = p.get("email", "")
+    sub = await _sub_info(email, None)
+    if not sub["paid"]:
+        return {"ok": False, "error": "Publishing & selling is a Pro feature - upgrade in Plan & Billing."}
+    s = SessionLocal()
+    try:
+        row = SubscriberProduct(owner_email=email, name=p.get("name", ""), price=p.get("price", 0), description=p.get("description", ""), status="active")
+        for k in ["image_url", "video_url", "contact_method", "contact_value"]:
+            if hasattr(row, k): setattr(row, k, p.get(k, ""))
+        s.add(row); s.commit()
+        return {"ok": True, "id": row.id}
+    finally:
+        s.close()
+
+@app.post("/api/my/products/{pid}/delete")
+async def my_delete_product(pid: int, email: str = ""):
+    from app.core.models import SubscriberProduct
+    s = SessionLocal()
+    try:
+        row = s.query(SubscriberProduct).filter_by(id=pid, owner_email=email).first()
+        if not row: return {"ok": False, "error": "not yours"}
+        s.delete(row); s.commit()
+        return {"ok": True}
+    finally:
+        s.close()
+
 @app.get("/")
 def home(request: Request):
     s = SessionLocal()
