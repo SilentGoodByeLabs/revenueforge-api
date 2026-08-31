@@ -103,11 +103,12 @@ footer .b{font-family:'Sora';font-weight:800}footer .b b{color:var(--accent)}foo
     <label>Contact method</label><select id="sv_cm"><option>whatsapp</option><option>telegram</option><option>email</option><option>phone</option></select>
     <label>Contact value (number/username/email)</label><input id="sv_cv" placeholder="+your country code… or @username or email">
     <button class="btn btn-p" id="pubBtn" style="margin-top:18px"><i class="fa-solid fa-floppy-disk"></i> Publish service</button>
+<p class="muted" style="margin-top:12px">Publishing advertises your service automatically: live on the public Marketplace + posted to Telegram (Pro) + a ready ad pack for 30+ platforms.</p>
   </div>
   <div class="card"><h2>Published services</h2><div id="servBody" class="muted">Loading…</div></div></div>
 <div id="view-social" style="display:none"><div class="crumbs">Dashboard / Social Selling</div><h1>Social Selling</h1>
   <div class="card"><h2><i class="fa-solid fa-share-nodes"></i> One-tap selling posts</h2>
-  <p class="muted">Pick a service — the caption is written for you.</p>
+  <p class="muted">This is how buyers find you OUTSIDE the marketplace. Pick a service — the caption is written for you; one tap shares it on that platform.</p>
   <select id="socSel" style="margin-top:10px"></select>
   <div class="pgrid" style="grid-template-columns:repeat(4,1fr);margin-top:16px">
     <button class="plat" data-spl="WA">WhatsApp</button><button class="plat" data-spl="TG">Telegram</button>
@@ -204,7 +205,7 @@ function share(p,s){var c=cap(s);var mk='https://silentgoodbyelabs.github.io/rev
  else if(p==='TG')u='https://t.me/share/url?url='+encodeURIComponent(mk)+'&text='+encodeURIComponent(c);
  else if(p==='Reddit')u='https://www.reddit.com/submit?title='+encodeURIComponent(c);
  else if(p==='Pin')u='https://pinterest.com/pin/create/button/?description='+encodeURIComponent(c);
- if(u)window.open(u,'_blank');else{if(navigator.clipboard)navigator.clipboard.writeText(c);alert('Caption copied for '+p+' — paste in the app.');}}
+ SHARE_URL=u; $('shareTitle').textContent='Share on '+p; $('shareTxt').value=c; $('shareHelp').textContent=(p==='WA'||p==='TG')?'This opens '+p+' with your ad already written. Choose your status, a channel, or a contact — then tap send. It posts from YOUR account.':('This opens '+p+' with your ad ready. Tap post / share.'); $('shareModal').style.display='block';}
 $('pubBtn').addEventListener('click',function(){if(window.SUB&&!SUB.paid){alert('Publishing & selling is a Pro feature — see Plan & Billing.');go('plan');return;} var img=$('sv_img').files[0];function fin(iu){fetch(API+'/api/my/products',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,name:$('sv_name').value,price:$('sv_price').value,description:$('sv_desc').value,image_url:iu,contact_method:$('sv_cm').value,contact_value:$('sv_cv').value||sess.email})}).then(function(r){return r.json();}).then(function(d){if(d.ok){alert('✓ Published — live on marketplace');loadServ();}else alert('Error');}).catch(function(){alert('Error');});}
  if(img){var fd=new FormData();fd.append('file',img);fetch('https://file.io',{method:'POST',body:fd}).then(function(r){return r.json();}).then(function(d){fin(d.link||'');}).catch(function(){fin('');});}else fin('');});
 function loadServ(){fetch(API+'/api/my/products?email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){SERVICES=d.products||[];if(!SERVICES.length){$('servBody').innerHTML='No services yet.';return;}

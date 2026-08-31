@@ -1969,6 +1969,20 @@ async def advertise_service(request: Request):
     actions.append("20+ platform ad pack copied (one tap each)")
     return {"ok": True, "actions": actions}
 
+def _rf_clean_owner_copy():
+    # removes private products the loop copied into the customer marketplace (admin only)
+    try:
+        from app.core.models import SubscriberProduct
+        s = SessionLocal()
+        try:
+            for r in s.query(SubscriberProduct).filter_by(owner_email="admin@gmail.com").all():
+                s.delete(r)
+            s.commit(); print("CLEAN_OWNER_COPY done")
+        finally:
+            s.close()
+    except Exception as e:
+        print("clean skip:", e)
+
 def _rf_migrate():
     try:
         from sqlalchemy import inspect, text
@@ -1984,4 +1998,5 @@ def _rf_migrate():
                 if "trial_expires" not in cols: conn.execute(text("ALTER TABLE " + tn + " ADD COLUMN trial_expires VARCHAR DEFAULT ''"))
     except Exception as e:
         print("migrate skip:", e)
+_rf_clean_owner_copy()
 _rf_migrate()
