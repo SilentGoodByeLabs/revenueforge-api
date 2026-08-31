@@ -44,7 +44,8 @@ label{display:block;margin-top:14px;font-weight:600;font-size:.85rem;color:var(-
 footer{background:#0B2239;color:#fff;padding:26px 18px;margin-top:30px}
 footer .b{font-family:'Sora';font-weight:800}footer .b b{color:var(--accent)}footer p{color:#A9BBD0;font-size:.9rem;margin-top:8px}
 .svc{border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
-</style></head><body>
+</style><script src="https://js.paystack.co/v1/inline.js"></script>
+</head><body>
 <header class="hdr"><div class="brand"><i class="fa-solid fa-shield-halved"></i>Revenue<b>Forge</b></div><button id="burger2"><i class="fa-solid fa-bars"></i></button></header>
 <div class="dashbar"><button id="burger"><i class="fa-solid fa-bars"></i></button> RevenueForge Dashboard</div>
 <aside id="side">
@@ -100,7 +101,7 @@ footer .b{font-family:'Sora';font-weight:800}footer .b b{color:var(--accent)}foo
     <label>Image (optional)</label><input id="sv_img" type="file" accept="image/*">
     <label>Video (optional)</label><input id="sv_vid" type="file" accept="video/*">
     <label>Contact method</label><select id="sv_cm"><option>whatsapp</option><option>telegram</option><option>email</option><option>phone</option></select>
-    <label>Contact value (number/username/email)</label><input id="sv_cv" placeholder="+234… or @username or email">
+    <label>Contact value (number/username/email)</label><input id="sv_cv" placeholder="+your country code… or @username or email">
     <button class="btn btn-p" id="pubBtn" style="margin-top:18px"><i class="fa-solid fa-floppy-disk"></i> Publish service</button>
   </div>
   <div class="card"><h2>Published services</h2><div id="servBody" class="muted">Loading…</div></div></div>
@@ -115,8 +116,8 @@ footer .b{font-family:'Sora';font-weight:800}footer .b b{color:var(--accent)}foo
 <div id="view-plan" style="display:none"><div class="crumbs">Dashboard / Plan</div><h1>Plan & Billing</h1>
   <div class="card"><h3>Your current plan</h3><p class="muted" id="planNow">Loading…</p></div>
   <div class="card"><h3>Starter — Free trial</h3><div style="font-family:Sora;font-size:1.6rem;font-weight:800">$0</div><ul style="margin-left:18px;line-height:1.9;color:#334155"><li>24-hour trial</li><li>5 job results per search</li><li>No publishing / selling</li><li>No alerts / auto-advertise</li></ul></div>
-  <div class="card" style="border:2px solid var(--accent)"><h3>Pro ⚡</h3><div style="font-family:Sora;font-size:1.6rem;font-weight:800">$19/mo</div><ul style="margin-left:18px;line-height:1.9;color:#334155"><li>Unlimited matches on 30+ platforms</li><li>Publish & sell on marketplace</li><li>Telegram job & sale alerts</li><li>Auto-advertise on 20+ platforms</li><li>Priority autonomous engine</li></ul></div>
-  <div class="card"><h3>Growth</h3><div style="font-family:Sora;font-size:1.6rem;font-weight:800">$49/mo</div><ul style="margin-left:18px;line-height:1.9;color:#334155"><li>Everything in Pro</li><li>WhatsApp alerts (connected Twilio)</li><li>Priority engine runs</li></ul></div>
+  <div class="card" style="border:2px solid var(--accent)"><h3>Pro ⚡</h3><div style="font-family:Sora;font-size:1.6rem;font-weight:800">$19/mo</div><ul style="margin-left:18px;line-height:1.9;color:#334155"><li>Unlimited matches on 30+ platforms</li><li>Publish & sell on marketplace</li><li>Telegram job & sale alerts</li><li>Auto-advertise on 20+ platforms</li><li>Priority autonomous engine</li></ul><button class="btn btn-p" id="buyPro" style="margin-top:12px"><i class="fa-solid fa-bolt"></i> Upgrade now — $19/mo</button></div>
+  <div class="card"><h3>Growth</h3><div style="font-family:Sora;font-size:1.6rem;font-weight:800">$49/mo</div><ul style="margin-left:18px;line-height:1.9;color:#334155"><li>Everything in Pro</li><li>WhatsApp alerts (connected Twilio)</li><li>Priority engine runs</li></ul><button class="btn btn-p" id="buyGrowth" style="margin-top:12px">Go Growth — $49/mo</button></div>
   <div class="card"><h3>Activate an upgrade code</h3><input id="codeIn" placeholder="e.g. P-ABC12345"><button class="btn btn-p" id="redeemBtn" style="margin-top:12px">Activate</button></div></div>
 <div id="view-set" style="display:none"><div class="crumbs">Dashboard / Settings</div><h1>Settings & Alerts</h1>
   <div class="card"><p class="muted">Account: <b id="setEmail"></b></p>
@@ -232,5 +233,21 @@ $('redeemBtn').addEventListener('click',function(){fetch(API+'/api/redeem',{meth
 $('alertBtn').addEventListener('click',function(){if(window.SUB&&!SUB.paid){alert('Alerts are a Pro feature — see Plan & Billing.');go('plan');return;} sv('rf_alerts',{wa:$('wa').value,tg:$('tg').value});fetch(API+'/api/save-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,telegram:$('tg').value,whatsapp:$('wa').value})}).catch(function(){});alert('✓ Alerts saved');});
 (function(){var a=ls('rf_alerts',null);if(a){$('wa').value=a.wa||'';$('tg').value=a.tg||'';}})();
 $('outBtn').addEventListener('click',function(){sessionStorage.removeItem('rf_session');location.href='login.html';});
+function pay(planName, amount){
+  fetch(API+'/api/paystack/key').then(function(r){return r.json();}).then(function(d){
+    if(!d.key){alert('Payment keys not configured yet.');return;}
+    var h=PaystackPop.setup({key:d.key,email:sess.email,amount:amount*100,currency:'USD',metadata:{plan:planName},ref:'RF_'+Date.now(),
+      callback:function(resp){
+        fetch(API+'/api/paystack/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({reference:resp.reference,email:sess.email})})
+        .then(function(r){return r.json();}).then(function(v){
+          if(v.ok){alert('✓ Payment confirmed — welcome to '+v.plan+'! Everything unlocked.');loadPlan();}
+          else alert('Payment verification failed — contact support.');
+        });
+      },onClose:function(){}});
+    h.openIframe();
+  });
+}
+if($('buyPro'))$('buyPro').addEventListener('click',function(){pay('Pro',19);});
+if($('buyGrowth'))$('buyGrowth').addEventListener('click',function(){pay('Growth',49);});
 var hv=(location.hash||'').replace('#','');var valid=['ov','eng','jobs','serv','social','pros','ana','plan','set','help'];go(valid.indexOf(hv)>=0?hv:'ov');
 </script></body></html>

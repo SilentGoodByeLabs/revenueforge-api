@@ -55,7 +55,7 @@ function s5(){show('<div class="card row"><div><b>My Engine</b><br><span class="
  setTimeout(s6,4500);}
 function s6(){show('<div class="card"><b>Web scraping engineer</b> <span class="badge">78%</span><div class="mut" style="margin:6px 0">RemoteOK · proposal ready</div><div class="btn" id="ap" style="margin:0">Approve & Submit</div></div>','Every match gets a written proposal — approve & submit.');
  setTimeout(function(){var b=document.getElementById('ap');if(b){b.outerHTML='<span class="badge green">✓ Submitted</span>';};},1800);setTimeout(s7,4000);}
-function s7(){show('<div class="card"><b>🛒 OCR Automation Service</b> <span class="badge green">live</span><div class="mut" style="margin:6px 0">contact: WhatsApp +234…</div><div class="btn" style="margin:0">📢 Advertise Now</div></div><div class="card"><div id="p"></div></div>','Publish once — advertised everywhere. Buyers message you directly.');
+function s7(){show('<div class="card"><b>🛒 OCR Automation Service</b> <span class="badge green">live</span><div class="mut" style="margin:6px 0">contact: WhatsApp +…</div><div class="btn" style="margin:0">📢 Advertise Now</div></div><div class="card"><div id="p"></div></div>','Publish once — advertised everywhere. Buyers message you directly.');
  document.getElementById('p').innerHTML=P.map(function(x){return '<span class="plat">'+x+'</span>';}).join('');
  var i=0;var t=setInterval(function(){var el=document.querySelectorAll('.plat')[i];if(el)el.classList.add('on');if(++i>=P.length)clearInterval(t);},120);
  setTimeout(s8,4500);}

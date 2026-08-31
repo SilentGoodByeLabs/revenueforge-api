@@ -26,7 +26,8 @@ th{background:#0B2239;color:#fff;font-family:Sora}
 .faq h3{font-family:Sora}
 .faq p{color:#64748B}
 footer{background:#0B2239;color:#A9BBD0;text-align:center;padding:24px;font-size:.85rem;margin-top:40px}
-</style></head><body>
+</style><script src="https://js.paystack.co/v1/inline.js"></script>
+</head><body>
 <header><div style="font-family:Sora;font-weight:800">Revenue <b>Forge</b></div><a href="login.html" style="color:#fff;text-decoration:none;font-weight:700">Log in</a></header>
 <div class="hero"><h1>Choose your plan. Start earning.</h1><p>One free trial per device/IP. Cancel anytime. 7-day money-back guarantee on paid plans.</p>
 <div class="toggle"><button class="on" id="mBtn">Monthly</button><button id="yBtn">Yearly (2 months free)</button></div></div>
@@ -36,10 +37,10 @@ footer{background:#0B2239;color:#A9BBD0;text-align:center;padding:24px;font-size
 <button class="cta" onclick="location.href='signup.html'">Start free trial</button></div>
 <div class="card pro"><div class="tag">MOST POPULAR</div><h2>Pro ⚡</h2><div class="price" data-m="$19" data-y="$190">$19<span> /mo</span></div>
 <ul><li><i class="fa-solid fa-check"></i>Unlimited matches — 30+ sources worldwide</li><li><i class="fa-solid fa-check"></i>Publish & sell on marketplace</li><li><i class="fa-solid fa-check"></i>Telegram job & sale alerts</li><li><i class="fa-solid fa-check"></i>Auto-advertise on 20+ platforms</li><li><i class="fa-solid fa-check"></i>Priority autonomous engine</li></ul>
-<button class="cta" onclick="location.href='signup.html?plan=pro'">Go Pro</button></div>
+<button class="cta" onclick="buyPlan('Pro',19)">Go Pro</button></div>
 <div class="card"><h2>Growth</h2><div class="price" data-m="$49" data-y="$490">$49<span> /mo</span></div>
 <ul><li><i class="fa-solid fa-check"></i>Everything in Pro</li><li><i class="fa-solid fa-check"></i>WhatsApp alerts (connected Twilio)</li><li><i class="fa-solid fa-check"></i>Priority engine runs</li><li><i class="fa-solid fa-check"></i>All-platform ad automation</li></ul>
-<button class="cta" onclick="location.href='signup.html?plan=growth'">Go Growth</button></div>
+<button class="cta" onclick="buyPlan('Growth',49)">Go Growth</button></div>
 </div>
 <table>
 <tr><th>Feature</th><th>Starter</th><th>Pro</th><th>Growth</th></tr>
@@ -63,4 +64,22 @@ var m=document.getElementById('mBtn'),y=document.getElementById('yBtn');
 function setT(yearly){m.classList.toggle('on',!yearly);y.classList.toggle('on',yearly);
  document.querySelectorAll('.price').forEach(function(p){var v=yearly?p.getAttribute('data-y'):p.getAttribute('data-m');p.innerHTML=v+'<span> '+(yearly?'/yr':'/mo')+'</span>';});}
 m.onclick=function(){setT(false);};y.onclick=function(){setT(true);};
+</script><script>
+var API='https://revenueforge-api.onrender.com';
+function buyPlan(plan,amt){
+  var sess={};try{sess=JSON.parse(sessionStorage.getItem('rf_session')||'{}');}catch(e){}
+  if(!sess.email){location.href='signup.html?plan='+plan.toLowerCase();return;}
+  fetch(API+'/api/paystack/key').then(function(r){return r.json();}).then(function(d){
+    if(!d.key){alert('Payment keys not configured yet.');return;}
+    var h=PaystackPop.setup({key:d.key,email:sess.email,amount:amt*100,currency:'USD',metadata:{plan:plan},ref:'RF_'+Date.now(),
+      callback:function(resp){
+        fetch(API+'/api/paystack/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({reference:resp.reference,email:sess.email})})
+        .then(function(r){return r.json();}).then(function(v){
+          if(v.ok){alert('✓ Payment confirmed — welcome to '+v.plan+'!');location.href='portal.html?authed='+encodeURIComponent(sess.email)+'#plan';}
+          else alert('Verification failed.');
+        });
+      },onClose:function(){}});
+    h.openIframe();
+  });
+}
 </script></body></html>

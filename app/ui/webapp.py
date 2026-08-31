@@ -1918,3 +1918,63 @@ async def owner_flagged():
         return {"ok": True, "accounts": [{"email": r.email, "ip": getattr(r, "ip", ""), "plan": getattr(r, "plan", "Free")} for r in s.query(Subscriber).filter_by(flagged="1").all()]}
     finally:
         s.close()
+
+def _ps_secret():
+    import os
+    return os.environ.get("PAYSTACK_SECRET_KEY") or os.environ.get("PAYSTACK_SECRET") or os.environ.get("PAYSTACK_SK") or ""
+
+@app.get("/api/paystack/key")
+async def paystack_key():
+    import os
+    k = os.environ.get("PAYSTACK_PUBLIC_KEY") or os.environ.get("PAYSTACK_PUBLIC") or ""
+    found = [n for n in os.environ.keys() if "PAY" in n.upper() or "STACK" in n.upper()]
+    return {"ok": True, "key": k, "found": found}
+
+@app.post("/api/paystack/init")
+async def paystack_init(request: Request):
+    import requests as _rq
+    p = await request.json()
+    email = p.get("email", ""); amount = float(p.get("amount", 0)); plan = p.get("plan", "Pro")
+    secret = _ps_secret()
+    if not secret: return {"ok": False, "error": "Payment keys not configured on server"}
+    hdr = {"Authorization": "Bearer " + secret}
+    body = {"email": email, "metadata": {"plan": plan}, "callback_url": "https://silentgoodbyelabs.github.io/revenueforge/portal.html"}
+    for cur, mult in [("USD", 100), ("NGN", 160000)]:
+        try:
+            b2 = dict(body); b2["amount"] = int(amount * mult); b2["currency"] = cur
+            r = _rq.post("https://api.paystack.co/transaction/initialize", json=b2, headers=hdr, timeout=15)
+            d = r.json()
+            if d.get("status"):
+                return {"ok": True, "url": d["data"]["authorization_url"], "reference": d["data"]["reference"]}
+        except Exception:
+            continue
+    return {"ok": False, "error": "Could not start payment — check Paystack dashboard"}
+
+@app.post("/api/paystack/verify")
+async def paystack_verify(request: Request):
+    import requests as _rq
+    p = await request.json()
+    ref = p.get("reference", ""); email = p.get("email", "")
+    secret = _ps_secret()
+    if not secret or not ref: return {"ok": False, "error": "missing"}
+    try:
+        r = _rq.get("https://api.paystack.co/transaction/verify/" + ref, headers={"Authorization": "Bearer " + secret}, timeout=15)
+        d = r.json()
+    except Exception:
+        return {"ok": False, "error": "Verification failed"}
+    if d.get("status") and (d.get("data") or {}).get("status") == "success":
+        plan = "Pro"
+        meta = d["data"].get("metadata") or {}
+        if isinstance(meta, dict) and meta.get("plan"): plan = str(meta["plan"])
+        else:
+            amt = (d["data"].get("amount", 0) or 0) / 100.0
+            plan = "Pro" if amt < 4000 else "Growth"
+        from app.core.models import Subscriber
+        s = SessionLocal()
+        try:
+            row = s.query(Subscriber).filter_by(email=email).first()
+            if row: row.plan = plan; s.commit()
+        finally:
+            s.close()
+        return {"ok": True, "plan": plan}
+    return {"ok": False, "error": "Payment not successful"}
