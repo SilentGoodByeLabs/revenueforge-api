@@ -2004,3 +2004,15 @@ def _rf_migrate():
         print("migrate skip:", e)
 _rf_clean_owner_copy()
 _rf_migrate()
+
+@app.post("/api/my/products/{pid}/status")
+async def my_set_status(pid: int, email: str = "", status: str = "active"):
+    from app.core.models import SubscriberProduct
+    s = SessionLocal()
+    try:
+        row = s.query(SubscriberProduct).filter_by(id=pid, owner_email=email).first()
+        if not row: return {"ok": False, "error": "not yours"}
+        row.status = status; s.commit()
+        return {"ok": True, "status": status}
+    finally:
+        s.close()
