@@ -151,6 +151,18 @@ footer .b{font-family:'Sora';font-weight:800}footer .b b{color:var(--accent)}foo
   </div>
   <p class="muted" style="margin-top:10px">Submit & send = copies the proposal, opens the hirer's page, and drafts a pre-filled email when a contact email exists.</p>
  </div></div>
+
+<div id="shareModal" style="display:none;position:fixed;inset:0;background:rgba(11,34,57,.6);z-index:300;padding:20px;overflow:auto">
+ <div style="background:#fff;border-radius:14px;max-width:560px;margin:8vh auto;padding:20px">
+  <h3 id="shareTitle" style="font-family:Sora;margin-bottom:8px">Share</h3>
+  <p id="shareHelp" class="muted" style="margin-bottom:10px"></p>
+  <textarea id="shareTxt" rows="6" style="width:100%;border:1.5px solid #E2E8F0;border-radius:10px;padding:12px;font-size:13px"></textarea>
+  <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+   <button class="btn btn-p" id="shareOpen">Open & post</button>
+   <button class="btn btn-s" id="shareCopy">Copy instead</button>
+   <button class="btn btn-o" id="shareClose">Cancel</button>
+  </div>
+ </div></div>
 <script>
 var API='https://revenueforge-api.onrender.com';
 var sess={email:''};
@@ -172,9 +184,14 @@ document.querySelectorAll('.nav-i').forEach(function(b){b.addEventListener('clic
 document.querySelectorAll('[data-go]').forEach(function(b){b.addEventListener('click',function(){go(this.getAttribute('data-go'));});});
 $('burger').addEventListener('click',function(){$('side').classList.toggle('open');});
 $('burger2').addEventListener('click',function(){$('side').classList.toggle('open');});
-function loadOv(){$('setEmail').textContent=sess.email;fetch(API+'/api/sub/'+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){window.SUB=d;});var j=hasCfg()?ls('rf_jobs','[]'):[],ap=ls('rf_apps','[]'),pr=ls('rf_pros','[]');
+function loadOv(){$('setEmail').textContent=sess.email;
+ var j=hasCfg()?ls('rf_jobs','[]'):[],ap=ls('rf_apps','[]'),pr=ls('rf_pros','[]');
  $('kMat').textContent=j.length;$('kApps').textContent=ap.length;$('kPros').textContent=pr.length;
- $('brief').innerHTML='Today: <b>'+j.length+'</b> matches · <b>'+ap.length+'</b> proposals · <b>0</b> follow-ups due · plan: <b>Free</b> (3 matches). <a href="#" data-go="plan" style="color:var(--accent)">Upgrade for more →</a>';}
+ var due=pr.filter(function(x){return x.s==='Contacted'||x.s==='Replied';}).length;
+ fetch(API+'/api/sub/'+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){window.SUB=d;renderBrief(j.length,ap.length,due);}).catch(function(){renderBrief(j.length,ap.length,due);});}
+function renderBrief(m,a,due){var plan=(window.SUB&&window.SUB.plan)||'Free';var paid=window.SUB&&window.SUB.paid;
+ $('brief').innerHTML='Today: <b>'+m+'</b> matches · <b>'+a+'</b> proposals · <b>'+due+'</b> follow-ups due · plan: <b>'+plan+'</b>'+(paid?' — active':' (3 matches)')+'. <a href="#" id="briefUp" style="color:var(--accent)">Upgrade for more →</a>';
+ var l=$('briefUp');if(l)l.onclick=function(){go('plan');};}
 function loadEng(){var c=ls('rf_cfg',null);if(c){$('skills').value=c.skills||'';$('target').value=c.target||'';}engUI();}
 $('saveBtn').addEventListener('click',function(){sv('rf_cfg',{skills:$('skills').value,target:$('target').value});
  fetch(API+'/api/save-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,skills:$('skills').value,target:$('target').value})}).catch(function(){});
@@ -206,13 +223,14 @@ function share(p,s){var c=cap(s);var mk='https://silentgoodbyelabs.github.io/rev
  else if(p==='Reddit')u='https://www.reddit.com/submit?title='+encodeURIComponent(c);
  else if(p==='Pin')u='https://pinterest.com/pin/create/button/?description='+encodeURIComponent(c);
  SHARE_URL=u; $('shareTitle').textContent='Share on '+p; $('shareTxt').value=c; $('shareHelp').textContent=(p==='WA'||p==='TG')?'This opens '+p+' with your ad already written. Choose your status, a channel, or a contact — then tap send. It posts from YOUR account.':('This opens '+p+' with your ad ready. Tap post / share.'); $('shareModal').style.display='block';}
-$('pubBtn').addEventListener('click',function(){if(window.SUB&&!SUB.paid){alert('Publishing & selling is a Pro feature — see Plan & Billing.');go('plan');return;} var img=$('sv_img').files[0];function fin(iu){fetch(API+'/api/my/products',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,name:$('sv_name').value,price:$('sv_price').value,description:$('sv_desc').value,image_url:iu,contact_method:$('sv_cm').value,contact_value:$('sv_cv').value||sess.email})}).then(function(r){return r.json();}).then(function(d){if(d.ok){alert('✓ Published — live on marketplace');loadServ();}else alert('Error');}).catch(function(){alert('Error');});}
+$('pubBtn').addEventListener('click',function(){if(window.SUB&&!SUB.paid){alert('Publishing & selling is a Pro feature — see Plan & Billing.');go('plan');return;} var img=$('sv_img').files[0];function fin(iu){fetch(API+'/api/my/products',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,name:$('sv_name').value,price:$('sv_price').value,description:$('sv_desc').value,image_url:iu,contact_method:$('sv_cm').value,contact_value:$('sv_cv').value||sess.email})}).then(function(r){return r.json();}).then(function(d){if(d.ok){ if(window.SUB&&SUB.paid){ fetch(API+'/api/advertise-service',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,id:d.id})}).catch(function(){}); alert('✓ Published — advertising started (Marketplace live + Telegram queued + ad pack ready). Use Pause anytime.'); } else { alert('✓ Published — live on marketplace'); } loadServ(); }else alert(d.error||'Error');}).catch(function(){alert('Error');});}
  if(img){var fd=new FormData();fd.append('file',img);fetch('https://file.io',{method:'POST',body:fd}).then(function(r){return r.json();}).then(function(d){fin(d.link||'');}).catch(function(){fin('');});}else fin('');});
 function loadServ(){fetch(API+'/api/my/products?email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){SERVICES=d.products||[];if(!SERVICES.length){$('servBody').innerHTML='No services yet.';return;}
- $('servBody').innerHTML=SERVICES.map(function(p,i){return '<div class="svc"><div class="row" style="border:0;padding:0"><div><b>'+p.name+'</b> <span class="badge">live on marketplace</span></div><b>$'+p.price+'</b></div><p class="muted" style="margin:8px 0"><i class="fa-solid fa-mobile"></i> '+p.contact_method+': '+p.contact_value+'</p><p class="muted">Share on all platforms:</p><div class="pgrid">'+['X','FB','IG','in','WA','TG','TikTok','YT','Pin','Snap','Reddit'].map(function(pl){return '<button class="plat" data-i="'+i+'" data-p="'+pl+'">'+pl+'</button>';}).join('')+'</div><button class="btn btn-s" data-copy="'+i+'">Copy ads</button> <button class="btn btn-p" data-ad="'+i+'">Advertise</button> <button class="btn btn-d" data-del="'+p.id+'">Delete</button></div>';}).join('');
+ $('servBody').innerHTML=SERVICES.map(function(p,i){return '<div class="svc"><div class="row" style="border:0;padding:0"><div><b>'+p.name+'</b> '+((p.status||'active')==='paused'?'<span class="badge" style="background:#FEE;color:#DC2626">paused</span>':'<span class="badge">live on marketplace</span>')+'</div><b>$'+p.price+'</b></div><p class="muted" style="margin:8px 0"><i class="fa-solid fa-mobile"></i> '+p.contact_method+': '+p.contact_value+'</p><p class="muted">Share on all platforms:</p><div class="pgrid">'+['X','FB','IG','in','WA','TG','TikTok','YT','Pin','Snap','Reddit'].map(function(pl){return '<button class="plat" data-i="'+i+'" data-p="'+pl+'">'+pl+'</button>';}).join('')+'</div><button class="btn btn-s" data-copy="'+i+'">Copy ads</button> <button class="btn btn-p" data-ad="'+i+'">Advertise</button> <button class="btn btn-s" data-st="'+p.id+'" data-cur="'+(p.status||'active')+'">'+(((p.status||'active')==='paused')?'Resume':'Pause')+'</button> <button class="btn btn-d" data-del="'+p.id+'">Delete</button></div>';}).join('');
  $('servBody').querySelectorAll('.plat').forEach(function(b){b.addEventListener('click',function(){share(b.getAttribute('data-p'),SERVICES[+b.getAttribute('data-i')]);});});
  $('servBody').querySelectorAll('[data-copy]').forEach(function(b){b.addEventListener('click',function(){var s=SERVICES[+b.getAttribute('data-copy')];if(navigator.clipboard)navigator.clipboard.writeText(cap(s));alert('✓ Ads copied for all platforms');});});
  $('servBody').querySelectorAll('[data-ad]').forEach(function(b){b.addEventListener('click',function(){advertise(SERVICES[+b.getAttribute('data-ad')]);});});
+ $('servBody').querySelectorAll('[data-st]').forEach(function(b){b.addEventListener('click',function(){var ns=(b.getAttribute('data-cur')==='paused')?'active':'paused';fetch(API+'/api/my/products/'+b.getAttribute('data-st')+'/status?email='+encodeURIComponent(sess.email)+'&status='+ns,{method:'POST'}).then(function(){loadServ();});});});
  $('servBody').querySelectorAll('[data-del]').forEach(function(b){b.addEventListener('click',function(){if(!confirm('Delete this service?'))return;fetch(API+'/api/my/products/'+b.getAttribute('data-del')+'/delete?email='+encodeURIComponent(sess.email),{method:'POST'}).then(function(){loadServ();});});});}).catch(function(){$('servBody').innerHTML='Error loading.';});}
 function advertise(s){if(window.SUB&&!SUB.paid){alert('Auto-Advertise is a Pro feature — see Plan & Billing.');go('plan');return;}
  var c=cap(s);if(navigator.clipboard)navigator.clipboard.writeText(c);
