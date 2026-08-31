@@ -106,7 +106,18 @@ footer .b{font-family:'Sora';font-weight:800}footer .b b{color:var(--accent)}foo
   </div>
   <div class="card"><h2>Published services</h2><div id="servBody" class="muted">Loading…</div></div></div>
 <div id="view-social" style="display:none"><div class="crumbs">Dashboard / Social Selling</div><h1>Social Selling</h1>
-  <div class="card"><h2><i class="fa-solid fa-share-nodes"></i> One-tap selling posts</h2><p class="muted">The caption is written for you. Post anywhere, or copy for Instagram/TikTok.</p><div id="socialBody" style="margin-top:14px"></div></div></div>
+  <div class="card"><h2><i class="fa-solid fa-share-nodes"></i> One-tap selling posts</h2>
+  <p class="muted">Pick a service — the caption is written for you.</p>
+  <select id="socSel" style="margin-top:10px"></select>
+  <div class="pgrid" style="grid-template-columns:repeat(4,1fr);margin-top:16px">
+    <button class="plat" data-spl="WA">WhatsApp</button><button class="plat" data-spl="TG">Telegram</button>
+    <button class="plat" data-spl="X">X</button><button class="plat" data-spl="FB">Facebook</button>
+  </div>
+  <div class="pgrid" style="grid-template-columns:repeat(4,1fr)">
+    <button class="plat" data-spl="in">LinkedIn</button><button class="plat" data-spl="Pin">Pinterest</button>
+    <button class="plat" data-spl="Reddit">Reddit</button><button class="plat" data-spl="COPY">Copy caption</button>
+  </div>
+  <p class="muted" style="margin-top:10px">For Instagram & TikTok, use Copy caption and paste in the app.</p></div></div>
 <div id="view-pros" style="display:none"><div class="crumbs">Dashboard / Prospects</div><h1>Prospects & Follow-ups</h1>
   <div class="card"><h2><i class="fa-solid fa-user-plus"></i> Add a prospect</h2><input id="pr_name" placeholder="Company / person"><input id="pr_note" placeholder="Note" style="margin-top:12px"><button class="btn btn-p" id="prBtn" style="margin-top:14px">＋ Add prospect</button></div>
   <div class="card"><h3><i class="fa-solid fa-bell"></i> Due for follow-up</h3><div id="dueBody" class="muted">Nothing due.</div></div>
@@ -145,6 +156,7 @@ var sess={email:''};
 try{var u=new URLSearchParams(location.search);var a=u.get('authed')||u.get('email');if(a){sess={email:a};sessionStorage.setItem('rf_session',JSON.stringify(sess));}}catch(e){}
 if(!sess.email){try{sess=JSON.parse(sessionStorage.getItem('rf_session')||'{}');}catch(e){}}
 if(!sess.email){location.href='login.html';}
+(function(){var tr=new URLSearchParams(location.search).get('trxref')||new URLSearchParams(location.search).get('reference');if(tr){fetch(API+'/api/paystack/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({reference:tr,email:sess.email})}).then(function(r){return r.json();}).then(function(v){if(v.ok)alert('✓ Payment confirmed — welcome to '+v.plan+'! Everything unlocked.');});}})();
 function $(id){return document.getElementById(id);}
 function ls(k,d){try{return JSON.parse(localStorage.getItem(k+'::'+sess.email)||d);}catch(e){return d;}}
 function sv(k,v){localStorage.setItem(k+'::'+sess.email,JSON.stringify(v));}
@@ -208,10 +220,9 @@ function advertise(s){if(window.SUB&&!SUB.paid){alert('Auto-Advertise is a Pro f
  window.open(mk,'_blank');
  alert('✓ Advertising started on all included platforms (Marketplace + Telegram + 20+ ad pack copied). Buyers message you directly on '+s.contact_method+'. Pro gets alerts.');}
 
-function loadSocial(){if(!SERVICES.length)fetch(API+'/api/my/products?email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){SERVICES=d.products||[];renderSocial();});else renderSocial();}
-function renderSocial(){$('socialBody').innerHTML=SERVICES.length?SERVICES.map(function(s,i){return '<div style="margin-bottom:18px"><b>'+s.name+'</b><div class="pgrid">'+['X','FB','in','WA','TG'].map(function(pl){return '<button class="plat" data-i="'+i+'" data-p="'+pl+'">'+pl+'</button>';}).join('')+'</div><button class="btn btn-o" data-ig="'+i+'">Copy IG/TikTok</button></div>';}).join(''):'<p class="muted">Publish a service first.</p>';
- $('socialBody').querySelectorAll('.plat').forEach(function(b){b.addEventListener('click',function(){share(b.getAttribute('data-p'),SERVICES[+b.getAttribute('data-i')]);});});
- $('socialBody').querySelectorAll('[data-ig]').forEach(function(b){b.addEventListener('click',function(){if(navigator.clipboard)navigator.clipboard.writeText(cap(SERVICES[+b.getAttribute('data-ig')]));alert('✓ Caption copied for IG/TikTok');});});}
+function loadSocial(){fetch(API+'/api/my/products?email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){SERVICES=d.products||[];var sel=$('socSel');if(!SERVICES.length){sel.innerHTML='<option>No services yet — publish one first</option>';return;}sel.innerHTML=SERVICES.map(function(s,i){return '<option value="'+i+'">'+s.name+'</option>';}).join('');});}
+document.querySelectorAll('[data-spl]').forEach(function(b){b.addEventListener('click',function(){var pl=b.getAttribute('data-spl');var i=+($('socSel').value||0);var s=SERVICES[i];if(!s){alert('Publish a service first.');return;}if(pl==='COPY'){if(navigator.clipboard)navigator.clipboard.writeText(cap(s));alert('✓ Caption copied — paste in Instagram/TikTok.');}else share(pl,s);});});
+
 $('prBtn').addEventListener('click',function(){var l=ls('rf_pros','[]');l.push({n:$('pr_name').value||'Prospect',note:$('pr_note').value,s:'New'});sv('rf_pros',l);$('pr_name').value='';$('pr_note').value='';loadPros();});
 function loadPros(){var l=ls('rf_pros','[]');var stages=['New','Contacted','Replied','Won'];var html='';
  stages.forEach(function(st){var items=l.map(function(p,i){p._i=i;return p;}).filter(function(p){return p.s===st;});
@@ -234,18 +245,11 @@ $('alertBtn').addEventListener('click',function(){if(window.SUB&&!SUB.paid){aler
 (function(){var a=ls('rf_alerts',null);if(a){$('wa').value=a.wa||'';$('tg').value=a.tg||'';}})();
 $('outBtn').addEventListener('click',function(){sessionStorage.removeItem('rf_session');location.href='login.html';});
 function pay(planName, amount){
-  fetch(API+'/api/paystack/key').then(function(r){return r.json();}).then(function(d){
-    if(!d.key){alert('Payment keys not configured yet.');return;}
-    var h=PaystackPop.setup({key:d.key,email:sess.email,amount:amount*100,currency:'USD',metadata:{plan:planName},ref:'RF_'+Date.now(),
-      callback:function(resp){
-        fetch(API+'/api/paystack/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({reference:resp.reference,email:sess.email})})
-        .then(function(r){return r.json();}).then(function(v){
-          if(v.ok){alert('✓ Payment confirmed — welcome to '+v.plan+'! Everything unlocked.');loadPlan();}
-          else alert('Payment verification failed — contact support.');
-        });
-      },onClose:function(){}});
-    h.openIframe();
-  });
+  fetch(API+'/api/paystack/init',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,amount:amount,plan:planName})})
+  .then(function(r){return r.json();}).then(function(d){
+    if(d.ok&&d.url){location.href=d.url;}
+    else alert(d.error||'Payment could not start. Try again.');
+  }).catch(function(){alert('Payment error — check connection.');});
 }
 if($('buyPro'))$('buyPro').addEventListener('click',function(){pay('Pro',19);});
 if($('buyGrowth'))$('buyGrowth').addEventListener('click',function(){pay('Growth',49);});

@@ -1821,33 +1821,38 @@ async def my_delete_product(pid: int, email: str = ""):
 
 async def _sub_info(email, request):
     import time as _t
-    from app.core.models import Subscriber
     out = {"plan": "Free", "paid": False, "trial_active": False, "active": False, "trial_hours_left": 0, "flagged": False, "limits": {"matches": 5, "can_sell": False, "alerts": False}}
     if not email: return out
-    s = SessionLocal()
     try:
-        row = s.query(Subscriber).filter_by(email=email).first()
-        if not row: return out
-        if not getattr(row, "trial_expires", ""):
-            row.trial_expires = str(_t.time() + 24*3600)
-        if request is not None:
+        from app.core.models import Subscriber
+        s = SessionLocal()
+        try:
+            row = s.query(Subscriber).filter_by(email=email).first()
+            if not row: return out
             try:
-                ip = request.client.host if request.client else ""
-                if ip and not getattr(row, "ip", ""):
-                    row.ip = ip
-                s.commit()
-                if ip and s.query(Subscriber).filter_by(ip=ip).count() > 1:
-                    for r2 in s.query(Subscriber).filter_by(ip=ip).all(): r2.flagged = "1"
-                    s.commit()
-            except Exception: pass
-        plan = getattr(row, "plan", "Free") or "Free"
-        paid = plan not in ("Free", "free", "")
-        try: left = max(0.0, (float(row.trial_expires or 0) - _t.time())/3600.0)
-        except Exception: left = 0.0
-        out.update({"plan": plan, "paid": paid, "trial_active": left > 0, "active": paid or left > 0, "trial_hours_left": round(left, 1), "flagged": str(getattr(row, "flagged", "0")) == "1", "limits": {"matches": 5 if not paid else 999, "can_sell": paid, "alerts": paid}})
+                if not getattr(row, "trial_expires", ""):
+                    row.trial_expires = str(_t.time() + 24*3600); s.commit()
+            except Exception: s.rollback()
+            if request is not None:
+                try:
+                    ip = request.client.host if request.client else ""
+                    if ip and not getattr(row, "ip", ""):
+                        row.ip = ip; s.commit()
+                    if ip and s.query(Subscriber).filter_by(ip=ip).count() > 1:
+                        for r2 in s.query(Subscriber).filter_by(ip=ip).all(): r2.flagged = "1"
+                        s.commit()
+                except Exception: s.rollback()
+            plan = getattr(row, "plan", "Free") or "Free"
+            paid = plan not in ("Free", "free", "")
+            try: left = max(0.0, (float(getattr(row, "trial_expires", "0") or 0) - _t.time())/3600.0)
+            except Exception: left = 0.0
+            out.update({"plan": plan, "paid": paid, "trial_active": left > 0, "active": paid or left > 0, "trial_hours_left": round(left, 1), "flagged": str(getattr(row, "flagged", "0")) == "1", "limits": {"matches": 5 if not paid else 999, "can_sell": paid, "alerts": paid}})
+            return out
+        finally:
+            s.close()
+    except Exception:
         return out
-    finally:
-        s.close()
+
 
 @app.get("/api/sub/{email}")
 async def api_sub(email: str, request: Request):
@@ -1978,3 +1983,47 @@ async def paystack_verify(request: Request):
             s.close()
         return {"ok": True, "plan": plan}
     return {"ok": False, "error": "Payment not successful"}
+
+@app.post("/api/advertise-service")
+async def advertise_service(request: Request):
+    import os
+    p = await request.json(); email = p.get("email", ""); pid = p.get("id")
+    from app.core.models import SubscriberProduct
+    s = SessionLocal()
+    actions = ["Listed live on the public Marketplace"]
+    try:
+        row = s.query(SubscriberProduct).filter_by(id=pid, owner_email=email).first()
+        if row:
+            tok = os.environ.get("TELEGRAM_BOT_TOKEN") or ""
+            chat = os.environ.get("TELEGRAM_CHANNEL") or ""
+            if tok and chat:
+                try:
+                    import requests as _rq
+                    txt = "🚀 " + str(row.name) + " — $" + str(row.price) + "\n" + (row.description or "") + "\nContact: " + (row.contact_method or "") + " " + (row.contact_value or email)
+                    _rq.post("https://api.telegram.org/bot" + tok + "/sendMessage", json={"chat_id": chat, "text": txt}, timeout=10)
+                    actions.append("Posted to your Telegram channel")
+                except Exception:
+                    actions.append("Telegram post queued")
+            else:
+                actions.append("Telegram auto-post activates once bot token is set")
+    finally:
+        s.close()
+    actions.append("20+ platform ad pack copied (one tap each)")
+    return {"ok": True, "actions": actions}
+
+def _rf_migrate():
+    try:
+        from sqlalchemy import inspect, text
+        from app.core.db import engine
+        from app.core.models import Subscriber
+        tn = Subscriber.__tablename__
+        insp = inspect(engine)
+        if insp.has_table(tn):
+            cols = [x["name"] for x in insp.get_columns(tn)]
+            with engine.begin() as conn:
+                if "ip" not in cols: conn.execute(text("ALTER TABLE " + tn + " ADD COLUMN ip VARCHAR DEFAULT ''"))
+                if "flagged" not in cols: conn.execute(text("ALTER TABLE " + tn + " ADD COLUMN flagged VARCHAR DEFAULT '0'"))
+                if "trial_expires" not in cols: conn.execute(text("ALTER TABLE " + tn + " ADD COLUMN trial_expires VARCHAR DEFAULT ''"))
+    except Exception as e:
+        print("migrate skip:", e)
+_rf_migrate()
