@@ -1,57 +1,27 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><title>Free Revenue Audit | RevenueForge</title><link rel="icon" type="image/png" href="assets/logo.png"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><link rel="stylesheet" href="css/style.css">
-<style>
-body{background:#F4F6FA}
-.hero{background:linear-gradient(160deg,#0B2239,#123B5C);color:#fff;padding:52px 0 84px;text-align:center}
-.hero h1{font-family:'Sora';font-size:1.9rem}.hero p{color:#CBD5E1;margin-top:8px}
-.wrap{max-width:1000px;margin:0 auto;padding:0 16px}
-.input-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px;margin-top:-56px;box-shadow:0 16px 40px rgba(11,34,57,.12);display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
-.input-card label{font-size:12px;font-weight:700;color:var(--muted)}
-.input-card input{width:100%;margin:6px 0 0;padding:12px;border:1.5px solid var(--line);border-radius:10px}
-.btn{border:0;border-radius:10px;padding:12px 18px;font-weight:700;cursor:pointer}
-.btn-p{background:var(--accent);color:#fff}.btn-g{background:#fff;border:1.5px solid var(--line);color:var(--ink)}
-.sec{margin:34px 0 10px;display:flex;gap:10px;align-items:center;font-family:'Sora';font-size:1.1rem}
-.sec i{color:var(--accent)}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
-.card .t{font-weight:600}
-.score{background:#DCFCE7;color:#15803D;font-weight:800;border-radius:8px;padding:2px 10px;font-size:.8rem}
-.mini{font-size:.75rem;font-weight:700;color:var(--accent);background:#EFF4FF;border:0;border-radius:8px;padding:6px 10px;cursor:pointer;margin-top:8px}
-.muted{color:var(--muted);font-size:.85rem}
-@media (max-width:820px){.input-card{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
-</style></head><body><div id="header"></div>
-<div class="hero"><div class="wrap"><h1><i class="fa-solid fa-magnifying-glass-chart"></i> Free Revenue Audit</h1><p>Jobs you match · services you could sell · companies that want you — before you pay a cent.</p></div></div>
-<div class="wrap">
-<div class="input-card">
-  <div><label>YOUR SKILLS</label><input id="au_skills" placeholder="Python, OCR, automation…"></div>
-  <div><label>YOUR TARGET CUSTOMERS</label><input id="au_target" placeholder="accounting firms, e-commerce…"></div>
-  <button class="btn btn-p" onclick="runAudit()"><i class="fa-solid fa-bolt"></i> Run audit</button>
-</div>
-<div id="au_out"></div>
-</div>
-<div style="height:60px"></div><div id="footer"></div>
-<script src="js/config.js?v=4"></script><script src="js/layout.js?v=11"></script>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Free Audit — RevenueForge</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>body{margin:0;font-family:Inter;background:#F4F6FA;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.card{background:#fff;border-radius:16px;padding:32px;width:min(560px,92vw)}h1{font-family:Sora;font-size:1.4rem;margin:0 0 6px}
+input{width:100%;padding:12px;border:1.5px solid #E2E8F0;border-radius:10px;margin-top:12px;font-size:14px}
+button{width:100%;margin-top:14px;background:#2563EB;color:#fff;border:0;border-radius:10px;padding:13px;font-weight:700;cursor:pointer}
+.muted{color:#64748B;font-size:.88rem}.row{padding:10px 0;border-bottom:1px solid #E2E8F0;font-size:.9rem}
+</style></head><body>
+<div class="card"><h1>Free Job Audit</h1><p class="muted">See who is hiring for your skills right now.</p>
+<input id="sk" placeholder="your skills / work type">
+<button id="go">Run my audit</button>
+<div id="out" style="margin-top:16px"></div></div>
 <script>
-var sess=null;try{sess=JSON.parse(localStorage.getItem('rf_session')||'null');}catch(e){}
-function runAudit(){
-  var API=window.RF_API||'';var out=document.getElementById('au_out');
-  out.innerHTML='<p class="muted" style="margin-top:20px">Scanning live feeds…</p>';
-  fetch(API+'/api/audit?skills='+encodeURIComponent(au_skills.value)+'&target='+encodeURIComponent(au_target.value)+(sess&&sess.email?'&member='+encodeURIComponent(sess.email):''))
+var API='https://revenueforge-api.onrender.com';
+var sess={};try{sess=JSON.parse(sessionStorage.getItem('rf_session')||'{}');}catch(e){}
+if(!sess.email){alert('Create your free account first, then run your audit.');location.href='signup.html';}
+document.getElementById('go').addEventListener('click',function(){
+ var q=document.getElementById('sk').value||'hiring';
+ document.getElementById('out').innerHTML='<p class="muted">Searching 30+ sources…</p>';
+ fetch(API+'/api/search-hiring?q='+encodeURIComponent(q)+'&limit=8&email='+encodeURIComponent(sess.email))
   .then(function(r){return r.json();}).then(function(d){
-    if(d.used){out.innerHTML='<div class="card" style="margin-top:24px;text-align:center"><h3>Audit already used on this network</h3><p class="muted">Create a free verified account for unlimited audits.</p><a class="btn btn-p" href="register.html">Create account</a></div>';return;}
-    var h='<div class="sec"><i class="fa-solid fa-briefcase"></i> Top job matches for you</div><div class="grid">';
-    (d.jobs||[]).forEach(function(j){h+='<div class="card"><div class="t">'+j.title+'</div><div class="muted">'+(j.platform||'')+'</div><div style="margin-top:8px"><span class="score">'+j.score+'% match</span> <a style="color:var(--accent);font-size:.8rem" href="'+j.url+'" target="_blank">View →</a></div></div>';});
-    h+='</div><div class="sec"><i class="fa-solid fa-boxes-stacked"></i> Services you could sell</div><div class="grid">';
-    (d.services||[]).forEach(function(sv,i){var o=(typeof sv==='string')?{name:sv,desc:''}:sv;h+='<div class="card"><div class="t">'+o.name+'</div><div class="muted">'+(o.desc||'')+'</div>'<button class="mini" onclick="addServ(this,\''+sv.replace(/'/g,"")+'\')"><i class="fa-solid fa-plus"></i> Add to my services</button></div>';});
-    h+='</div><div class="sec"><i class="fa-solid fa-building"></i> Companies that want you</div><div class="grid">';
-    (d.leads||[]).forEach(function(l){h+='<div class="card"><div class="t"><i class="fa-solid fa-building" style="color:var(--accent)"></i> '+l+'</div><div class="muted">Outreach target — our engine can contact them for you on Growth+.</div></div>';});
-    h+='</div><div class="sec"><i class="fa-solid fa-globe"></i> Search more platforms</div><div class="grid">'+platLinks()+'</div><div class="card" style="margin-top:26px;text-align:center"><h3>Put it all on autopilot</h3><p class="muted">Create a free account — your robot delivers these results for you.</p><a class="btn btn-p" href="register.html">Create free account</a> <a class="btn btn-g" href="pricing.html">See packages</a></div>';
-    out.innerHTML=h;
-  }).catch(function(){out.innerHTML='<p class="muted">Server waking up — try again in 20s.</p>';});
-}
-function platLinks(){var q=encodeURIComponent(au_skills.value||'developer');var P=[['RemoteOK','https://remoteok.com/remote-'],['We Work Remotely','https://weworkremotely.com/remote-jobs/search?term='],['Upwork','https://www.upwork.com/nx/search/jobs/?term='],['LinkedIn','https://www.linkedin.com/jobs/search/?keywords='],['Reddit','https://www.reddit.com/search/?q=']];return P.map(function(p){return '<div class="card"><div class="t"><i class="fa-solid fa-arrow-up-right-from-square" style="color:var(--accent)"></i> '+p[0]+'</div><a style="color:var(--accent);font-size:.8rem" target="_blank" href="'+p[1]+q+'">Live '+p[0]+' matches →</a></div>';}).join('');}
-function addServ(btn,name){
-  if(!sess||!sess.email){location.href='register.html';return;}
-  var API=window.RF_API||'';
-  fetch(API+'/api/my/products',{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({email:sess.email,name:name,price:0,description:'Suggested by free audit'})}).then(function(){btn.textContent='✓ Added';btn.disabled=true;});
-}
+    if(!d.ok){document.getElementById('out').innerHTML='<p class="muted">'+(d.error==='trial_expired'?'Your free trial has ended — upgrade to keep auditing.':'No matches. Try different skills.')+'</p>';return;}
+    var rs=d.results||[];
+    document.getElementById('out').innerHTML=rs.length?rs.map(function(r){return '<div class="row"><b>'+r.title+'</b><br><span class="muted">'+r.platform+' · '+r.score+'%</span></div>';}).join(''):'<p class="muted">No matches. Try different skills.</p>';
+  }).catch(function(){document.getElementById('out').innerHTML='<p class="muted">Search error.</p>';});
+});
 </script></body></html>
