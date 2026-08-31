@@ -1829,7 +1829,11 @@ async def api_search_hiring(q: str = "", limit: int = 25, email: str = ""):
     if not sub["paid"]:
         limit = min(limit, 5)
     results = search_hiring(q, limit)
-    return {"ok": True, "query": q, "count": len(results), "results": results, "plan": sub["plan"]}
+    seen = set(); ded = []
+    for r in results:
+        if r["url"] not in seen:
+            seen.add(r["url"]); ded.append(r)
+    return {"ok": True, "query": q, "count": len(ded), "results": ded, "plan": sub["plan"]}
 
 @app.post("/api/my/products")
 async def my_add_product(request: Request):

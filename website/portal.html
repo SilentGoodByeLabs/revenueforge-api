@@ -44,9 +44,17 @@ label{display:block;margin-top:14px;font-weight:600;font-size:.85rem;color:var(-
 footer{background:#0B2239;color:#fff;padding:26px 18px;margin-top:30px}
 footer .b{font-family:'Sora';font-weight:800}footer .b b{color:var(--accent)}footer p{color:#A9BBD0;font-size:.9rem;margin-top:8px}
 .svc{border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+.acct-i{display:block;width:100%;text-align:left;background:none;border:0;padding:10px 12px;border-radius:8px;font-weight:600;cursor:pointer;color:var(--ink)}
+.acct-i:hover{background:#EFF4FF}
 </style><script src="https://js.paystack.co/v1/inline.js"></script>
 </head><body>
 <header class="hdr"><div class="brand"><i class="fa-solid fa-shield-halved"></i>Revenue<b>Forge</b></div><button id="burger2"><i class="fa-solid fa-bars"></i></button></header>
+<div id="acctMenu" style="display:none;position:fixed;top:56px;right:12px;background:#fff;border:1px solid #E2E8F0;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.15);z-index:200;min-width:190px;padding:8px">
+  <button class="acct-i" data-go="ov">Overview</button>
+  <button class="acct-i" data-go="plan">Plan & Billing</button>
+  <button class="acct-i" data-go="set">Settings & Alerts</button>
+  <button class="acct-i" id="acctOut" style="color:#DC2626" onclick="doLogout()">Logout</button>
+</div>
 <div class="dashbar"><button id="burger"><i class="fa-solid fa-bars"></i></button> RevenueForge Dashboard</div>
 <aside id="side">
   <div class="brand2"><span class="logo"><i class="fa-solid fa-shield-halved"></i></span>Revenue<b>Forge</b></div>
@@ -136,7 +144,7 @@ footer .b{font-family:'Sora';font-weight:800}footer .b b{color:var(--accent)}foo
     <label>Telegram handle (Pro — job & sale alerts)</label><input id="tg" placeholder="@yourhandle">
     <label>WhatsApp (Growth+)</label><input id="wa" placeholder="">
     <button class="btn btn-p" id="alertBtn" style="margin-top:16px">Save alerts</button>
-    <button class="btn btn-d" id="outBtn" style="margin-top:16px"><i class="fa-solid fa-sign-out"></i> Logout</button></div></div>
+    <button class="btn btn-d" id="outBtn" onclick="doLogout()" style="margin-top:16px"><i class="fa-solid fa-sign-out"></i> Logout</button></div></div>
 <div id="view-help" style="display:none"><div class="crumbs">Dashboard / Help</div><h1>Help & Guide</h1>
   <div class="card"><ol style="margin-left:20px;line-height:2"><li>Configure skills in My Engine.</li><li>Start the engine (keeps running until you stop it).</li><li>Review proposals, message hirers, view profiles.</li><li>Publish services; advertise on 20+ platforms.</li><li>Track prospects to WON.</li></ol></div></div>
 </main>
@@ -171,6 +179,7 @@ if(!sess.email){try{sess=JSON.parse(sessionStorage.getItem('rf_session')||'{}');
 if(!sess.email){location.href='login.html';}
 (function(){var tr=new URLSearchParams(location.search).get('trxref')||new URLSearchParams(location.search).get('reference');if(tr){fetch(API+'/api/paystack/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({reference:tr,email:sess.email})}).then(function(r){return r.json();}).then(function(v){if(v.ok){alert('✓ Payment confirmed — welcome to '+v.plan+'! Everything unlocked.');loadPlan();}});}})();
 function $(id){return document.getElementById(id);}
+function doLogout(){sessionStorage.removeItem('rf_session');localStorage.removeItem('rf_session');location.href='login.html';}
 function ls(k,d){try{return JSON.parse(localStorage.getItem(k+'::'+sess.email)||d);}catch(e){return d;}}
 function sv(k,v){localStorage.setItem(k+'::'+sess.email,JSON.stringify(v));}
 var SERVICES=[];
@@ -182,8 +191,8 @@ function go(v){var ids=['ov','eng','jobs','serv','social','pros','ana','plan','s
  if(v==='ov')loadOv();if(v==='serv')loadServ();if(v==='social')loadSocial();if(v==='pros')loadPros();if(v==='ana')loadAna();if(v==='plan')loadPlan();if(v==='jobs')loadJobs();if(v==='eng')loadEng();}
 document.querySelectorAll('.nav-i').forEach(function(b){b.addEventListener('click',function(){go(this.getAttribute('data-view'));});});
 document.querySelectorAll('[data-go]').forEach(function(b){b.addEventListener('click',function(){go(this.getAttribute('data-go'));});});
-$('burger').addEventListener('click',function(){$('side').classList.toggle('open');});
-$('burger2').addEventListener('click',function(){$('side').classList.toggle('open');});
+$('burger').addEventListener('click',function(){$('acctMenu').style.display='none';$('side').classList.toggle('open');});
+$('burger2').addEventListener('click',function(e){e.stopPropagation();var m=$('acctMenu');m.style.display=(m.style.display==='none')?'block':'none';$('side').classList.remove('open');});
 function loadOv(){$('setEmail').textContent=sess.email;
  var j=hasCfg()?ls('rf_jobs','[]'):[],ap=ls('rf_apps','[]'),pr=ls('rf_pros','[]');
  $('kMat').textContent=j.length;$('kApps').textContent=ap.length;$('kPros').textContent=pr.length;

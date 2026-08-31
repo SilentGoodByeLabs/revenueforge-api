@@ -2,15 +2,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>body{margin:0;font-family:Inter,sans-serif;background:radial-gradient(1000px 500px at 50% -10%,#1D4E75,#0B2239);min-height:100vh;display:flex;align-items:center;justify-content:center}
 .card{background:#fff;border-radius:16px;padding:36px;width:min(400px,92vw)}h1{font-family:Sora;margin:0 0 4px}h1 b{color:#2563EB}
+.caption{color:#64748B;margin:0 0 20px;font-size:.95rem}
 input{width:100%;padding:12px;border:1.5px solid #E2E8F0;border-radius:10px;margin-top:12px;font-size:14px}
 button{width:100%;margin-top:16px;background:#2563EB;color:#fff;border:0;border-radius:10px;padding:13px;font-weight:700;cursor:pointer}
 a{color:#2563EB}</style></head><body>
-<div class="card"><h1>Revenue<b>Forge</b></h1><p style="color:#64748B;margin:0 0 8px">Sign in to your dashboard</p>
+<div class="card"><h1>Revenue<b>Forge</b></h1><p class="caption">Sign in to your dashboard</p>
 <form id="f"><input id="em" type="email" placeholder="Email" required><input id="pw" type="password" placeholder="Password" required><button>Log in</button></form>
 <p style="color:#64748B;font-size:.85rem;margin-top:14px">No account? <a href="signup.html">Sign up</a></p></div>
-<script>// auto-forward
-try{var s=JSON.parse(sessionStorage.getItem('rf_session')||'{}');if(s.email)location.href='portal.html?authed='+encodeURIComponent(s.email);}catch(e){}
-var API=(location.hostname==='localhost')?'http://localhost:8502':'https://revenueforge-api.onrender.com';
+<script>
+var API='https://revenueforge-api.onrender.com';
 document.getElementById('f').addEventListener('submit',function(e){e.preventDefault();
  var em=document.getElementById('em').value;
  var fd=new URLSearchParams();fd.append('email',em);fd.append('password',document.getElementById('pw').value);fd.append('captcha','skip');

@@ -137,6 +137,60 @@ def search_feeds(query="", limit=30):
         out.extend(parse_rss(name, url, query, 2))
     return out[:limit]
 
+
+MORE_SOURCES = [
+    ("Indeed US","https://www.indeed.com/rss?q={q}"),("Indeed UK","https://www.indeed.co.uk/rss?q={q}"),
+    ("Indeed CA","https://ca.indeed.com/rss?q={q}"),("Indeed AU","https://au.indeed.com/rss?q={q}"),
+    ("Indeed IN","https://www.indeed.co.in/rss?q={q}"),("Indeed DE","https://de.indeed.com/rss?q={q}"),
+    ("Indeed FR","https://fr.indeed.com/rss?q={q}"),("Indeed ES","https://es.indeed.com/rss?q={q}"),
+    ("Indeed IT","https://it.indeed.com/rss?q={q}"),("Indeed BR","https://br.indeed.com/rss?q={q}"),
+    ("Indeed MX","https://mx.indeed.com/rss?q={q}"),("Indeed ZA","https://za.indeed.com/rss?q={q}"),
+    ("Indeed PH","https://ph.indeed.com/rss?q={q}"),("Indeed SG","https://sg.indeed.com/rss?q={q}"),
+    ("Indeed NL","https://nl.indeed.com/rss?q={q}"),("Indeed AE","https://ae.indeed.com/rss?q={q}"),
+    ("Craigslist SF","https://sfbay.craigslist.org/search/cpg?format=rss"),("Craigslist NY","https://newyork.craigslist.org/search/cpg?format=rss"),
+    ("Craigslist London","https://london.craigslist.org/search/cpg?format=rss"),("Craigslist Toronto","https://toronto.craigslist.org/search/cpg?format=rss"),
+    ("Python Jobs","https://www.python.org/community/jobs/feed/"),
+    ("WWR Programming","https://weworkremotely.com/categories/remote-programming-jobs/feed"),
+    ("WWR Design","https://weworkremotely.com/categories/remote-design-jobs/feed"),
+    ("WWR Marketing","https://weworkremotely.com/categories/remote-marketing-jobs/feed"),
+]
+def search_more(query="", limit=1):
+    out=[]
+    for name,url in MORE_SOURCES:
+        try:
+            r=requests.get(url.format(q=urllib.parse.quote(query or "hiring")), timeout=4, headers=UA)
+            soup=BeautifulSoup(r.content,"html.parser"); n=0
+            for item in soup.find_all("item"):
+                if n>=limit: break
+                t2=item.find("title"); l2=item.find("link")
+                if t2 and l2: out.append({"title":t2.get_text()[:180],"platform":name,"url":l2.get_text(),"score":76}); n+=1
+        except Exception: continue
+    return out
+
+REDDIT_SUBS=["forhire","Jobs","WorkOnline","slavelabour","freelance","designjobs","Hiring","remotejobs","webdev","marketing"]
+def search_reddit_subs(query="", limit=1):
+    out=[]
+    for sub in REDDIT_SUBS:
+        try:
+            r=requests.get("https://www.reddit.com/r/"+sub+"/new.json?limit=5", timeout=4, headers=UA)
+            for ch in r.json()["data"]["children"][:limit]:
+                d=ch["data"]; t2=d.get("title","")
+                if t2 and HIRING_RE.search(t2):
+                    out.append({"title":t2[:180],"platform":"Reddit r/"+sub,"url":"https://reddit.com"+d.get("permalink",""),"score":74,"profile":"https://reddit.com/user/"+str(d.get("author",""))})
+        except Exception: continue
+    return out
+
+def search_remotive_cats(query="", limit=3):
+    out=[]
+    for cat in ["software-development","design","marketing"]:
+        try:
+            r=requests.get("https://remotive.com/api/remote-jobs?category="+cat, timeout=5, headers=UA)
+            for j in r.json().get("jobs",[])[:limit]:
+                t2=j.get("title") or ""; u2=j.get("url") or ""
+                if t2 and u2: out.append({"title":t2[:180],"platform":"Remotive "+cat,"url":u2,"score":80})
+        except Exception: continue
+    return out
+
 def search_hiring(query="", limit=25):
     results = []
     results.extend(search_remotive(query, 10))
