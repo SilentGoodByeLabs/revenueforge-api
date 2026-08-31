@@ -2020,3 +2020,14 @@ async def my_set_status(pid: int, email: str = "", status: str = "active"):
         return {"ok": True, "status": status}
     finally:
         s.close()
+
+@app.get("/api/source-test")
+async def source_test(q: str = "developer"):
+    from app.core import hiring_search as hs
+    out = {}
+    for name, fn in [("remotive",hs.search_remotive),("arbeitnow",hs.search_arbeitnow),("remoteok",hs.search_remoteok),
+                     ("hackernews",hs.search_hn),("muse",hs.search_muse),("jobicy",hs.search_jobicy),
+                     ("adzuna",hs.search_adzuna),("jooble",hs.search_jooble),("reddit",hs.search_reddit_subs),("rss",hs.search_rss_all)]:
+        try: out[name] = len(fn(query=q, limit=5))
+        except Exception: out[name] = 0
+    return {"ok": True, "sources": out}

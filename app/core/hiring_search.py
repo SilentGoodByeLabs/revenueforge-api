@@ -191,6 +191,43 @@ def search_remotive_cats(query="", limit=3):
         except Exception: continue
     return out
 
+
+def search_jobicy(query="", limit=8):
+    out=[]
+    try:
+        r=requests.get("https://jobicy.com/api/v2/jobs?count=30", timeout=6, headers=UA)
+        for j in r.json().get("jobs",[])[:limit]:
+            t2=j.get("jobTitle") or j.get("title") or ""; u2=j.get("url") or j.get("jobLink") or ""
+            if t2 and u2: out.append({"title":t2[:180],"platform":"Jobicy","url":u2,"score":78})
+    except Exception: pass
+    return out
+
+def search_adzuna(query="", limit=10):
+    import os
+    app=os.environ.get("ADZUNA_APP_ID") or ""; key=os.environ.get("ADZUNA_APP_KEY") or ""
+    if not app or not key: return []
+    out=[]
+    try:
+        r=requests.get("https://api.adzuna.com/v1/api/jobs/us/search?app_id="+app+"&app_key="+key+"&results_per_page="+str(limit)+"&what="+urllib.parse.quote(query or ""), timeout=6, headers=UA)
+        for j in r.json().get("results",[]):
+            t2=j.get("title") or ""; u2=j.get("redirect_url") or ""
+            if t2 and u2: out.append({"title":t2[:180],"platform":"Adzuna","url":u2,"score":80})
+    except Exception: pass
+    return out
+
+def search_jooble(query="", limit=10):
+    import os
+    key=os.environ.get("JOOBLE_KEY") or ""
+    if not key: return []
+    out=[]
+    try:
+        r=requests.post("https://jooble.org/api/"+key, json={"keywords":query or "hiring"}, timeout=6, headers=UA)
+        for j in r.json().get("jobs",[]):
+            t2=j.get("title") or ""; u2=j.get("link") or ""
+            if t2 and u2: out.append({"title":t2[:180],"platform":"Jooble","url":u2,"score":79})
+    except Exception: pass
+    return out
+
 def search_hiring(query="", limit=25):
     results = []
     results.extend(search_remotive(query, 10))
