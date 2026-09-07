@@ -92,14 +92,17 @@ footer .b{font-family:'Sora';font-weight:800}footer .b b{color:var(--accent)}foo
     <label>Mode</label><select id="mode"><option>Find me jobs</option><option>Sell my services</option><option>Both</option></select>
     <label>Skills</label><textarea id="skills" rows="3" placeholder="your skills / work type"></textarea>
     <label>Target</label><input id="target" placeholder="who you want to work for">
-    <button class="btn btn-p" id="saveBtn" style="margin-top:18px">Save settings</button>
+    <button class="btn btn-p" id="saveBtn" style="margin-top:18px"><i class="fa-solid fa-save"></i> Save settings</button>
+    <span id="saveMsg" class="muted" style="margin-left:10px"></span>
   </div>
   <div class="card"><h3><i class="fa-solid fa-power-off"></i> Engine control</h3><p class="muted" id="engStat">Stopped</p>
     <button class="btn btn-p" id="startBtn" style="margin-top:12px"><i class="fa-solid fa-play"></i> Start engine</button>
     <button class="btn btn-d" id="stopBtn" style="margin-top:12px;display:none"><i class="fa-solid fa-stop"></i> Stop engine</button>
-    <p class="muted" style="margin-top:10px">When started, it keeps working for you in the cloud until you stop it — even if you close the app.</p></div>
-  <div class="card"><h3>🌍 Where the engine searches (30+ sources)</h3><p class="muted">Remotive · RemoteOK · Arbeitnow · The Muse · Hacker News · Indeed (US/UK/CA/AU/IN/DE) · We Work Remotely · Working Nomads · Jobspresso · Freelancer · Guru · Craigslist gigs · ProBlogger · Authentic Jobs · Upwork · Reddit (r/forhire, r/Jobs, r/WorkOnline, r/slavelabour, r/freelance, r/designjobs, r/Hiring, r/remotejobs). Any kind of work, people who need to HIRE.</p></div>
-  <div class="card"><h3>Run once</h3><p class="muted">Finds people actively HIRING for your skills right now.</p><button class="btn btn-p" id="runBtn" style="margin-top:12px"><i class="fa-solid fa-play"></i> Run now</button><div id="matchList" style="margin-top:14px"></div></div>
+    <p class="muted" style="margin-top:10px">Keeps working in the cloud until you stop it.</p></div>
+  <div class="card"><h3><i class="fa-solid fa-magnifying-glass"></i> Run engine now</h3>
+    <p class="muted">Searches the live job sources for people hiring your skills right now.</p>
+    <button class="btn btn-p" id="runBtn" style="margin-top:12px"><i class="fa-solid fa-play"></i> Run engine now</button>
+    <div id="matchList" style="margin-top:14px"></div></div>
 </div>
 <div id="view-jobs" style="display:none"><div class="crumbs">Dashboard / Jobs</div><h1>Jobs & Progress</h1>
   <div class="card"><p class="muted">Every match gets a proposal — review, message, view profile, submit.</p><button class="btn btn-s" id="refBtn" style="margin:12px 0"><i class="fa-solid fa-rotate"></i> Refresh matches</button><div id="jobsBody" class="muted">No jobs yet.</div></div></div>
@@ -172,7 +175,7 @@ footer .b{font-family:'Sora';font-weight:800}footer .b b{color:var(--accent)}foo
   </div>
  </div></div>
 <script>
-var API='https://revenueforge-api.onrender.com';
+var API=(location.hostname==='localhost'||location.hostname==='127.0.0.1')?'http://localhost:8502':'https://revenueforge-api.onrender.com';
 var sess={email:''};
 try{var u=new URLSearchParams(location.search);var a=u.get('authed')||u.get('email');if(a){sess={email:a};sessionStorage.setItem('rf_session',JSON.stringify(sess));}}catch(e){}
 if(!sess.email){try{sess=JSON.parse(sessionStorage.getItem('rf_session')||'{}');}catch(e){}}
@@ -204,13 +207,13 @@ function renderBrief(m,a,due){var plan=(window.SUB&&window.SUB.plan)||'Free';var
 function loadEng(){var c=ls('rf_cfg',null);if(c){$('skills').value=c.skills||'';$('target').value=c.target||'';}engUI();}
 $('saveBtn').addEventListener('click',function(){sv('rf_cfg',{skills:$('skills').value,target:$('target').value});
  fetch(API+'/api/save-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,skills:$('skills').value,target:$('target').value})}).catch(function(){});
- alert('✓ Settings saved');});
+ alert('✓ Settings saved');if($('saveMsg'))$('saveMsg').textContent='Saved ✓';});
 function engUI(){var e=ls('rf_eng',{on:false});$('engStat').innerHTML=e.on?'<span class="dot"></span>Running — working for you until you stop it':'Stopped';$('startBtn').style.display=e.on?'none':'inline-flex';$('stopBtn').style.display=e.on?'inline-flex':'none';}
 $('startBtn').addEventListener('click',function(){sv('rf_eng',{on:true});fetch(API+'/api/engine-toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,on:true})}).catch(function(){});engUI();alert('✓ Engine started — it keeps working until you stop it.');});
 $('stopBtn').addEventListener('click',function(){sv('rf_eng',{on:false});fetch(API+'/api/engine-toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,on:false})}).catch(function(){});engUI();alert('✓ Engine stopped.');});
 $('runBtn').addEventListener('click',runEng);$('refBtn').addEventListener('click',runEng);
 function runEng(){if(window.SUB&&SUB.locked){alert('Your free trial has ended — upgrade to continue.');go('plan');return;} if(!hasCfg()){alert('Configure your skills first — My Engine → Save settings.');go('eng');return;}
- var q=$('skills').value;$('jobsBody').innerHTML='Searching 30+ sources…';fetch(API+'/api/search-hiring?q='+encodeURIComponent(q)+'&limit=15&email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){if(!d.ok){alert('Trial expired — upgrade to continue.');go('plan');return;} var rs=d.results||[];if(window.SUB&&!SUB.paid)rs=rs.slice(0,5);var seen=ls('rf_seen',[]);var fresh=rs.filter(function(r){return seen.indexOf(r.url)<0;});if(fresh.length){seen=seen.concat(fresh.map(function(r){return r.url;}));sv('rf_seen',seen);rs=fresh;}sv('rf_jobs',rs);renderJobs(rs);go('jobs');}).catch(function(){$('jobsBody').innerHTML='Search error.';});}
+ var q=$('skills').value;$('jobsBody').innerHTML='Searching 30+ sources…';fetch(API+'/api/search-hiring?q='+encodeURIComponent(q)+'&limit=15&email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){if(!d.ok){alert('Trial expired — upgrade to continue.');go('plan');return;} var rs=d.results||[];if(window.SUB&&!SUB.paid)rs=rs.slice(0,5);sv('rf_jobs',rs);renderJobs(rs);go('jobs');}).catch(function(){$('jobsBody').innerHTML='Search error.';});}
 function proposal(r){var c=ls('rf_cfg',null);var sk=(c&&c.skills)||'this field';return 'Hi there,\n\nI found your opening "'+r.title+'" on '+r.platform+' and I can help you right away.\n\nWhat I offer:\n• Proven experience in '+sk+'\n• Fast, reliable delivery (2-5 days) with clear communication\n• Free support after delivery - you only pay when satisfied\n\nHow I work:\n1. Quick chat to confirm your exact needs\n2. Deliver a working result with updates along the way\n3. Handover + documentation + support\n\nI can start immediately. Reply here or contact me at '+sess.email+'.\n\nBest regards,\n'+sess.email;}
 var CURJOB=null;
 function openModal(r){CURJOB=r;$('propTxt').value=proposal(r);$('modal').style.display='block';}
