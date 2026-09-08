@@ -2020,12 +2020,18 @@ async def source_test(q: str = "developer"):
 
 @app.get("/api/search-hiring")
 async def api_search_hiring(q: str = "", limit: int = 25, email: str = "", target: str = ""):
-    from app.core.hiring_search import search_hiring_rotated
-    import re as _re
+    from app.core.hiring_search import search_hiring, ALL_SOURCES
+    import re as _re, random
     sub = await _sub_info(email, None)
     if not sub["active"]:
         return {"ok": False, "error": "trial_expired", "query": q, "count": 0, "results": []}
-    pool = search_hiring_rotated(q, max(limit * 4, 24))
+    # Fetch from ALL sources (not random selection)
+    pool = []
+    for src in ALL_SOURCES:
+        try: pool.extend(src(query=q, limit=15))
+        except Exception: continue
+    # Shuffle for variety
+    random.shuffle(pool)
     SYNONYMS = {
         "cleaning": ["cleaner", "clean", "housekeeping", "housekeeper", "janitor", "janitorial", "maid", "deep clean", "office clean"],
         "cleaner": ["cleaning", "clean", "housekeeping", "janitor", "maid"],
