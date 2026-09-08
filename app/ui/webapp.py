@@ -2189,38 +2189,126 @@ async def owner_support():
 
 
 
+
+
 @app.get("/api/generate-proposal")
-async def generate_proposal(job_title: str, email: str = ""):
+async def generate_proposal(job_title: str, email: str = "", company: str = ""):
     try:
         from app.core.db import SessionLocal
         from sqlalchemy import text
         s = SessionLocal()
         try:
-            # Query subscriber_profiles for skills (that's where they live)
             result = s.execute(
-                text("SELECT skills FROM subscriber_profiles WHERE email = :email"),
+                text("SELECT skills, target FROM subscriber_profiles WHERE email = :email"),
                 {"email": email}
             ).fetchone()
             
             skills = result[0] if result and result[0] else "professional services"
+            target = result[1] if result and result[1] else ""
             
             parts = []
-            parts.append("Dear Hiring Manager,")
+            parts.append("Dear Hiring Manager" + (", " + company if company else "") + ",")
             parts.append("")
-            parts.append("I am writing regarding the position: " + job_title + ".")
+            parts.append("RE: " + job_title)
             parts.append("")
-            parts.append("With my experience in " + skills + ", I can deliver fast, quality results.")
+            parts.append("I am writing to express my strong interest in the " + job_title + " position. With extensive experience in " + skills + ", I am confident in my ability to deliver exceptional results for your project.")
             parts.append("")
-            parts.append("I offer:")
-            parts.append("- Clear communication and regular updates")
-            parts.append("- On-time delivery with revisions until you are satisfied")
-            parts.append("- Competitive pricing")
+            parts.append("WHAT I BRING TO YOUR PROJECT:")
+            parts.append("• Proven expertise in " + skills)
+            parts.append("• Fast turnaround with attention to detail")
+            parts.append("• Clear communication throughout the project lifecycle")
+            parts.append("• Revisions included until you are 100% satisfied")
             parts.append("")
-            parts.append("I would love to discuss your project. Reply here or contact me at " + email + ".")
+            parts.append("MY WORK PROCESS:")
+            parts.append("1. Discovery call to understand your exact requirements")
+            parts.append("2. Detailed proposal with timeline and deliverables")
+            parts.append("3. Regular updates and checkpoints")
+            parts.append("4. Final delivery with revisions as needed")
+            parts.append("")
+            parts.append("I would welcome the opportunity to discuss how my skills can benefit your project. I am available for a brief call at your convenience.")
+            parts.append("")
+            parts.append("Thank you for your time and consideration.")
             parts.append("")
             parts.append("Best regards,")
             parts.append(email)
+            parts.append("")
+            parts.append("P.S. I typically respond within 2 hours and can start immediately if needed.")
             return {"ok": True, "proposal": "\n".join(parts)}
+        finally:
+            s.close()
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+@app.get("/api/generate-resume")
+async def generate_resume(email: str = "", format: str = "modern"):
+    try:
+        from app.core.db import SessionLocal
+        from sqlalchemy import text
+        s = SessionLocal()
+        try:
+            result = s.execute(
+                text("SELECT skills, target, mode FROM subscriber_profiles WHERE email = :email"),
+                {"email": email}
+            ).fetchone()
+            
+            skills = result[0] if result and result[0] else "professional services"
+            target = result[1] if result and result[1] else ""
+            mode = result[2] if result and result[2] else "Find me jobs"
+            
+            parts = []
+            parts.append("=" * 60)
+            parts.append("PROFESSIONAL RESUME")
+            parts.append("=" * 60)
+            parts.append("")
+            parts.append("CONTACT:")
+            parts.append("  Email: " + email)
+            parts.append("")
+            parts.append("PROFESSIONAL SUMMARY:")
+            if target:
+                parts.append("  Experienced professional specializing in " + skills + ", seeking opportunities with " + target + ". Proven track record of delivering high-quality results on time and within budget.")
+            else:
+                parts.append("  Experienced professional specializing in " + skills + ". Committed to excellence and client satisfaction.")
+            parts.append("")
+            parts.append("CORE COMPETENCIES:")
+            skill_list = [s.strip() for s in skills.split(",")]
+            for skill in skill_list[:6]:
+                parts.append("  • " + skill.title())
+            parts.append("")
+            parts.append("EXPERIENCE:")
+            parts.append("  Freelance Professional")
+            parts.append("  " + ("Present" if True else ""))
+            parts.append("")
+            parts.append("  • Delivered multiple successful projects in " + skills)
+            parts.append("  • Maintained 5-star client satisfaction rating")
+            parts.append("  • Completed projects on time and within budget")
+            parts.append("  • Built long-term relationships with repeat clients")
+            parts.append("")
+            parts.append("KEY ACHIEVEMENTS:")
+            parts.append("  ✓ Successfully completed 50+ projects")
+            parts.append("  ✓ 100% client satisfaction rate")
+            parts.append("  ✓ Average project turnaround: 3-5 days")
+            parts.append("  ✓ Specialized expertise in " + skill_list[0] if skill_list else "professional services")
+            parts.append("")
+            parts.append("SERVICES OFFERED:")
+            parts.append("  • " + skills.title())
+            parts.append("  • Project consulting and advisory")
+            parts.append("  • Fast turnaround for urgent projects")
+            parts.append("  • Flexible scheduling and communication")
+            parts.append("")
+            parts.append("EDUCATION & CERTIFICATIONS:")
+            parts.append("  • Continuous professional development")
+            parts.append("  • Industry-standard tools and methodologies")
+            parts.append("")
+            parts.append("AVAILABILITY:")
+            parts.append("  • Immediate start available")
+            parts.append("  • Flexible hours to accommodate your timezone")
+            parts.append("  • Part-time and full-time engagements")
+            parts.append("")
+            parts.append("=" * 60)
+            parts.append("References available upon request")
+            parts.append("=" * 60)
+            
+            return {"ok": True, "resume": "\n".join(parts)}
         finally:
             s.close()
     except Exception as e:
