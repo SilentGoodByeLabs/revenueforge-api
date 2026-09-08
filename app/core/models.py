@@ -178,9 +178,6 @@ class InviteCode(Base):
 
 class ClientProject(Base):
     __tablename__ = "client_projects"
-    ip = Column(String, default="")
-    flagged = Column(String, default="0")
-    trial_expires = Column(String, default="")
     id = Column(Integer, primary_key=True, index=True)
     client_email = Column(String, nullable=False, index=True)
     title = Column(String, nullable=False)
@@ -277,3 +274,5 @@ class UpgradeCode(Base):
     code = Column(String, default="")
     plan = Column(String, default="Pro")
     used = Column(String, default="")
+
+Subscriber = SubscriberProduct
