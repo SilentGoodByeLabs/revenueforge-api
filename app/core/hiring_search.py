@@ -12,11 +12,18 @@ def search_remotive(query="", limit=10):
     out = []
     try:
         r = requests.get("https://remotive.com/api/remote-jobs", timeout=10, headers=UA)
-        for job in r.json().get("jobs", [])[:limit]:
+        for job in r.json().get("jobs", []):
             t = job.get("title", "")
-            if t: out.append({"title": t[:180], "platform": "Remotive", "url": job.get("url", ""), "score": 90})
+            desc = job.get("description", "") or ""
+            text = (t + " " + desc).lower()
+            if query:
+                ws = [w.lower() for w in re.split(r"[,\s]+", query) if len(w) > 2]
+                if ws and not any(w in text for w in ws): continue
+            if t:
+                out.append({"title": t[:180], "platform": "Remotive", "url": job.get("url", ""), "score": 90})
+                if len(out) >= limit: break
     except Exception: pass
-    return out[:limit]
+    return out
 
 def search_arbeitnow(query="", limit=10):
     out = []

@@ -2061,14 +2061,12 @@ async def api_search_hiring(q: str = "", limit: int = 25, email: str = "", targe
             if w2.endswith("ing"): out.add(w2[:-3] + "er"); out.add(w2[:-3])
             if w2.endswith("er"): out.add(w2[:-2] + "ing")
         return out
-    ws = list(expand(q))
-    tw = [w2 for w2 in _re.split(r"[,\s/]+", (target or "").lower()) if len(w2) > 2]
+    # Sources already filtered by query, just sort by target match + score
     def txt(r): return (r.get("title", "") + " " + r.get("description", "")).lower()
-    if ws:
-        pool = [r for r in pool if any(w2 in txt(r) for w2 in ws)]
+    tw = [w2 for w2 in _re.split(r"[,\s/]+", (target or "").lower()) if len(w2) > 2]
     def rank(r):
         t = txt(r)
-        return (any(w2 in t for w2 in tw), any(f in t for f in FREE), r.get("score", 0))
+        return (any(w2 in t for w2 in tw), r.get("score", 0))
     pool.sort(key=rank, reverse=True)
     seen = set(); ded = []
     for r in pool:
