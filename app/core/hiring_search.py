@@ -1,5 +1,19 @@
 import json, re, time, urllib.parse
 import re
+import time
+import random
+
+HEADERS_POOL = [
+    {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36", "Accept-Language": "en-US,en;q=0.9", "Accept": "text/html,application/xhtml+xml"},
+    {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15", "Accept-Language": "en-US,en;q=0.9", "Accept": "text/html,application/xhtml+xml"},
+    {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0", "Accept-Language": "en-US,en;q=0.9", "Accept": "text/html,application/xhtml+xml"},
+    {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36", "Accept-Language": "en-US,en;q=0.9", "Accept": "text/html,application/xhtml+xml"},
+]
+
+def get_headers():
+    time.sleep(random.uniform(0.4, 1.2))  # Human-like delay
+    return random.choice(HEADERS_POOL)
+
 
 def _smart_match(text, query_words):
     """Returns score: higher = better match. 0 = no match."""
@@ -38,7 +52,7 @@ UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.3
 def search_remotive(query="", limit=10):
     out = []
     try:
-        r = requests.get("https://remotive.com/api/remote-jobs", timeout=10, headers=UA)
+        r = requests.get("https://remotive.com/api/remote-jobs", timeout=10, headers=get_headers())
         for job in r.json().get("jobs", []):
             t = job.get("title", "")
             desc = job.get("description", "") or ""
@@ -55,7 +69,7 @@ def search_remotive(query="", limit=10):
 def search_arbeitnow(query="", limit=10):
     out = []
     try:
-        r = requests.get("https://www.arbeitnow.com/api/job-board-api", timeout=10, headers=UA)
+        r = requests.get("https://www.arbeitnow.com/api/job-board-api", timeout=10, headers=get_headers())
         for job in r.json().get("data", []):
             t = job.get("title", ""); text = (t + " " + (job.get("description") or "")).lower()
             if query:
@@ -68,7 +82,7 @@ def search_arbeitnow(query="", limit=10):
 def search_reed(query="", limit=10):
     out = []
     try:
-        r = requests.get("https://www.reed.co.uk/api/1.0/search?keywords=" + urllib.parse.quote(query or "hiring"), timeout=10, headers=UA)
+        r = requests.get("https://www.reed.co.uk/api/1.0/search?keywords=" + urllib.parse.quote(query or "hiring"), timeout=10, headers=get_headers())
         for job in r.json().get("results", [])[:limit]:
             t = job.get("jobTitle", "")
             if t: out.append({"title": t[:180], "platform": "Reed", "url": job.get("jobUrl", ""), "score": 80})
@@ -79,7 +93,7 @@ def search_reddit(query="", limit=15):
     out = []
     for sub in ["forhire", "Jobs", "WorkOnline", "slavelabour", "freelance", "HireAFreelancer"]:
         try:
-            r = requests.get(f"https://www.reddit.com/r/{sub}/new.json", params={"limit": 25, "raw_json": 1}, headers=UA, timeout=8)
+            r = requests.get(f"https://www.reddit.com/r/{sub}/new.json", params={"limit": 25, "raw_json": 1}, headers=get_headers(), timeout=8)
             if r.status_code != 200: continue
             for c in r.json().get("data", {}).get("children", []):
                 v = c.get("data", {}); title = v.get("title", ""); body = v.get("selftext", "")
@@ -95,7 +109,7 @@ def search_reddit(query="", limit=15):
 def search_remoteok(query="", limit=10):
     out = []
     try:
-        r = requests.get("https://remoteok.com/api", timeout=10, headers=UA)
+        r = requests.get("https://remoteok.com/api", timeout=10, headers=get_headers())
         data = r.json(); items = data[1:] if isinstance(data, list) else []
         for job in items:
             t = job.get("position") or ""; u = job.get("url") or ""
@@ -113,7 +127,7 @@ def search_hn(query="", limit=8):
     try:
         ts = int(time.time()) - 30*86400
         q = urllib.parse.quote((query + " hiring").strip())
-        r = requests.get(f"https://hn.algolia.com/api/v1/search_by_date?query={q}&tags=story&numericFilters=created_at_i>{ts}", timeout=10, headers=UA)
+        r = requests.get(f"https://hn.algolia.com/api/v1/search_by_date?query={q}&tags=story&numericFilters=created_at_i>{ts}", timeout=10, headers=get_headers())
         for h in r.json().get("hits", []):
             t = h.get("title") or ""; u = h.get("url") or ""
             if t and u and HIRING_RE.search(t) and not BAD_RE.search(t):
@@ -152,7 +166,7 @@ SOURCE_NAMES = [n for n,_ in ALL_FEEDS] + ["Remotive","RemoteOK","Arbeitnow","Re
 def parse_rss(name, url, query="", limit=3):
     out = []
     try:
-        r = requests.get(url, timeout=8, headers=UA)
+        r = requests.get(url, timeout=8, headers=get_headers())
         soup = BeautifulSoup(r.content, "html.parser")
         for item in soup.find_all("item")[:limit]:
             t = item.find("title").text if item.find("title") else ""
@@ -192,7 +206,7 @@ def search_more(query="", limit=1):
     out=[]
     for name,url in MORE_SOURCES:
         try:
-            r=requests.get(url.format(q=urllib.parse.quote(query or "hiring")), timeout=4, headers=UA)
+            r=requests.get(url.format(q=urllib.parse.quote(query or "hiring")), timeout=4, headers=get_headers())
             soup=BeautifulSoup(r.content,"html.parser"); n=0
             for item in soup.find_all("item"):
                 if n>=limit: break
@@ -206,7 +220,7 @@ def search_reddit_subs(query="", limit=1):
     out=[]
     for sub in REDDIT_SUBS:
         try:
-            r=requests.get("https://www.reddit.com/r/"+sub+"/new.json?limit=5", timeout=4, headers=UA)
+            r=requests.get("https://www.reddit.com/r/"+sub+"/new.json?limit=5", timeout=4, headers=get_headers())
             for ch in r.json()["data"]["children"][:limit]:
                 d=ch["data"]; t2=d.get("title","")
                 if t2 and HIRING_RE.search(t2):
@@ -218,7 +232,7 @@ def search_remotive_cats(query="", limit=3):
     out=[]
     for cat in ["software-development","design","marketing"]:
         try:
-            r=requests.get("https://remotive.com/api/remote-jobs?category="+cat, timeout=5, headers=UA)
+            r=requests.get("https://remotive.com/api/remote-jobs?category="+cat, timeout=5, headers=get_headers())
             for j in r.json().get("jobs",[])[:limit]:
                 t2=j.get("title") or ""; u2=j.get("url") or ""
                 if t2 and u2: out.append({"title":t2[:180],"platform":"Remotive "+cat,"url":u2,"score":80})
@@ -229,7 +243,7 @@ def search_remotive_cats(query="", limit=3):
 def search_jobicy(query="", limit=8):
     out=[]
     try:
-        r=requests.get("https://jobicy.com/api/v2/jobs?count=30", timeout=6, headers=UA)
+        r=requests.get("https://jobicy.com/api/v2/jobs?count=30", timeout=6, headers=get_headers())
         for j in r.json().get("jobs",[])[:limit]:
             t2=j.get("jobTitle") or j.get("title") or ""; u2=j.get("url") or j.get("jobLink") or ""
             if t2 and u2: out.append({"title":t2[:180],"platform":"Jobicy","url":u2,"score":78})
@@ -242,7 +256,7 @@ def search_adzuna(query="", limit=10):
     if not app or not key: return []
     out=[]
     try:
-        r=requests.get("https://api.adzuna.com/v1/api/jobs/us/search?app_id="+app+"&app_key="+key+"&results_per_page="+str(limit)+"&what="+urllib.parse.quote(query or ""), timeout=6, headers=UA)
+        r=requests.get("https://api.adzuna.com/v1/api/jobs/us/search?app_id="+app+"&app_key="+key+"&results_per_page="+str(limit)+"&what="+urllib.parse.quote(query or ""), timeout=6, headers=get_headers())
         for j in r.json().get("results",[]):
             t2=j.get("title") or ""; u2=j.get("redirect_url") or ""
             if t2 and u2: out.append({"title":t2[:180],"platform":"Adzuna","url":u2,"score":80})
@@ -255,7 +269,7 @@ def search_jooble(query="", limit=10):
     if not key: return []
     out=[]
     try:
-        r=requests.post("https://jooble.org/api/"+key, json={"keywords":query or "hiring"}, timeout=6, headers=UA)
+        r=requests.post("https://jooble.org/api/"+key, json={"keywords":query or "hiring"}, timeout=6, headers=get_headers())
         for j in r.json().get("jobs",[]):
             t2=j.get("title") or ""; u2=j.get("link") or ""
             if t2 and u2: out.append({"title":t2[:180],"platform":"Jooble","url":u2,"score":79})
@@ -282,7 +296,7 @@ def search_hiring(query="", limit=25):
 def _rss(name, url, limit=8):
     out=[]
     try:
-        r=requests.get(url, timeout=6, headers=UA)
+        r=requests.get(url, timeout=6, headers=get_headers())
         soup=BeautifulSoup(r.content,"html.parser")
         for item in soup.find_all("item")[:limit]:
             t=item.find("title"); l=item.find("link")
@@ -312,7 +326,7 @@ def search_craigslist_ldn(q="",limit=8): return _rss("Craigslist London","https:
 def search_github_jobs(q="",limit=8):
     out=[]
     try:
-        r=requests.get("https://jobs.github.com/positions.json?description="+urllib.parse.quote(q or ""),timeout=6,headers=UA)
+        r=requests.get("https://jobs.github.com/positions.json?description="+urllib.parse.quote(q or ""),timeout=6,headers=get_headers())
         for j in r.json()[:limit]:
             t=j.get("title") or ""
             if t: out.append({"title":t[:180],"platform":"GitHub Jobs","url":j.get("url",""),"score":84})
@@ -322,7 +336,7 @@ def search_github_jobs(q="",limit=8):
 def search_hackernews_hiring(q="",limit=8):
     out=[]
     try:
-        r=requests.get("https://hn.algolia.com/api/v1/search?query="+urllib.parse.quote(q or "hiring")+"&tags=story",timeout=6,headers=UA)
+        r=requests.get("https://hn.algolia.com/api/v1/search?query="+urllib.parse.quote(q or "hiring")+"&tags=story",timeout=6,headers=get_headers())
         for h in r.json().get("hits",[])[:limit]:
             t=h.get("title") or ""
             if t and HIRING_RE.search(t): out.append({"title":t[:180],"platform":"HackerNews","url":"https://news.ycombinator.com/item?id="+str(h.get("objectID","")),"score":80})
@@ -333,7 +347,7 @@ def search_reddit_jobs(q="",limit=8):
     out=[]
     for sub in ["forhire","jobbit","workonline","freelance","remotejobs"]:
         try:
-            r=requests.get("https://www.reddit.com/r/"+sub+"/new.json?limit=8",timeout=5,headers=UA)
+            r=requests.get("https://www.reddit.com/r/"+sub+"/new.json?limit=8",timeout=5,headers=get_headers())
             for ch in r.json()["data"]["children"][:2]:
                 d=ch["data"]; t=d.get("title","")
                 if t and HIRING_RE.search(t): out.append({"title":t[:180],"platform":"Reddit r/"+sub,"url":"https://reddit.com"+d.get("permalink",""),"score":74})
