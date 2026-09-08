@@ -2107,3 +2107,41 @@ async def home_results(request: Request, token: str = ""):
         import time as _t3
         _HOME["results"][q] = {"ts": _t3.time(), "items": items}
     return {"ok": True, "stored": len(items)}
+
+
+@app.get("/api/generate-proposal")
+async def generate_proposal(job_title: str, email: str = ""):
+    from app.core.models import Subscriber
+    s = SessionLocal()
+    try:
+        row = s.query(Subscriber).filter_by(email=email).first()
+        skills = row.skills if row and row.skills else "professional services"
+        
+        proposal = f"""Dear Hiring Manager,
+
+I am writing to express my strong interest in the {job_title} position. With my expertise in {skills}, I am confident I can deliver exceptional results for your team.
+
+**Why I'm the right fit:**
+• I have proven experience delivering high-quality {skills} solutions
+• I understand the requirements of this role and can start immediately
+• I communicate clearly, meet deadlines, and exceed expectations
+• I'm available for ongoing work and long-term collaboration
+
+**What I bring to the table:**
+• Deep technical expertise in {skills}
+• Strong problem-solving and communication skills
+• Track record of satisfied clients and successful project delivery
+• Flexible availability and quick turnaround times
+
+I would welcome the opportunity to discuss how my skills and experience align with your needs. I'm available for a call at your convenience and can provide references or portfolio samples upon request.
+
+Thank you for considering my application. I look forward to the possibility of working together.
+
+Best regards,
+[Your Name]
+
+P.S. I'm available to start immediately and can provide a detailed project timeline and milestone breakdown upon request."""
+        
+        return {"ok": True, "proposal": proposal, "job": job_title}
+    finally:
+        s.close()
