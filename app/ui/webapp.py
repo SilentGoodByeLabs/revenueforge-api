@@ -2123,22 +2123,35 @@ async def generate_proposal(job_title: str, email: str = ""):
             skills = getattr(row, "skills", None) if row else None
             skills = skills or "professional services"
             proposal = (
-                "Dear Hiring Manager,\n\n"
-                "I am writing regarding the position: " + job_title + ".\n\n"
-                "With my experience in " + skills + ", I can deliver fast, quality results.\n\n"
-                "I offer:\n"
-                "- Clear communication and regular updates\n"
-                "- On-time delivery with revisions until you are satisfied\n"
-                "- Competitive pricing\n\n"
-                "I would love to discuss your project. Reply here or contact me at " + email + ".\n\n"
-                "Best regards,\n" + email
+                "Dear Hiring Manager,
+
+"
+                "I am writing regarding the position: " + job_title + ".
+
+"
+                "With my experience in " + skills + ", I can deliver fast, quality results.
+
+"
+                "I offer:
+"
+                "- Clear communication and regular updates
+"
+                "- On-time delivery with revisions until you are satisfied
+"
+                "- Competitive pricing
+
+"
+                "I would love to discuss your project. Reply here or contact me at " + email + ".
+
+"
+                "Best regards,
+" + email
             )
             return {"ok": True, "proposal": proposal}
         finally:
             s.close()
     except Exception as e:
         return {"ok": False, "error": str(e)}
-
 
 @app.get("/api/telegram/bot-info")
 async def telegram_bot_info():
