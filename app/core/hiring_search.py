@@ -174,6 +174,13 @@ MORE_SOURCES = [
     ("WWR Design","https://weworkremotely.com/categories/remote-design-jobs/feed"),
     ("WWR Marketing","https://weworkremotely.com/categories/remote-marketing-jobs/feed"),
 ]
+
+def matches_query(title, query):
+    if not query: return True
+    q_words = [w.lower() for w in query.replace(","," ").split() if len(w) > 2]
+    t = title.lower()
+    return any(w in t for w in q_words)
+
 def search_more(query="", limit=1):
     out=[]
     for name,url in MORE_SOURCES:
@@ -195,7 +202,7 @@ def search_reddit_subs(query="", limit=1):
             r=requests.get("https://www.reddit.com/r/"+sub+"/new.json?limit=5", timeout=4, headers=get_headers())
             for ch in r.json()["data"]["children"][:limit]:
                 d=ch["data"]; t2=d.get("title","")
-                if t2 and HIRING_RE.search(t2):
+                if t2 and HIRING_RE.search(t2) and matches_query(t2, query):
                     out.append({"title":t2[:180],"platform":"Reddit r/"+sub,"url":"https://reddit.com"+d.get("permalink",""),"score":74,"profile":"https://reddit.com/user/"+str(d.get("author",""))})
         except Exception: continue
     return out
@@ -207,7 +214,7 @@ def search_remotive_cats(query="", limit=3):
             r=requests.get("https://remotive.com/api/remote-jobs?category="+cat, timeout=5, headers=get_headers())
             for j in r.json().get("jobs",[])[:limit]:
                 t2=j.get("title") or ""; u2=j.get("url") or ""
-                if t2 and u2: out.append({"title":t2[:180],"platform":"Remotive "+cat,"url":u2,"score":80})
+                if t2 and u2 and matches_query(t2, query): out.append({"title":t2[:180],"platform":"Remotive "+cat,"url":u2,"score":80})
         except Exception: continue
     return out
 
