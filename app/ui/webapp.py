@@ -2079,3 +2079,31 @@ async def api_search_hiring(q: str = "", limit: int = 25, email: str = "", targe
         off = n % len(ded); ded = ded[off:] + ded[:off]
     ded = ded[:5] if not sub["paid"] else ded[:limit]
     return {"ok": True, "query": q, "count": len(ded), "results": ded, "plan": sub["plan"]}
+
+import os as _os_home
+_HOME_TOKEN = _os_home.environ.get("HOME_WORKER_TOKEN", "rf-home-1")
+_HOME = {"pending": [], "results": {}}
+
+@app.post("/api/home/request")
+async def home_request(request: Request):
+    p = await request.json()
+    q = (p.get("query") or "").strip()
+    if q and q not in _HOME["pending"]:
+        _HOME["pending"].append(q)
+    return {"ok": True}
+
+@app.get("/api/home/poll")
+async def home_poll(token: str = ""):
+    if token != _HOME_TOKEN: return {"ok": False, "error": "bad token"}
+    q = _HOME["pending"].pop(0) if _HOME["pending"] else None
+    return {"ok": True, "query": q}
+
+@app.post("/api/home/results")
+async def home_results(request: Request, token: str = ""):
+    if token != _HOME_TOKEN: return {"ok": False, "error": "bad token"}
+    p = await request.json()
+    q = (p.get("query") or "").strip(); items = p.get("results") or []
+    if q:
+        import time as _t3
+        _HOME["results"][q] = {"ts": _t3.time(), "items": items}
+    return {"ok": True, "stored": len(items)}

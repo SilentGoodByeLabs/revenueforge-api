@@ -14,7 +14,7 @@ var API='https://revenueforge-api.onrender.com';
 document.getElementById('f').addEventListener('submit',function(e){e.preventDefault();
  var em=document.getElementById('em').value;
  var fd=new URLSearchParams();fd.append('email',em);fd.append('password',document.getElementById('pw').value);fd.append('captcha','skip');
- function fin(){sessionStorage.setItem('rf_session',JSON.stringify({email:em}));location.href='portal.html?authed='+encodeURIComponent(em);}
+ function fin(){sessionStorage.setItem('rf_session',JSON.stringify({email:em}));var ret=new URLSearchParams(location.search).get('return'); location.href=ret||('portal.html?authed='+encodeURIComponent(em));}
  fetch(API+'/api/join-form',{method:'POST',body:fd,redirect:'manual'}).then(fin).catch(fin);
 });
 </script></body></html>
