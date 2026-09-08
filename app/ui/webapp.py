@@ -2111,11 +2111,13 @@ async def home_results(request: Request, token: str = ""):
 
 @app.get("/api/generate-proposal")
 async def generate_proposal(job_title: str, email: str = ""):
-    from app.core.models import Subscriber
-    s = SessionLocal()
     try:
-        row = s.query(Subscriber).filter_by(email=email).first()
-        skills = row.skills if row and row.skills else "professional services"
+        from app.core.models import Subscriber
+        s = SessionLocal()
+        try:
+            row = s.query(Subscriber).filter_by(email=email).first()
+            skills = getattr(row, "skills", None) if row else None
+            skills = skills or "professional services"
         
         proposal = f"""Dear Hiring Manager,
 
