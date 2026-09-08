@@ -145,6 +145,19 @@ footer .b{font-family:'Sora';font-weight:800}footer .b b{color:var(--accent)}foo
     <label>WhatsApp (Growth+)</label><input id="wa" placeholder="">
     <button class="btn btn-p" id="alertBtn" style="margin-top:16px">Save alerts</button>
     <button class="btn btn-d" id="outBtn" onclick="doLogout()" style="margin-top:16px"><i class="fa-solid fa-sign-out"></i> Logout</button></div></div>
+<div class="card" id="tgCard" style="display:none"><h3>🔔 Telegram alerts (Pro/Growth)</h3>
+  <p class="muted">Our alerts bot: <b id="tgBotUser">…</b></p>
+  <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:12px;margin:10px 0">
+    <p class="muted" style="margin:0"><b>How to link your Telegram (one time):</b></p>
+    <ol style="margin:6px 0 0 20px;line-height:1.7;color:#334155;font-size:.9rem">
+      <li>Open Telegram, search <b id="tgBotUser2">…</b> and open the chat</li>
+      <li>Send exactly: <code id="tgCmd" style="background:#fff;padding:2px 8px;border-radius:6px;font-family:monospace">…</code></li>
+      <li>The bot confirms the link</li>
+      <li>Tap <b>Test alert</b> — a message must arrive instantly</li>
+    </ol>
+  </div>
+  <button class="btn btn-p" id="tgTestBtn">📨 Test alert</button>
+  <span id="tgTestMsg" class="muted" style="margin-left:10px"></span></div>
 <div id="view-help" style="display:none"><div class="crumbs">Dashboard / Help</div><h1>Help & Guide</h1>
   <div class="card"><ol style="margin-left:20px;line-height:2"><li>Configure skills in My Engine.</li><li>Start the engine (keeps running until you stop it).</li><li>Review proposals, message hirers, view profiles.</li><li>Publish services; advertise on many sources.</li><li>Track prospects to WON.</li></ol></div></div>
 </main>
@@ -188,7 +201,7 @@ function hasCfg(){var c=ls('rf_cfg',null);return !!(c&&c.skills);}
 function go(v){var ids=['ov','eng','jobs','serv','social','pros','ana','plan','set','help'];for(var i=0;i<ids.length;i++){var el=$('view-'+ids[i]);if(el)el.style.display=(ids[i]===v)?'block':'none';}
  var bs=document.querySelectorAll('.nav-i');for(var j=0;j<bs.length;j++)bs[j].classList.toggle('active',bs[j].getAttribute('data-view')===v);
  $('side').classList.remove('open');window.scrollTo(0,0);if(history.replaceState)history.replaceState(null,'','#'+v);
- if(v==='ov')loadOv();if(v==='serv')loadServ();if(v==='social')loadSocial();if(v==='pros')loadPros();if(v==='ana')loadAna();if(v==='plan')loadPlan();if(v==='jobs')loadJobs();if(v==='eng')loadEng();}
+ if(v==='ov')loadOv();if(v==='serv')loadServ();if(v==='social')loadSocial();if(v==='pros')loadPros();if(v==='ana')loadAna();if(v==='plan')loadPlan();if(v==='jobs')loadJobs();if(v==='eng')loadEng();if(v==='set')loadTgInfo();}
 document.querySelectorAll('.nav-i').forEach(function(b){b.addEventListener('click',function(){go(this.getAttribute('data-view'));});});
 document.querySelectorAll('[data-go]').forEach(function(b){b.addEventListener('click',function(){go(this.getAttribute('data-go'));});});
 $('burger').addEventListener('click',function(){$('acctMenu').style.display='none';$('side').classList.toggle('open');});

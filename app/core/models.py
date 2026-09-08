@@ -276,3 +276,17 @@ class UpgradeCode(Base):
     used = Column(String, default="")
 
 Subscriber = SubscriberProduct
+
+
+class TelegramLink(Base):
+    __tablename__ = "telegram_links"
+    id = Column(Integer, primary_key=True)
+    email = Column(String, default="")
+    chat_id = Column(String, default="")
+
+class SupportTicket(Base):
+    __tablename__ = "support_tickets"
+    id = Column(Integer, primary_key=True)
+    email = Column(String, default="")
+    message = Column(String, default="")
+    created = Column(String, default="")
