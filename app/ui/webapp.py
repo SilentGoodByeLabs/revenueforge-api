@@ -2057,9 +2057,8 @@ async def api_search_hiring(q: str = "", limit: int = 25, email: str = "", targe
             if w.endswith("er"): out.add(w[:-2] + "ing")
         return out
 
-    def root(w): return w[:5] if len(w) >= 5 else w
-    ws = [root(w) for w in expand(q)]
-    tw = [root(w) for w in _re.split(r"[,\s/]+", (target or "").lower()) if len(w) > 2]
+    ws = list(expand(q))
+    tw = [w for w in _re.split(r"[,\s/]+", (target or "").lower()) if len(w) > 2]
     def txt(r): return (r.get("title", "") + " " + r.get("description", "")).lower()
     if ws:
         pool = [r for r in pool if any(w in txt(r) for w in ws)]
@@ -2149,9 +2148,8 @@ async def api_search_hiring(q: str = "", limit: int = 25, email: str = "", targe
             if w.endswith("er"): out.add(w[:-2] + "ing")
         return out
 
-    def root(w): return w[:5] if len(w) >= 5 else w
-    ws = [root(w) for w in expand(q)]
-    tw = [root(w) for w in _re.split(r"[,\s/]+", (target or "").lower()) if len(w) > 2]
+    ws = list(expand(q))
+    tw = [w for w in _re.split(r"[,\s/]+", (target or "").lower()) if len(w) > 2]
     def txt(r): return (r.get("title", "") + " " + r.get("description", "")).lower()
     if ws:
         pool = [r for r in pool if any(w in txt(r) for w in ws)]
