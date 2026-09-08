@@ -2045,3 +2045,31 @@ async def api_search_hiring(q: str = "", limit: int = 25, email: str = "", targe
     ded = ded[:5] if not sub["paid"] else ded[:limit]
     return {"ok": True, "query": q, "count": len(ded), "results": ded, "plan": sub["plan"]}
 
+@app.get("/api/search-hiring")
+async def api_search_hiring(q: str = "", limit: int = 25, email: str = "", target: str = ""):
+    from app.core.hiring_search import search_hiring
+    import re as _re
+    sub = await _sub_info(email, None)
+    if not sub["active"]:
+        return {"ok": False, "error": "trial_expired", "query": q, "count": 0, "results": []}
+    pool = search_hiring(q, max(limit * 4, 24))
+    def root(w): return w[:5] if len(w) >= 5 else w
+    ws = [root(w) for w in _re.split(r"[,\s/]+", (q or "").lower()) if len(w) > 2]
+    tw = [root(w) for w in _re.split(r"[,\s/]+", (target or "").lower()) if len(w) > 2]
+    def txt(r): return (r.get("title", "") + " " + r.get("description", "")).lower()
+    if ws:
+        pool = [r for r in pool if any(w in txt(r) for w in ws)]
+    if tw:
+        pool.sort(key=lambda r: (any(w in txt(r) for w in tw), r.get("score", 0)), reverse=True)
+    seen = set(); ded = []
+    for r in pool:
+        if r["url"] not in seen:
+            seen.add(r["url"]); ded.append(r)
+    key = (email or "anon", q, target)
+    rot = globals().setdefault("_ROT", {})
+    n = rot.get(key, 0); rot[key] = n + 1
+    if ded:
+        off = n % len(ded); ded = ded[off:] + ded[:off]
+    ded = ded[:5] if not sub["paid"] else ded[:limit]
+    return {"ok": True, "query": q, "count": len(ded), "results": ded, "plan": sub["plan"]}
+
