@@ -2187,15 +2187,23 @@ async def owner_support():
         s.close()
 
 
+
+
 @app.get("/api/generate-proposal")
 async def generate_proposal(job_title: str, email: str = ""):
     try:
-        from app.core.models import Subscriber
+        from app.core.db import SessionLocal
+        from sqlalchemy import text
         s = SessionLocal()
         try:
-            row = s.query(Subscriber).filter_by(email=email).first()
-            skills = getattr(row, "skills", None) if row else None
-            skills = skills or "professional services"
+            # Query subscriber_profiles for skills (that's where they live)
+            result = s.execute(
+                text("SELECT skills FROM subscriber_profiles WHERE email = :email"),
+                {"email": email}
+            ).fetchone()
+            
+            skills = result[0] if result and result[0] else "professional services"
+            
             parts = []
             parts.append("Dear Hiring Manager,")
             parts.append("")
