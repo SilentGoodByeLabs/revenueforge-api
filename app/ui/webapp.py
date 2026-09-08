@@ -2138,3 +2138,34 @@ async def generate_proposal(job_title: str, email: str = ""):
             s.close()
     except Exception as e:
         return {"ok": False, "error": str(e)}
+
+
+@app.get("/api/telegram/bot-info")
+async def telegram_bot_info():
+    import os
+    return {"ok": True, "username": os.environ.get("TELEGRAM_BOT_USERNAME", "")}
+
+@app.post("/api/telegram/test-alert")
+async def telegram_test_alert(request: Request):
+    import os, requests as _rq
+    p = await request.json()
+    email = p.get("email", "")
+    tok = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+    if not tok:
+        return {"ok": False, "error": "Bot not configured"}
+    from app.core.models import TelegramLink, Subscriber
+    s = SessionLocal()
+    try:
+        row = s.query(Subscriber).filter_by(email=email).first()
+        if not row or (getattr(row, "plan", "Free") or "Free") in ("Free", "free", ""):
+            return {"ok": False, "error": "Pro/Growth plan required"}
+        lk = s.query(TelegramLink).filter_by(email=email).first()
+        if not lk:
+            return {"ok": False, "error": "Not linked yet"}
+        r = _rq.post("https://api.telegram.org/bot" + tok + "/sendMessage",
+                     json={"chat_id": lk.chat_id, "text": "✅ RevenueForge alert test — your Telegram notifications are working!"}, timeout=5)
+        if r.json().get("ok"):
+            return {"ok": True}
+        return {"ok": False, "error": str(r.json())}
+    finally:
+        s.close()
