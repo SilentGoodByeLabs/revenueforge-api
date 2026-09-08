@@ -2169,3 +2169,46 @@ async def telegram_test_alert(request: Request):
         return {"ok": False, "error": str(r.json())}
     finally:
         s.close()
+
+
+@app.get("/api/telegram/test")
+async def telegram_test(email: str = ""):
+    import os, requests as _rq
+    tok = os.environ.get("TELEGRAM_BOT_TOKEN") or ""
+    if not tok:
+        return {"ok": False, "error": "TELEGRAM_BOT_TOKEN not set"}
+    from app.core.models import TelegramLink
+    s = SessionLocal()
+    try:
+        lk = s.query(TelegramLink).filter_by(email=email).first()
+        if not lk:
+            return {"ok": False, "error": "No Telegram linked for this email"}
+        r = _rq.post("https://api.telegram.org/bot" + tok + "/sendMessage",
+                     json={"chat_id": lk.chat_id, "text": "✅ Test message — your Telegram is working!"}, timeout=5)
+        if r.json().get("ok"):
+            return {"ok": True, "message": "Sent!"}
+        return {"ok": False, "error": str(r.json())}
+    finally:
+        s.close()
+
+@app.post("/api/support")
+async def support_add(request: Request):
+    import time
+    p = await request.json()
+    from app.core.models import SupportTicket
+    s = SessionLocal()
+    try:
+        s.add(SupportTicket(email=p.get("email",""), message=p.get("message",""), created=str(time.time())))
+        s.commit()
+        return {"ok": True}
+    finally:
+        s.close()
+
+@app.get("/api/owner/support")
+async def owner_support():
+    from app.core.models import SupportTicket
+    s = SessionLocal()
+    try:
+        return {"ok": True, "tickets": [{"email": r.email, "message": r.message, "created": r.created} for r in s.query(SupportTicket).order_by(SupportTicket.id.desc()).limit(50).all()]}
+    finally:
+        s.close()
