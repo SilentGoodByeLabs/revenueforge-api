@@ -244,3 +244,82 @@ def search_hiring(query="", limit=25):
         seen.add(k); clean.append(r)
     clean.sort(key=lambda x: x["score"], reverse=True)
     return clean[:limit]
+
+def _rss(name, url, limit=8):
+    out=[]
+    try:
+        r=requests.get(url, timeout=6, headers=UA)
+        soup=BeautifulSoup(r.content,"html.parser")
+        for item in soup.find_all("item")[:limit]:
+            t=item.find("title"); l=item.find("link")
+            if t and l: out.append({"title":t.get_text()[:180],"platform":name,"url":l.get_text(),"score":78})
+    except Exception: pass
+    return out
+
+def search_indeed_uk(q="",limit=8): return _rss("Indeed UK","https://www.indeed.co.uk/rss?q="+urllib.parse.quote(q or "hiring"),limit)
+def search_indeed_ca(q="",limit=8): return _rss("Indeed Canada","https://ca.indeed.com/rss?q="+urllib.parse.quote(q or "hiring"),limit)
+def search_indeed_au(q="",limit=8): return _rss("Indeed Australia","https://au.indeed.com/rss?q="+urllib.parse.quote(q or "hiring"),limit)
+def search_indeed_in(q="",limit=8): return _rss("Indeed India","https://www.indeed.co.in/rss?q="+urllib.parse.quote(q or "hiring"),limit)
+def search_indeed_de(q="",limit=8): return _rss("Indeed Germany","https://de.indeed.com/rss?q="+urllib.parse.quote(q or "hiring"),limit)
+def search_weworkremotely(q="",limit=8): return _rss("WeWorkRemotely","https://weworkremotely.com/jobs.rss",limit)
+def search_remoteok_rss(q="",limit=8): return _rss("RemoteOK","https://remoteok.io/rss",limit)
+def search_jobs2careers(q="",limit=8): return _rss("Jobs2Careers","https://www.jobs2careers.com/rssfeed.php?search="+urllib.parse.quote(q or ""),limit)
+def search_careerbuilder(q="",limit=8): return _rss("CareerBuilder","https://www.careerbuilder.com/jobs.rss?keywords="+urllib.parse.quote(q or ""),limit)
+def search_monster(q="",limit=8): return _rss("Monster","https://www.monster.com/jobs/rss.aspx?where="+urllib.parse.quote(q or ""),limit)
+def search_simplyhired(q="",limit=8): return _rss("SimplyHired","https://www.simplyhired.com/rss?q="+urllib.parse.quote(q or ""),limit)
+def search_freelancer(q="",limit=8): return _rss("Freelancer","https://www.freelancer.com/rss.xml?keyword="+urllib.parse.quote(q or ""),limit)
+def search_guru(q="",limit=8): return _rss("Guru","https://www.guru.com/d/rss.aspx?keywords="+urllib.parse.quote(q or ""),limit)
+def search_reed(q="",limit=8): return _rss("Reed UK","https://www.reed.co.uk/rss/jobs?keywords="+urllib.parse.quote(q or ""),limit)
+def search_stackoverflow(q="",limit=8): return _rss("Stack Overflow","https://stackoverflow.com/jobs/feed?q="+urllib.parse.quote(q or ""),limit)
+def search_craigslist(q="",limit=8): return _rss("Craigslist","https://sfbay.craigslist.org/search/jjj?format=rss&query="+urllib.parse.quote(q or ""),limit)
+def search_craigslist_ny(q="",limit=8): return _rss("Craigslist NY","https://newyork.craigslist.org/search/jjj?format=rss&query="+urllib.parse.quote(q or ""),limit)
+def search_craigslist_ldn(q="",limit=8): return _rss("Craigslist London","https://london.craigslist.org/search/jjj?format=rss&query="+urllib.parse.quote(q or ""),limit)
+
+def search_github_jobs(q="",limit=8):
+    out=[]
+    try:
+        r=requests.get("https://jobs.github.com/positions.json?description="+urllib.parse.quote(q or ""),timeout=6,headers=UA)
+        for j in r.json()[:limit]:
+            t=j.get("title") or ""
+            if t: out.append({"title":t[:180],"platform":"GitHub Jobs","url":j.get("url",""),"score":84})
+    except Exception: pass
+    return out
+
+def search_hackernews_hiring(q="",limit=8):
+    out=[]
+    try:
+        r=requests.get("https://hn.algolia.com/api/v1/search?query="+urllib.parse.quote(q or "hiring")+"&tags=story",timeout=6,headers=UA)
+        for h in r.json().get("hits",[])[:limit]:
+            t=h.get("title") or ""
+            if t and HIRING_RE.search(t): out.append({"title":t[:180],"platform":"HackerNews","url":"https://news.ycombinator.com/item?id="+str(h.get("objectID","")),"score":80})
+    except Exception: pass
+    return out
+
+def search_reddit_jobs(q="",limit=8):
+    out=[]
+    for sub in ["forhire","jobbit","workonline","freelance","remotejobs"]:
+        try:
+            r=requests.get("https://www.reddit.com/r/"+sub+"/new.json?limit=8",timeout=5,headers=UA)
+            for ch in r.json()["data"]["children"][:2]:
+                d=ch["data"]; t=d.get("title","")
+                if t and HIRING_RE.search(t): out.append({"title":t[:180],"platform":"Reddit r/"+sub,"url":"https://reddit.com"+d.get("permalink",""),"score":74})
+        except Exception: continue
+    return out
+
+_NAMES = ["search_remotive","search_arbeitnow","search_remotive_cats","search_remoteok","search_hn","search_muse",
+"search_jobicy","search_craigslist","search_craigslist_ny","search_craigslist_ldn","search_indeed_uk","search_indeed_ca",
+"search_indeed_au","search_indeed_in","search_indeed_de","search_github_jobs","search_stackoverflow","search_weworkremotely",
+"search_remoteok_rss","search_jobs2careers","search_careerbuilder","search_monster","search_simplyhired","search_freelancer",
+"search_guru","search_reed","search_hackernews_hiring","search_reddit_jobs"]
+ALL_SOURCES = [globals()[n] for n in _NAMES if n in globals()]
+
+import random as _random
+def search_hiring_rotated(query="", limit=25):
+    n = _random.randint(12, min(20, len(ALL_SOURCES)))
+    chosen = _random.sample(ALL_SOURCES, n)
+    out = []
+    for fn in chosen:
+        try: out.extend(fn(query=query, limit=max(3, limit // n + 2)))
+        except Exception: continue
+    _random.shuffle(out)
+    return out[:limit * 3]

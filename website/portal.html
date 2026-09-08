@@ -85,7 +85,7 @@ footer .b{font-family:'Sora';font-weight:800}footer .b b{color:var(--accent)}foo
     <div class="row"><span>3 · Sell everywhere</span><button class="btn btn-o" data-go="serv">Open</button></div>
     <div class="row"><span>4 · Upgrade for more</span><button class="btn btn-p" data-go="plan">Upgrade</button></div>
   </div>
-  <div class="card"><h3><i class="fa-solid fa-robot"></i> Your engine</h3><p class="muted"><span class="dot"></span>It finds jobs, writes proposals & sells for you across 10+ platforms.</p><button class="btn btn-p" data-go="eng" style="margin-top:14px">Open my engine</button></div>
+  <div class="card"><h3><i class="fa-solid fa-robot"></i> Your engine</h3><p class="muted"><span class="dot"></span>It finds jobs, writes proposals & sells for you across many sources.</p><button class="btn btn-p" data-go="eng" style="margin-top:14px">Open my engine</button></div>
 </div>
 <div id="view-eng" style="display:none"><div class="crumbs">Dashboard / My Engine</div><h1>My Engine</h1>
   <div class="card"><h2><i class="fa-solid fa-robot"></i> Engine configuration</h2>
@@ -114,7 +114,7 @@ footer .b{font-family:'Sora';font-weight:800}footer .b b{color:var(--accent)}foo
     <label>Contact method</label><select id="sv_cm"><option>whatsapp</option><option>telegram</option><option>email</option><option>phone</option></select>
     <label>Contact value (number/username/email)</label><input id="sv_cv" placeholder="+your country code… or @username or email">
     <button class="btn btn-p" id="pubBtn" style="margin-top:18px"><i class="fa-solid fa-floppy-disk"></i> Publish service</button>
-<p class="muted" style="margin-top:12px">Publishing advertises your service automatically: live on the public Marketplace + posted to Telegram (Pro) + a ready ad pack for 30+ platforms.</p>
+<p class="muted" style="margin-top:12px">Publishing advertises your service automatically: live on the public Marketplace + posted to Telegram (Pro) + a ready ad pack for many sources.</p>
   </div>
   <div class="card"><h2>Published services</h2><div id="servBody" class="muted">Loading…</div></div></div>
 <div id="view-social" style="display:none"><div class="crumbs">Dashboard / Social Selling</div><h1>Social Selling</h1>
@@ -139,7 +139,7 @@ footer .b{font-family:'Sora';font-weight:800}footer .b b{color:var(--accent)}foo
 <div id="view-plan" style="display:none"><div class="crumbs">Dashboard / Plan</div><h1>Plan & Billing</h1>
   <div class="card"><h3>Your current plan</h3><p class="muted" id="planNow">Loading…</p></div>
   <div class="card"><h3>Starter — Free trial</h3><div style="font-family:Sora;font-size:1.6rem;font-weight:800">$0</div><ul style="margin-left:18px;line-height:1.9;color:#334155"><li>24-hour trial</li><li>5 job results per search</li><li>No publishing / selling / alerts</li></ul></div>
-  <div class="card" style="border:2px solid var(--accent)"><h3>Pro ⚡</h3><div style="font-family:Sora;font-size:1.6rem;font-weight:800">$19/mo</div><ul style="margin-left:18px;line-height:1.9;color:#334155"><li>Unlimited matches on 30+ sources</li><li>Publish & sell on marketplace</li><li>Telegram job & sale alerts</li><li>Auto-advertise on 20+ platforms</li></ul><button class="btn btn-p" onclick="payPlan('Pro',19)" style="margin-top:12px"><i class="fa-solid fa-bolt"></i> Upgrade now — $19/mo</button></div>
+  <div class="card" style="border:2px solid var(--accent)"><h3>Pro ⚡</h3><div style="font-family:Sora;font-size:1.6rem;font-weight:800">$19/mo</div><ul style="margin-left:18px;line-height:1.9;color:#334155"><li>Unlimited matches on many sources</li><li>Publish & sell on marketplace</li><li>Telegram job & sale alerts</li><li>Auto-advertise on many sources</li></ul><button class="btn btn-p" onclick="payPlan('Pro',19)" style="margin-top:12px"><i class="fa-solid fa-bolt"></i> Upgrade now — $19/mo</button></div>
   <div class="card"><h3>Growth</h3><div style="font-family:Sora;font-size:1.6rem;font-weight:800">$49/mo</div><ul style="margin-left:18px;line-height:1.9;color:#334155"><li>Everything in Pro</li><li>WhatsApp alerts (connected Twilio)</li><li>Priority engine runs</li></ul><button class="btn btn-p" onclick="payPlan('Growth',49)" style="margin-top:12px">Go Growth — $49/mo</button></div>
   <p class="muted">Payments processed securely by Paystack — cards from any country (USD). Your plan activates the second payment confirms.</p></div>
 <div id="view-set" style="display:none"><div class="crumbs">Dashboard / Settings</div><h1>Settings & Alerts</h1>
@@ -149,7 +149,7 @@ footer .b{font-family:'Sora';font-weight:800}footer .b b{color:var(--accent)}foo
     <button class="btn btn-p" id="alertBtn" style="margin-top:16px">Save alerts</button>
     <button class="btn btn-d" id="outBtn" onclick="doLogout()" style="margin-top:16px"><i class="fa-solid fa-sign-out"></i> Logout</button></div></div>
 <div id="view-help" style="display:none"><div class="crumbs">Dashboard / Help</div><h1>Help & Guide</h1>
-  <div class="card"><ol style="margin-left:20px;line-height:2"><li>Configure skills in My Engine.</li><li>Start the engine (keeps running until you stop it).</li><li>Review proposals, message hirers, view profiles.</li><li>Publish services; advertise on 20+ platforms.</li><li>Track prospects to WON.</li></ol></div></div>
+  <div class="card"><ol style="margin-left:20px;line-height:2"><li>Configure skills in My Engine.</li><li>Start the engine (keeps running until you stop it).</li><li>Review proposals, message hirers, view profiles.</li><li>Publish services; advertise on many sources.</li><li>Track prospects to WON.</li></ol></div></div>
 </main>
 <footer><div class="b">Revenue <b>Forge</b></div><p>The autonomous revenue engine for freelancers and agencies.</p></footer>
 <div id="modal" style="display:none;position:fixed;inset:0;background:rgba(11,34,57,.6);z-index:300;padding:20px;overflow:auto">
@@ -213,7 +213,7 @@ $('startBtn').addEventListener('click',function(){sv('rf_eng',{on:true});fetch(A
 $('stopBtn').addEventListener('click',function(){sv('rf_eng',{on:false});fetch(API+'/api/engine-toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,on:false})}).catch(function(){});engUI();alert('✓ Engine stopped.');});
 $('runBtn').addEventListener('click',runEng);$('refBtn').addEventListener('click',runEng);
 function runEng(){if(window.SUB&&SUB.locked){alert('Your free trial has ended — upgrade to continue.');go('plan');return;} if(!hasCfg()){alert('Configure your skills first — My Engine → Save settings.');go('eng');return;}
- var q=$('skills').value;$('jobsBody').innerHTML='Searching 30+ sources…';fetch(API+'/api/search-hiring?q='+encodeURIComponent(q)+'&limit=15&email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){if(!d.ok){alert('Trial expired — upgrade to continue.');go('plan');return;} var rs=d.results||[];if(window.SUB&&!SUB.paid)rs=rs.slice(0,5);sv('rf_jobs',rs);renderJobs(rs);go('jobs');}).catch(function(){$('jobsBody').innerHTML='Search error.';});}
+ var q=$('skills').value;$('jobsBody').innerHTML='Searching many sources…';fetch(API+'/api/search-hiring?q='+encodeURIComponent(q)+'&limit=15&email='+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){if(!d.ok){alert('Trial expired — upgrade to continue.');go('plan');return;} var rs=d.results||[];if(window.SUB&&!SUB.paid)rs=rs.slice(0,5);sv('rf_jobs',rs);renderJobs(rs);go('jobs');}).catch(function(){$('jobsBody').innerHTML='Search error.';});}
 function proposal(r){var c=ls('rf_cfg',null);var sk=(c&&c.skills)||'this field';return 'Hi there,\n\nI found your opening "'+r.title+'" on '+r.platform+' and I can help you right away.\n\nWhat I offer:\n• Proven experience in '+sk+'\n• Fast, reliable delivery (2-5 days) with clear communication\n• Free support after delivery - you only pay when satisfied\n\nHow I work:\n1. Quick chat to confirm your exact needs\n2. Deliver a working result with updates along the way\n3. Handover + documentation + support\n\nI can start immediately. Reply here or contact me at '+sess.email+'.\n\nBest regards,\n'+sess.email;}
 var CURJOB=null;
 function openModal(r){CURJOB=r;$('propTxt').value=proposal(r);$('modal').style.display='block';}
@@ -269,7 +269,7 @@ function loadAna(){var l=ls('rf_pros','[]');var c={New:0,Contacted:0,Replied:0,W
  $('anaBody').innerHTML=['New','Contacted','Replied','Won'].map(function(st){return '<div class="muted">'+st+' · '+c[st]+'</div><div class="bar"><i style="width:'+(c[st]/tot*100)+'%"></i></div>';}).join('')+
  '<div class="row"><span>Jobs matched</span><b>'+(hasCfg()?ls('rf_jobs','[]').length:0)+'</b></div><div class="row"><span>Proposals submitted</span><b>'+ls('rf_apps','[]').length+'</b></div><div class="row"><span>Services live</span><b>'+s+'</b></div><div class="row"><span>Clients won</span><b>'+c.Won+'</b></div>';}).catch(function(){});}
 function loadPlan(){fetch(API+'/api/sub/'+encodeURIComponent(sess.email)).then(function(r){return r.json();}).then(function(d){window.SUB=d;renderPlan();}).catch(function(){$('planNow').innerHTML='Plan: <b>Free</b>.';});}
-function renderPlan(){var d=window.SUB||{};if(d.paid)$('planNow').innerHTML='Plan: <b>'+d.plan+'</b> — ACTIVE ✔<br>What you get: unlimited matches on 30+ sources · publish & sell on marketplace · Telegram alerts · auto-advertise on 20+ platforms.';else if(d.trial_active)$('planNow').innerHTML='<b>Free trial</b> — '+d.trial_hours_left+'h left · 5 results · selling locked.';else $('planNow').innerHTML='<b>Trial expired.</b> Upgrade to continue — engine paused.';}
+function renderPlan(){var d=window.SUB||{};if(d.paid)$('planNow').innerHTML='Plan: <b>'+d.plan+'</b> — ACTIVE ✔<br>What you get: unlimited matches on many sources · publish & sell on marketplace · Telegram alerts · auto-advertise on many sources.';else if(d.trial_active)$('planNow').innerHTML='<b>Free trial</b> — '+d.trial_hours_left+'h left · 5 results · selling locked.';else $('planNow').innerHTML='<b>Trial expired.</b> Upgrade to continue — engine paused.';}
 ('alertBtn').addEventListener('click',function(){if(window.SUB&&!SUB.paid){alert('Alerts are a Pro feature — see Plan & Billing.');go('plan');return;} sv('rf_alerts',{wa:$('wa').value,tg:$('tg').value});fetch(API+'/api/save-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:sess.email,telegram:$('tg').value,whatsapp:$('wa').value})}).catch(function(){});alert('✓ Alerts saved');});
 (function(){var a=ls('rf_alerts',null);if(a){$('wa').value=a.wa||'';$('tg').value=a.tg||'';}})();
 $('outBtn').addEventListener('click',function(){sessionStorage.removeItem('rf_session');location.href='login.html';});
