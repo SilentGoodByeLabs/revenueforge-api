@@ -2111,6 +2111,8 @@ async def home_results(request: Request, token: str = ""):
 
 
 
+
+
 @app.get("/api/generate-proposal")
 async def generate_proposal(job_title: str, email: str = ""):
     try:
