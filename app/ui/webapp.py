@@ -1664,8 +1664,8 @@ async def save_alerts(request: Request):
     p = await request.json(); email = p.get("email", "")
     s = SessionLocal()
     try:
-        from app.core.models import Subscriber
-        row = s.query(Subscriber).filter_by(email=email).first()
+        from app.core.models import Member
+        row = s.query(Member).filter_by(email=email).first()
         if row:
             for k in ["telegram", "whatsapp"]:
                 if hasattr(row, k): setattr(row, k, p.get(k, ""))
@@ -1680,8 +1680,8 @@ async def alert_test(request: Request):
     from app.core.alerts import send_telegram, send_whatsapp, telegram_ok, whatsapp_ok
     s = SessionLocal(); tg = wa = ""
     try:
-        from app.core.models import Subscriber
-        row = s.query(Subscriber).filter_by(email=email).first()
+        from app.core.models import Member
+        row = s.query(Member).filter_by(email=email).first()
         if row: tg = getattr(row, "telegram", "") or ""; wa = getattr(row, "whatsapp", "") or ""
     finally:
         s.close()
@@ -1692,13 +1692,13 @@ async def alert_test(request: Request):
 @app.post("/api/auto-advertise")
 async def auto_advertise(request: Request):
     p = await request.json(); email = p.get("email", "")
-    from app.core.models import SubscriberProduct, Subscriber
+    from app.core.models import SubscriberProduct, Member
     from app.core.alerts import send_telegram, telegram_ok
     s = SessionLocal()
     try:
         rows = s.query(SubscriberProduct).filter_by(owner_email=email, status="active").all()
         caps = "\n".join([f"🛒 {r.name} — ${r.price}. Contact: {r.contact_method} {r.contact_value}" for r in rows]) or "No services yet"
-        row = s.query(Subscriber).filter_by(email=email).first()
+        row = s.query(Member).filter_by(email=email).first()
         plan = getattr(row, "plan", "Free") if row else "Free"
         tg_id = getattr(row, "telegram", "") if row else ""
         tg = (plan == "Pro") and telegram_ok() and tg_id and send_telegram(tg_id, "📢 RevenueForge Marketplace:\n" + caps)
@@ -1739,9 +1739,9 @@ async def paystack_verify(ref: str = "", email: str = ""):
         if ok:
             s = SessionLocal()
             try:
-                from app.core.models import Subscriber
+                from app.core.models import Member
                 em = email or d.get("data", {}).get("customer", {}).get("email", "")
-                row = s.query(Subscriber).filter_by(email=em).first()
+                row = s.query(Member).filter_by(email=em).first()
                 if row: row.plan = "Pro"; s.commit()
             finally:
                 s.close()
@@ -1785,10 +1785,10 @@ async def _sub_info(email, request):
         out.update({"plan": "Pro", "paid": True, "trial_active": True, "active": True, "locked": False, "limits": {"matches": 999, "can_sell": True, "alerts": True}})
         return out
     try:
-        from app.core.models import Subscriber
+        from app.core.models import Member
         s = SessionLocal()
         try:
-            row = s.query(Subscriber).filter_by(email=email).first()
+            row = s.query(Member).filter_by(email=email).first()
             if not row: return out
             try:
                 if not getattr(row, "trial_expires", ""):
@@ -1799,8 +1799,8 @@ async def _sub_info(email, request):
                     ip = request.client.host if request.client else ""
                     if ip and not getattr(row, "ip", ""):
                         row.ip = ip; s.commit()
-                    if ip and s.query(Subscriber).filter_by(ip=ip).count() > 1:
-                        for r2 in s.query(Subscriber).filter_by(ip=ip).all(): r2.flagged = "1"
+                    if ip and s.query(Member).filter_by(ip=ip).count() > 1:
+                        for r2 in s.query(Member).filter_by(ip=ip).all(): r2.flagged = "1"
                         s.commit()
                 except Exception: s.rollback()
             plan = getattr(row, "plan", "Free") or "Free"
@@ -1842,12 +1842,12 @@ async def my_add_product(request: Request):
 @app.post("/api/redeem")
 async def redeem(request: Request):
     p = await request.json(); email = p.get("email", ""); code = (p.get("code") or "").strip().upper()
-    from app.core.models import Subscriber, UpgradeCode
+    from app.core.models import Member, UpgradeCode
     s = SessionLocal()
     try:
         rowc = s.query(UpgradeCode).filter_by(code=code, used="").first()
         if not rowc: return {"ok": False, "error": "Invalid or already used code"}
-        row = s.query(Subscriber).filter_by(email=email).first()
+        row = s.query(Member).filter_by(email=email).first()
         if not row: return {"ok": False, "error": "Account not found"}
         row.plan = rowc.plan; rowc.used = email; s.commit()
         return {"ok": True, "plan": rowc.plan}
@@ -1869,10 +1869,10 @@ async def owner_codes(request: Request):
 
 @app.get("/api/owner/flagged")
 async def owner_flagged():
-    from app.core.models import Subscriber
+    from app.core.models import Member
     s = SessionLocal()
     try:
-        return {"ok": True, "accounts": [{"email": r.email, "ip": getattr(r, "ip", ""), "plan": getattr(r, "plan", "Free")} for r in s.query(Subscriber).filter_by(flagged="1").all()]}
+        return {"ok": True, "accounts": [{"email": r.email, "ip": getattr(r, "ip", ""), "plan": getattr(r, "plan", "Free")} for r in s.query(Member).filter_by(flagged="1").all()]}
     finally:
         s.close()
 
@@ -1926,10 +1926,10 @@ async def paystack_verify(request: Request):
         else:
             amt = (d["data"].get("amount", 0) or 0) / 100.0
             plan = "Pro" if amt < 4000 else "Growth"
-        from app.core.models import Subscriber
+        from app.core.models import Member
         s = SessionLocal()
         try:
-            row = s.query(Subscriber).filter_by(email=email).first()
+            row = s.query(Member).filter_by(email=email).first()
             if row: row.plan = plan; s.commit()
         finally:
             s.close()
@@ -1981,8 +1981,8 @@ def _rf_migrate():
     try:
         from sqlalchemy import inspect, text
         from app.core.db import engine
-        from app.core.models import Subscriber
-        tn = Subscriber.__tablename__
+        from app.core.models import Member
+        tn = Member.__tablename__
         insp = inspect(engine)
         if insp.has_table(tn):
             cols = [x["name"] for x in insp.get_columns(tn)]
