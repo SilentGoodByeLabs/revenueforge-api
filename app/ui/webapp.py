@@ -2025,14 +2025,49 @@ async def api_search_hiring(q: str = "", limit: int = 25, email: str = "", targe
     if not sub["active"]:
         return {"ok": False, "error": "trial_expired", "query": q, "count": 0, "results": []}
     pool = search_hiring(q, max(limit * 4, 24))
+
+    SYNONYMS = {
+        "cleaning": ["cleaner", "clean", "housekeeping", "housekeeper", "janitor", "janitorial", "maid", "deep clean", "move-out clean", "office clean"],
+        "cleaner": ["cleaning", "clean", "housekeeping", "janitor", "maid"],
+        "design": ["designer", "graphic design", "ui design", "ux design", "branding", "logo", "flyer"],
+        "designer": ["design", "graphic design", "ui", "ux", "branding", "logo"],
+        "writing": ["writer", "copywriting", "copywriter", "content writing", "blog", "editing", "proofreading"],
+        "writer": ["writing", "copywriting", "content", "blog", "editing"],
+        "development": ["developer", "programming", "coding", "software", "web development", "python", "javascript"],
+        "developer": ["development", "programming", "coding", "software", "python", "javascript", "web"],
+        "marketing": ["marketer", "seo", "social media", "ads", "growth", "email marketing"],
+        "video": ["video editing", "editor", "motion graphics", "premiere", "after effects"],
+        "data": ["data entry", "data analysis", "excel", "spreadsheets", "analytics"],
+        "virtual assistant": ["va", "admin support", "data entry", "email management", "scheduling"],
+        "translation": ["translator", "interpreting", "localization"],
+        "tutoring": ["tutor", "teaching", "lessons", "coaching"],
+        "accounting": ["accountant", "bookkeeping", "bookkeeper", "finance", "quickbooks"],
+        "photo": ["photography", "photographer", "photo editing"],
+    }
+    FREE = ["freelance", "freelancer", "contract", "contractor", "gig", "part-time", "remote", "project", "temporary", "consultant"]
+
+    def expand(qq):
+        out = set()
+        for w in _re.split(r"[,\s/]+", (qq or "").lower()):
+            if len(w) <= 2: continue
+            out.add(w)
+            for k, v in SYNONYMS.items():
+                if w in k or k in w: out.update(v)
+            if w.endswith("ing"): out.add(w[:-3] + "er"); out.add(w[:-3])
+            if w.endswith("er"): out.add(w[:-2] + "ing")
+        return out
+
     def root(w): return w[:5] if len(w) >= 5 else w
-    ws = [root(w) for w in _re.split(r"[,\s/]+", (q or "").lower()) if len(w) > 2]
+    ws = [root(w) for w in expand(q)]
     tw = [root(w) for w in _re.split(r"[,\s/]+", (target or "").lower()) if len(w) > 2]
     def txt(r): return (r.get("title", "") + " " + r.get("description", "")).lower()
     if ws:
         pool = [r for r in pool if any(w in txt(r) for w in ws)]
-    if tw:
-        pool.sort(key=lambda r: (any(w in txt(r) for w in tw), r.get("score", 0)), reverse=True)
+    def rank(r):
+        t = txt(r)
+        return (any(w in t for w in tw), any(f in t for f in FREE), r.get("score", 0))
+    pool.sort(key=rank, reverse=True)
+
     seen = set(); ded = []
     for r in pool:
         if r["url"] not in seen:
@@ -2044,6 +2079,7 @@ async def api_search_hiring(q: str = "", limit: int = 25, email: str = "", targe
         off = n % len(ded); ded = ded[off:] + ded[:off]
     ded = ded[:5] if not sub["paid"] else ded[:limit]
     return {"ok": True, "query": q, "count": len(ded), "results": ded, "plan": sub["plan"]}
+
 
 @app.get("/api/search-hiring")
 async def api_search_hiring(q: str = "", limit: int = 25, email: str = "", target: str = ""):
