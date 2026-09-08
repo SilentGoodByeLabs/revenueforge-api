@@ -2113,46 +2113,6 @@ async def home_results(request: Request, token: str = ""):
 
 
 
-@app.get("/api/generate-proposal")
-async def generate_proposal(job_title: str, email: str = ""):
-    try:
-        from app.core.models import Subscriber
-        s = SessionLocal()
-        try:
-            row = s.query(Subscriber).filter_by(email=email).first()
-            skills = getattr(row, "skills", None) if row else None
-            skills = skills or "professional services"
-            proposal = (
-                "Dear Hiring Manager,
-
-"
-                "I am writing regarding the position: " + job_title + ".
-
-"
-                "With my experience in " + skills + ", I can deliver fast, quality results.
-
-"
-                "I offer:
-"
-                "- Clear communication and regular updates
-"
-                "- On-time delivery with revisions until you are satisfied
-"
-                "- Competitive pricing
-
-"
-                "I would love to discuss your project. Reply here or contact me at " + email + ".
-
-"
-                "Best regards,
-" + email
-            )
-            return {"ok": True, "proposal": proposal}
-        finally:
-            s.close()
-    except Exception as e:
-        return {"ok": False, "error": str(e)}
-
 @app.get("/api/telegram/bot-info")
 async def telegram_bot_info():
     import os
@@ -2225,3 +2185,35 @@ async def owner_support():
         return {"ok": True, "tickets": [{"email": r.email, "message": r.message, "created": r.created} for r in s.query(SupportTicket).order_by(SupportTicket.id.desc()).limit(50).all()]}
     finally:
         s.close()
+
+
+@app.get("/api/generate-proposal")
+async def generate_proposal(job_title: str, email: str = ""):
+    try:
+        from app.core.models import Subscriber
+        s = SessionLocal()
+        try:
+            row = s.query(Subscriber).filter_by(email=email).first()
+            skills = getattr(row, "skills", None) if row else None
+            skills = skills or "professional services"
+            parts = []
+            parts.append("Dear Hiring Manager,")
+            parts.append("")
+            parts.append("I am writing regarding the position: " + job_title + ".")
+            parts.append("")
+            parts.append("With my experience in " + skills + ", I can deliver fast, quality results.")
+            parts.append("")
+            parts.append("I offer:")
+            parts.append("- Clear communication and regular updates")
+            parts.append("- On-time delivery with revisions until you are satisfied")
+            parts.append("- Competitive pricing")
+            parts.append("")
+            parts.append("I would love to discuss your project. Reply here or contact me at " + email + ".")
+            parts.append("")
+            parts.append("Best regards,")
+            parts.append(email)
+            return {"ok": True, "proposal": "\n".join(parts)}
+        finally:
+            s.close()
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
