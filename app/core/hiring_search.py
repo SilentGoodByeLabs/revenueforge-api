@@ -1,5 +1,32 @@
 import json, re, time, urllib.parse
-import requests
+import re
+
+def _smart_match(text, query_words):
+    """Returns score: higher = better match. 0 = no match."""
+    if not query_words:
+        return 5  # No query = accept all
+    
+    text_lower = text.lower()
+    title_score = 0
+    desc_score = 0
+    
+    for w in query_words:
+        if w in text_lower[:100]:  # Title area (first 100 chars)
+            title_score += 10
+        elif w in text_lower:  # Description
+            desc_score += 1
+    
+    total = title_score + desc_score
+    if total == 0:
+        return 0  # No match
+    
+    # Require at least title match OR multiple desc matches
+    if title_score == 0 and desc_score < 2:
+        return 0  # Too weak
+    
+    return min(total, 20)
+
+quests
 from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
 import warnings
 warnings.filterwarnings('ignore', category=XMLParsedAsHTMLWarning)
