@@ -1,46 +1,6 @@
-import json, re, time, urllib.parse
-import re
 import time
-import random
-
-HEADERS_POOL = [
-    {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36", "Accept-Language": "en-US,en;q=0.9", "Accept": "text/html,application/xhtml+xml"},
-    {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15", "Accept-Language": "en-US,en;q=0.9", "Accept": "text/html,application/xhtml+xml"},
-    {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0", "Accept-Language": "en-US,en;q=0.9", "Accept": "text/html,application/xhtml+xml"},
-    {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36", "Accept-Language": "en-US,en;q=0.9", "Accept": "text/html,application/xhtml+xml"},
-]
-
-def get_headers():
-    time.sleep(random.uniform(0.4, 1.2))  # Human-like delay
-    return random.choice(HEADERS_POOL)
-
-
-def _smart_match(text, query_words):
-    """Returns score: higher = better match. 0 = no match."""
-    if not query_words:
-        return 5  # No query = accept all
-    
-    text_lower = text.lower()
-    title_score = 0
-    desc_score = 0
-    
-    for w in query_words:
-        if w in text_lower[:100]:  # Title area (first 100 chars)
-            title_score += 10
-        elif w in text_lower:  # Description
-            desc_score += 1
-    
-    total = title_score + desc_score
-    if total == 0:
-        return 0  # No match
-    
-    # Require at least title match OR multiple desc matches
-    if title_score == 0 and desc_score < 2:
-        return 0  # Too weak
-    
-    return min(total, 20)
-
-quests
+import json, re, time, urllib.parse
+import requests
 from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
 import warnings
 warnings.filterwarnings('ignore', category=XMLParsedAsHTMLWarning)
@@ -48,6 +8,18 @@ warnings.filterwarnings('ignore', category=XMLParsedAsHTMLWarning)
 HIRING_RE = re.compile(r"(hiring|looking for|need|seeking|wanted|help needed|job opening|position available|vacancy)", re.I)
 BAD_RE = re.compile(r"(for hire|available for work|seeking work|hire me|my resume|i am a|freelancer available)", re.I)
 UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+
+HEADERS_POOL = [
+    {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36", "Accept-Language": "en-US,en;q=0.9", "Accept": "text/html,application/xhtml+xml"},
+    {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/17.2 Safari/605.1.15", "Accept-Language": "en-US,en;q=0.9", "Accept": "text/html,application/xhtml+xml"},
+    {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0", "Accept-Language": "en-US,en;q=0.9", "Accept": "text/html,application/xhtml+xml"},
+    {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/119.0.0.0 Safari/537.36", "Accept-Language": "en-US,en;q=0.9", "Accept": "text/html,application/xhtml+xml"},
+]
+
+def get_headers():
+    time.sleep(_random.uniform(0.4, 1.2))
+    return _random.choice(HEADERS_POOL)
+
 
 def search_remotive(query="", limit=10):
     out = []
